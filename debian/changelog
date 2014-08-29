@@ -1,0 +1,78 @@
+gr-osmosdr (0.1.2-1) unstable; urgency=low
+
+  * New upstream release, update to v0.1.2-2-g8604d76
+  * Include airspy support
+  * pkg-gr-osmosdr git for Debian packaging (Closes: #759268)
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Thu, 28 Aug 2014 14:37:08 -0400
+
+gr-osmosdr (0.1.1.4.ac95af2-1) unstable; urgency=low
+
+  * Update to v0.1.1-4-gac95af2
+    reverting 66109099 rtl: implement methods allowing runtime to control
+    sampling process
+  * Build with gnuradio 3.7.3 (Closes: #743392)
+  * Osmocom MiriSDR support
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sat, 19 Apr 2014 19:22:49 -0400
+
+gr-osmosdr (0.1.0.55.80c4af-2~bpo70~1) wheezy-backports; urgency=low
+
+  * Rebuild for wheezy-backports.
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Tue, 11 Feb 2014 16:57:11 -0500
+
+gr-osmosdr (0.1.0.55.80c4af-2) unstable; urgency=low
+
+  * ship grc blocks
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Fri, 03 Jan 2014 00:32:28 -0500
+
+gr-osmosdr (0.1.0.55.80c4af-1) unstable; urgency=low
+
+  * New upstream commit, build with gnuradio 3.7.2.1
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Tue, 31 Dec 2013 00:09:54 -0500
+
+gr-osmosdr (0.1.0.11.04b4c8-3) unstable; urgency=low
+
+  * Fix up dependencies for current unstable build
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Thu, 12 Dec 2013 12:05:35 -0500
+
+gr-osmosdr (0.1.0.11.04b4c8-2) unstable; urgency=low
+
+  * drop bladerf dependency
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sat, 23 Nov 2013 11:25:21 -0500
+
+gr-osmosdr (0.1.0.11.04b4c8-1) unstable; urgency=low
+
+  * New upstream snapshot (Closes: #726469)
+  * Match GNU Radio live distribution version
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Tue, 08 Oct 2013 17:30:31 -0400
+
+gr-osmosdr (0.1git59ceddb-1) unstable; urgency=low
+
+  * New upstream release, build with gnuradio 3.6.4.1-0wheezy1
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Wed, 01 May 2013 17:19:35 -0400
+
+gr-osmosdr (0.1gitd11b7a-1) unstable; urgency=low
+
+  * New upstream git, build with gnuradio 3.6.3
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Wed, 13 Feb 2013 15:56:33 -0500
+
+gr-osmosdr (0.1git0f25dae-1) unstable; urgency=low
+
+  * New upstream git, build with gnuradio 3.6.2
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sun, 16 Sep 2012 20:47:39 -0400
+
+gr-osmosdr (0.0git7f796fe-1) unstable; urgency=low
+
+  * New upstream git, build with gnuradio 3.6.0
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Mon, 14 May 2012 20:28:18 -0400

@@ -1,0 +1,75 @@
+--- a/lib/rtl/rtl_source_c.cc
++++ b/lib/rtl/rtl_source_c.cc
+@@ -84,7 +84,7 @@
+         gr::io_signature::make(MIN_OUT, MAX_OUT, sizeof (gr_complex))),
+     _dev(NULL),
+     _buf(NULL),
+-    _running(false),
++    _running(true),
+     _no_tuner(false),
+     _auto_gain(false),
+     _if_gain(0),
+@@ -236,6 +236,8 @@
+     for(unsigned int i = 0; i < _buf_num; ++i)
+       _buf[i] = (unsigned short *) malloc(_buf_len);
+   }
++
++  _thread = gr::thread::thread(_rtlsdr_wait, this);
+ }
+ 
+ /*
+@@ -244,13 +246,9 @@
+ rtl_source_c::~rtl_source_c ()
+ {
+   if (_dev) {
+-    if (_running)
+-    {
+-      _running = false;
+-      rtlsdr_cancel_async( _dev );
+-      _thread.join();
+-    }
+-
++    _running = false;
++    rtlsdr_cancel_async( _dev );
++    _thread.join();
+     rtlsdr_close( _dev );
+     _dev = NULL;
+   }
+@@ -266,24 +264,6 @@
+   }
+ }
+ 
+-bool rtl_source_c::start()
+-{
+-  _running = true;
+-  _thread = gr::thread::thread(_rtlsdr_wait, this);
+-
+-  return true;
+-}
+-
+-bool rtl_source_c::stop()
+-{
+-  _running = false;
+-  if (_dev)
+-    rtlsdr_cancel_async( _dev );
+-  _thread.join();
+-
+-  return true;
+-}
+-
+ void rtl_source_c::_rtlsdr_callback(unsigned char *buf, uint32_t len, void *ctx)
+ {
+   rtl_source_c *obj = (rtl_source_c *)ctx;
+--- a/lib/rtl/rtl_source_c.h
++++ b/lib/rtl/rtl_source_c.h
+@@ -112,10 +112,6 @@
+   std::string set_antenna( const std::string & antenna, size_t chan = 0 );
+   std::string get_antenna( size_t chan = 0 );
+ 
+-protected:
+-  bool start();
+-  bool stop();
+-
+ private:
+   static void _rtlsdr_callback(unsigned char *buf, uint32_t len, void *ctx);
+   void rtlsdr_callback(unsigned char *buf, uint32_t len);

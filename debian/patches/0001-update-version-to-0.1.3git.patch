@@ -1,0 +1,27 @@
+From a3ee4db0e7e061ac70f207b9a5faeebf835453e1 Mon Sep 17 00:00:00 2001
+From: Dimitri Stolnikov <horiz0n@gmx.net>
+Date: Tue, 26 Aug 2014 21:55:51 +0200
+Subject: [PATCH 1/2] update version to 0.1.3git
+
+---
+ CMakeLists.txt |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9df1484..b5dbc07 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -36,8 +36,8 @@ set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "")
+ # Set the version information here
+ set(VERSION_INFO_MAJOR_VERSION 0)
+ set(VERSION_INFO_API_COMPAT    1)
+-set(VERSION_INFO_MINOR_VERSION 2)
+-set(VERSION_INFO_MAINT_VERSION 0)
++set(VERSION_INFO_MINOR_VERSION 3)
++set(VERSION_INFO_MAINT_VERSION git)
+ include(GrVersion) #setup version info
+ 
+ ########################################################################
+-- 
+1.7.10.4
+
