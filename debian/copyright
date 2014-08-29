@@ -5,7 +5,6 @@ Source:
  git clone git://git.osmocom.org/gr-osmosdr
  The upstream package source tarball was generated from the tag:
  git archive --format=tar --prefix=gr-osmosdr-0.1.2/  v0.1.2 | xz > ../../gr-osmosdr_0.1.2.orig.tar.xz
-
 Comment:
  Debian packages by A. Maitland Bottoms <bottoms@debian.org>,
  .
