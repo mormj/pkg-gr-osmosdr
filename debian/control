@@ -2,7 +2,7 @@ Source: gr-osmosdr
 Section: libdevel
 Priority: optional
 Maintainer: A. Maitland Bottoms <bottoms@debian.org>
-Build-Depends: debhelper (>= 9.0.0~), python-dev, cmake, gnuradio-dev (>=3.7.4),
+Build-Depends: debhelper (>= 9.0.0~), python-dev, cmake, gnuradio-dev (>=3.7.5),
  libboost-dev, libboost-system-dev, libboost-thread-dev, swig, pkg-config,
  gr-fcdproplus [!hurd-i386],
  gr-iqbal, libairspy-dev [!hurd-i386],
@@ -46,7 +46,7 @@ Description: Gnuradio blocks from the OsmoSDR project
  software api in your application(s) independent of the underlying
  radio hardware.
 
-Package: libgnuradio-osmosdr0.1.2
+Package: libgnuradio-osmosdr0.1.3
 Section: libs
 Architecture: any
 Pre-Depends: multiarch-support, ${misc:Pre-Depends}
