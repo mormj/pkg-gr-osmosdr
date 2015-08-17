@@ -1,0 +1,107 @@
+From 594391982845b4ac0e4e48bbb91b4b85552f2af6 Mon Sep 17 00:00:00 2001
+From: Dimitri Stolnikov <horiz0n@gmx.net>
+Date: Wed, 27 May 2015 23:55:00 +0200
+Subject: [PATCH 30/48] hackrf: introduce bias=0|1 and bias_tx=0|1 parameters
+
+... to support antenna/phantom power via a new device argument "bias"
+(to match Airspy's existing bias power syntax). 0=disable and 1=enable.
+I also added a device argument to control bias power at transmit time. I
+named this option differently - "bias_tx" - to avoid accidentally
+enabling bias power in transmit mode when an LNA may be attached in an
+input amplifier configuration.
+
+Original patch provided by Brad Hein
+---
+ grc/gen_osmosdr_blocks.py     |  2 +-
+ lib/hackrf/hackrf_sink_c.cc   | 18 ++++++++++++++++++
+ lib/hackrf/hackrf_source_c.cc | 18 ++++++++++++++++++
+ 3 files changed, 37 insertions(+), 1 deletion(-)
+
+diff --git a/grc/gen_osmosdr_blocks.py b/grc/gen_osmosdr_blocks.py
+index ecf7dcc..174c591 100644
+--- a/grc/gen_osmosdr_blocks.py
++++ b/grc/gen_osmosdr_blocks.py
+@@ -253,7 +253,7 @@ Lines ending with ... mean it's possible to bind devices together by specifying
+   sdr-iq=/dev/ttyUSB0
+   airspy=0[,bias=0|1]
+ #end if
+-  hackrf=0[,buffers=32]
++  hackrf=0[,buffers=32][,bias=0|1][,bias_tx=0|1]
+   bladerf=0[,fpga='/path/to/the/bitstream.rbf']
+   uhd[,serial=...][,lo_offset=0][,mcr=52e6][,nchan=2][,subdev='\\\\'B:0 A:0\\\\''] ...
+ 
+diff --git a/lib/hackrf/hackrf_sink_c.cc b/lib/hackrf/hackrf_sink_c.cc
+index 00f9768..60ef5ce 100644
+--- a/lib/hackrf/hackrf_sink_c.cc
++++ b/lib/hackrf/hackrf_sink_c.cc
+@@ -56,6 +56,10 @@ using namespace boost::assign;
+ 
+ #define BYTES_PER_SAMPLE  2 /* HackRF device consumes 8 bit unsigned IQ data */
+ 
++#define HACKRF_FORMAT_ERROR(ret) \
++  boost::str( boost::format("(%d) %s") \
++    % ret % hackrf_error_name((enum hackrf_error)ret) ) \
++
+ #define HACKRF_THROW_ON_ERROR(ret, msg) \
+   if ( ret != HACKRF_SUCCESS )  \
+   throw std::runtime_error( boost::str( boost::format(msg " (%d) %s") \
+@@ -218,6 +222,20 @@ hackrf_sink_c::hackrf_sink_c (const std::string &args)
+ 
+   set_if_gain( 16 ); /* preset to a reasonable default (non-GRC use case) */
+ 
++  // Check device args to find out if bias/phantom power is desired.
++  if ( dict.count("bias_tx") ) {
++    bool bias = boost::lexical_cast<bool>( dict["bias_tx"] );
++    ret = hackrf_set_antenna_enable(_dev, static_cast<uint8_t>(bias));
++    if ( ret != HACKRF_SUCCESS )
++    {
++      std::cerr << "Failed to apply antenna bias voltage state: " << bias << " " << HACKRF_FORMAT_ERROR(ret) << std::endl;
++    }
++    else
++    {
++      std::cerr << (bias ? "Enabled" : "Disabled") << " antenna bias voltage" << std::endl;
++    }
++  }
++
+   _buf = (char *) malloc( BUF_LEN );
+ 
+   cb_init( &_cbuf, _buf_num, BUF_LEN );
+diff --git a/lib/hackrf/hackrf_source_c.cc b/lib/hackrf/hackrf_source_c.cc
+index e3b3ea4..c845840 100644
+--- a/lib/hackrf/hackrf_source_c.cc
++++ b/lib/hackrf/hackrf_source_c.cc
+@@ -49,6 +49,10 @@ using namespace boost::assign;
+ 
+ #define BYTES_PER_SAMPLE  2 /* HackRF device produces 8 bit unsigned IQ data */
+ 
++#define HACKRF_FORMAT_ERROR(ret) \
++  boost::str( boost::format("(%d) %s") \
++    % ret % hackrf_error_name((enum hackrf_error)ret) ) \
++
+ #define HACKRF_THROW_ON_ERROR(ret, msg) \
+   if ( ret != HACKRF_SUCCESS )  \
+   throw std::runtime_error( boost::str( boost::format(msg " (%d) %s") \
+@@ -174,6 +178,20 @@ hackrf_source_c::hackrf_source_c (const std::string &args)
+ 
+   set_bb_gain( 20 ); /* preset to a reasonable default (non-GRC use case) */
+ 
++  // Check device args to find out if bias/phantom power is desired.
++  if ( dict.count("bias") ) {
++    bool bias = boost::lexical_cast<bool>( dict["bias"] );
++    ret = hackrf_set_antenna_enable(_dev, static_cast<uint8_t>(bias));
++    if ( ret != HACKRF_SUCCESS )
++    {
++      std::cerr << "Failed to apply antenna bias voltage state: " << bias << " " << HACKRF_FORMAT_ERROR(ret) << std::endl;
++    }
++    else
++    {
++      std::cerr << (bias ? "Enabled" : "Disabled") << " antenna bias voltage" << std::endl;
++    }
++  }
++
+   _buf = (unsigned short **) malloc(_buf_num * sizeof(unsigned short *));
+ 
+   if (_buf) {
+-- 
+2.1.4
+

@@ -1,0 +1,43 @@
+From 485b02e6152d8abb6d61c9b16fe53c8a253ca4dd Mon Sep 17 00:00:00 2001
+From: Heikki Hannikainen <hessu@hes.iki.fi>
+Date: Tue, 24 Feb 2015 12:38:42 +0200
+Subject: [PATCH 38/48] hackrf device enumeration: Use only 6 characters of
+ serial (should be unique per user?) and append it in device name
+
+Signed-off-by: Heikki Hannikainen <hessu@hes.iki.fi>
+---
+ lib/hackrf/hackrf_source_c.cc | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/lib/hackrf/hackrf_source_c.cc b/lib/hackrf/hackrf_source_c.cc
+index f064c8b..e9e6891 100644
+--- a/lib/hackrf/hackrf_source_c.cc
++++ b/lib/hackrf/hackrf_source_c.cc
+@@ -382,18 +382,19 @@ std::vector<std::string> hackrf_source_c::get_devices()
+   hackrf_device_list_t *list = hackrf_device_list();
+   
+   for (unsigned int i = 0; i < list->devicecount; i++) {
++    label = "HackRF ";
++    label += hackrf_usb_board_id_name( list->usb_board_ids[i] );
++    
+     std::string args;
+     if (list->serial_numbers[i]) {
+       std::string serial = boost::lexical_cast< std::string >( list->serial_numbers[i] );
+-      if (serial.length() > 16)
+-        serial = serial.substr(serial.length() - 16, 16);
++      if (serial.length() > 6)
++        serial = serial.substr(serial.length() - 6, 6);
+       args = "hackrf=" + serial;
++      label += " " + serial;
+     } else
+       args = "hackrf"; /* will pick the first one, serial number is required for choosing a specific one */
+ 
+-    label = "HackRF ";
+-    label += hackrf_usb_board_id_name( list->usb_board_ids[i] );
+-
+     boost::algorithm::trim(label);
+ 
+     args += ",label='" + label + "'";
+-- 
+2.1.4
+

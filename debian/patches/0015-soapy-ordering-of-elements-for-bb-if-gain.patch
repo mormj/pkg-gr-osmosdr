@@ -1,0 +1,61 @@
+From 53ed8918f396508133374e7ddc1beae9c8e67c6a Mon Sep 17 00:00:00 2001
+From: Josh Blum <josh@joshknows.com>
+Date: Tue, 17 Feb 2015 19:57:27 -0800
+Subject: [PATCH 15/48] soapy: ordering of elements for bb/if gain
+
+---
+ lib/soapy/soapy_sink_c.cc   | 8 ++++----
+ lib/soapy/soapy_source_c.cc | 8 ++++----
+ 2 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/lib/soapy/soapy_sink_c.cc b/lib/soapy/soapy_sink_c.cc
+index 9c9b0db..076aa56 100644
+--- a/lib/soapy/soapy_sink_c.cc
++++ b/lib/soapy/soapy_sink_c.cc
+@@ -233,15 +233,15 @@ double soapy_sink_c::get_gain( const std::string & name, size_t chan)
+ 
+ double soapy_sink_c::set_if_gain( double gain, size_t chan)
+ {
+-    //assumes if gain is the last one listed
+-    const std::string name = this->get_gain_names(chan).back();
++    //docs specify RF gain is the first element
++    const std::string name = this->get_gain_names(chan).front();
+     return this->set_gain(gain, name, chan);
+ }
+ 
+ double soapy_sink_c::set_bb_gain( double gain, size_t chan)
+ {
+-    //assumes bb gain is the first one listed
+-    const std::string name = this->get_gain_names(chan).front();
++    //docs specify baseband gain is the last element
++    const std::string name = this->get_gain_names(chan).back();
+     return this->set_gain(gain, name, chan);
+ }
+ 
+diff --git a/lib/soapy/soapy_source_c.cc b/lib/soapy/soapy_source_c.cc
+index 08ef3ab..05c7a05 100644
+--- a/lib/soapy/soapy_source_c.cc
++++ b/lib/soapy/soapy_source_c.cc
+@@ -230,15 +230,15 @@ double soapy_source_c::get_gain( const std::string & name, size_t chan )
+ 
+ double soapy_source_c::set_if_gain( double gain, size_t chan )
+ {
+-    //assumes if gain is the last one listed
+-    const std::string name = this->get_gain_names(chan).back();
++    //docs specify RF gain is the first element
++    const std::string name = this->get_gain_names(chan).front();
+     return this->set_gain(gain, name, chan);
+ }
+ 
+ double soapy_source_c::set_bb_gain( double gain, size_t chan )
+ {
+-    //assumes bb gain is the first one listed
+-    const std::string name = this->get_gain_names(chan).front();
++    //docs specify baseband gain is the last element
++    const std::string name = this->get_gain_names(chan).back();
+     return this->set_gain(gain, name, chan);
+ }
+ 
+-- 
+2.1.4
+

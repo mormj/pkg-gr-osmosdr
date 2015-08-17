@@ -1,0 +1,1609 @@
+From aa4094b3fd103a5b7fbcd3b8a0e225cfe70a6c6f Mon Sep 17 00:00:00 2001
+From: Dimitri Stolnikov <horiz0n@gmx.net>
+Date: Sat, 3 May 2014 22:25:23 +0200
+Subject: [PATCH 04/48] introduce time & clock synchronisation APIs
+
+---
+ grc/gen_osmosdr_blocks.py      |  97 +++++++++++++++++++++++-
+ include/osmosdr/CMakeLists.txt |   1 +
+ include/osmosdr/ranges.h       |   6 ++
+ include/osmosdr/sink.h         |  98 +++++++++++++++++++++++++
+ include/osmosdr/source.h       |  98 +++++++++++++++++++++++++
+ include/osmosdr/time_spec.h    | 141 +++++++++++++++++++++++++++++++++++
+ lib/CMakeLists.txt             |  62 ++++++++++++++++
+ lib/sink_iface.h               | 110 +++++++++++++++++++++++++++
+ lib/sink_impl.cc               | 101 ++++++++++++++++++++++++-
+ lib/sink_impl.h                |  14 ++++
+ lib/source_iface.h             | 110 +++++++++++++++++++++++++++
+ lib/source_impl.cc             | 101 ++++++++++++++++++++++++-
+ lib/source_impl.h              |  14 ++++
+ lib/time_spec.cc               | 163 +++++++++++++++++++++++++++++++++++++++++
+ lib/uhd/uhd_sink_c.cc          |  67 +++++++++++++++++
+ lib/uhd/uhd_sink_c.h           |  14 ++++
+ lib/uhd/uhd_source_c.cc        |  67 +++++++++++++++++
+ lib/uhd/uhd_source_c.h         |  14 ++++
+ swig/osmosdr_swig.i            |  27 +++++++
+ 19 files changed, 1302 insertions(+), 3 deletions(-)
+ create mode 100644 include/osmosdr/time_spec.h
+ create mode 100644 lib/time_spec.cc
+
+diff --git a/grc/gen_osmosdr_blocks.py b/grc/gen_osmosdr_blocks.py
+index a10c871..07d9d79 100644
+--- a/grc/gen_osmosdr_blocks.py
++++ b/grc/gen_osmosdr_blocks.py
+@@ -26,7 +26,24 @@ MAIN_TMPL = """\
+   <category>$($sourk.title())s</category>
+   <throttle>1</throttle>
+   <import>import osmosdr</import>
++  <import>import time</import>
+   <make>osmosdr.$(sourk)( args="numchan=" + str(\$nchan) + " " + \$args )
++#for $m in range($max_mboards)
++########################################################################
++\#if \$num_mboards() > $m and \$clock_source$(m)()
++self.\$(id).set_clock_source(\$clock_source$(m), $m)
++\#end if
++########################################################################
++\#if \$num_mboards() > $m and \$time_source$(m)()
++self.\$(id).set_time_source(\$time_source$(m), $m)
++\#end if
++########################################################################
++#end for
++\#if \$sync() == 'sync'
++self.\$(id).set_time_unknown_pps(osmosdr.time_spec_t())
++\#elif \$sync() == 'pc_clock'
++self.\$(id).set_time_now(osmosdr.time_spec_t(time.time()), osmosdr.ALL_MBOARDS)
++\#end if
+ self.\$(id).set_sample_rate(\$sample_rate)
+ #for $n in range($max_nchan)
+ \#if \$nchan() > $n
+@@ -84,6 +101,79 @@ self.\$(id).set_bandwidth(\$bw$(n), $n)
+     </hide>
+   </param>
+   <param>
++    <name>Sync</name>
++    <key>sync</key>
++    <value></value>
++    <type>enum</type>
++    <hide>\#if \$sync() then 'none' else 'part'#</hide>
++    <option>
++      <name>unknown PPS</name>
++      <key>sync</key>
++    </option>
++    <option>
++      <name>PC Clock</name>
++      <key>pc_clock</key>
++    </option>
++    <option>
++      <name>don't sync</name>
++      <key></key>
++    </option>
++  </param>
++  <param>
++    <name>Num Mboards</name>
++    <key>num_mboards</key>
++    <value>1</value>
++    <type>int</type>
++    <hide>part</hide>
++    #for $m in range(1, $max_mboards+1)
++    <option>
++      <name>$(m)</name>
++      <key>$m</key>
++    </option>
++    #end for
++  </param>
++  #for $m in range($max_mboards)
++  <param>
++    <name>Mb$(m): Clock Source</name>
++    <key>clock_source$(m)</key>
++    <value></value>
++    <type>string</type>
++    <hide>
++      \#if not \$num_mboards() > $m
++        all
++      \#elif \$clock_source$(m)()
++        none
++      \#else
++        part
++      \#end if
++    </hide>
++    <option><name>Default</name><key></key></option>
++    <option><name>Internal</name><key>internal</key></option>
++    <option><name>External</name><key>external</key></option>
++    <option><name>MIMO Cable</name><key>mimo</key></option>
++    <option><name>O/B GPSDO</name><key>gpsdo</key></option>
++  </param>
++  <param>
++    <name>Mb$(m): Time Source</name>
++    <key>time_source$(m)</key>
++    <value></value>
++    <type>string</type>
++    <hide>
++      \#if not \$num_mboards() > $m
++        all
++      \#elif \$time_source$(m)()
++        none
++      \#else
++        part
++      \#end if
++    </hide>
++    <option><name>Default</name><key></key></option>
++    <option><name>External</name><key>external</key></option>
++    <option><name>MIMO Cable</name><key>mimo</key></option>
++    <option><name>O/B GPSDO</name><key>gpsdo</key></option>
++  </param>
++  #end for
++  <param>
+     <name>Num Channels</name>
+     <key>nchan</key>
+     <value>1</value>
+@@ -104,6 +194,9 @@ self.\$(id).set_bandwidth(\$bw$(n), $n)
+   $params
+   <check>$max_nchan >= \$nchan</check>
+   <check>\$nchan > 0</check>
++  <check>$max_mboards >= \$num_mboards</check>
++  <check>\$num_mboards > 0</check>
++  <check>\$nchan >= \$num_mboards</check>
+   <$sourk>
+     <name>$dir</name>
+     <type>\$type.type</type>
+@@ -351,7 +444,8 @@ def parse_tmpl(_tmpl, **kwargs):
+   from Cheetah import Template
+   return str(Template.Template(_tmpl, kwargs))
+ 
+-max_num_channels = 5
++max_num_mboards = 8
++max_num_channels = max_num_mboards*4
+ 
+ import os.path
+ 
+@@ -379,6 +473,7 @@ if __name__ == '__main__':
+     params = ''.join([parse_tmpl(PARAMS_TMPL, n=n, sourk=sourk) for n in range(max_num_channels)])
+     open(file, 'w').write(parse_tmpl(MAIN_TMPL,
+       max_nchan=max_num_channels,
++      max_mboards=max_num_mboards,
+       params=params,
+       title=title,
+       prefix=prefix,
+diff --git a/include/osmosdr/CMakeLists.txt b/include/osmosdr/CMakeLists.txt
+index ecdf792..d185ee6 100644
+--- a/include/osmosdr/CMakeLists.txt
++++ b/include/osmosdr/CMakeLists.txt
+@@ -24,6 +24,7 @@ install(FILES
+     api.h
+     pimpl.h
+     ranges.h
++    time_spec.h
+     device.h
+     source.h
+     sink.h
+diff --git a/include/osmosdr/ranges.h b/include/osmosdr/ranges.h
+index ccb2dbc..77d5026 100644
+--- a/include/osmosdr/ranges.h
++++ b/include/osmosdr/ranges.h
+@@ -25,6 +25,12 @@
+ 
+ namespace osmosdr{
+ 
++    //! A wildcard motherboard index
++    static const size_t ALL_MBOARDS = size_t(~0);
++
++    //! A wildcard channel index
++    static const size_t ALL_CHANS = size_t(~0);
++
+     /*!
+      * A range object describes a set of discrete values of the form:
+      * y = start + step*n, where n is an integer between 0 and (stop - start)/step
+diff --git a/include/osmosdr/sink.h b/include/osmosdr/sink.h
+index 10c9038..906976e 100644
+--- a/include/osmosdr/sink.h
++++ b/include/osmosdr/sink.h
+@@ -22,6 +22,7 @@
+ 
+ #include <osmosdr/api.h>
+ #include <osmosdr/ranges.h>
++#include <osmosdr/time_spec.h>
+ #include <gnuradio/hier_block2.h>
+ 
+ namespace osmosdr {
+@@ -273,6 +274,103 @@ public:
+    * \return a range of bandwidths in Hz
+    */
+   virtual osmosdr::freq_range_t get_bandwidth_range( size_t chan = 0 ) = 0;
++
++  /*!
++   * Set the time source for the device.
++   * This sets the method of time synchronization,
++   * typically a pulse per second or an encoded time.
++   * Typical options for source: external, MIMO.
++   * \param source a string representing the time source
++   * \param mboard which motherboard to set the config
++   */
++  virtual void set_time_source(const std::string &source,
++                               const size_t mboard = 0) = 0;
++
++  /*!
++   * Get the currently set time source.
++   * \param mboard which motherboard to get the config
++   * \return the string representing the time source
++   */
++  virtual std::string get_time_source(const size_t mboard) = 0;
++
++  /*!
++   * Get a list of possible time sources.
++   * \param mboard which motherboard to get the list
++   * \return a vector of strings for possible settings
++   */
++  virtual std::vector<std::string> get_time_sources(const size_t mboard) = 0;
++
++  /*!
++   * Set the clock source for the device.
++   * This sets the source for a 10 Mhz reference clock.
++   * Typical options for source: internal, external, MIMO.
++   * \param source a string representing the clock source
++   * \param mboard which motherboard to set the config
++   */
++  virtual void set_clock_source(const std::string &source,
++                                const size_t mboard = 0) = 0;
++
++  /*!
++   * Get the currently set clock source.
++   * \param mboard which motherboard to get the config
++   * \return the string representing the clock source
++   */
++  virtual std::string get_clock_source(const size_t mboard) = 0;
++
++  /*!
++   * Get a list of possible clock sources.
++   * \param mboard which motherboard to get the list
++   * \return a vector of strings for possible settings
++   */
++  virtual std::vector<std::string> get_clock_sources(const size_t mboard) = 0;
++
++  /*!
++   * Get the master clock rate.
++   * \param mboard the motherboard index 0 to M-1
++   * \return the clock rate in Hz
++   */
++  virtual double get_clock_rate(size_t mboard = 0) = 0;
++
++  /*!
++   * Set the master clock rate.
++   * \param rate the new rate in Hz
++   * \param mboard the motherboard index 0 to M-1
++   */
++  virtual void set_clock_rate(double rate, size_t mboard = 0) = 0;
++
++  /*!
++   * Get the current time registers.
++   * \param mboard the motherboard index 0 to M-1
++   * \return the current device time
++   */
++  virtual ::osmosdr::time_spec_t get_time_now(size_t mboard = 0) = 0;
++
++  /*!
++   * Get the time when the last pps pulse occured.
++   * \param mboard the motherboard index 0 to M-1
++   * \return the current device time
++   */
++  virtual ::osmosdr::time_spec_t get_time_last_pps(size_t mboard = 0) = 0;
++
++  /*!
++   * Sets the time registers immediately.
++   * \param time_spec the new time
++   * \param mboard the motherboard index 0 to M-1
++   */
++  virtual void set_time_now(const ::osmosdr::time_spec_t &time_spec,
++                            size_t mboard = 0) = 0;
++
++  /*!
++   * Set the time registers at the next pps.
++   * \param time_spec the new time
++   */
++  virtual void set_time_next_pps(const ::osmosdr::time_spec_t &time_spec) = 0;
++
++  /*!
++   * Sync the time registers with an unknown pps edge.
++   * \param time_spec the new time
++   */
++  virtual void set_time_unknown_pps(const ::osmosdr::time_spec_t &time_spec) = 0;
+ };
+ 
+ } /* namespace osmosdr */
+diff --git a/include/osmosdr/source.h b/include/osmosdr/source.h
+index 2bd3213..88f8385 100644
+--- a/include/osmosdr/source.h
++++ b/include/osmosdr/source.h
+@@ -22,6 +22,7 @@
+ 
+ #include <osmosdr/api.h>
+ #include <osmosdr/ranges.h>
++#include <osmosdr/time_spec.h>
+ #include <gnuradio/hier_block2.h>
+ 
+ namespace osmosdr {
+@@ -317,6 +318,103 @@ public:
+    * \return a range of bandwidths in Hz
+    */
+   virtual osmosdr::freq_range_t get_bandwidth_range( size_t chan = 0 ) = 0;
++
++  /*!
++   * Set the time source for the device.
++   * This sets the method of time synchronization,
++   * typically a pulse per second or an encoded time.
++   * Typical options for source: external, MIMO.
++   * \param source a string representing the time source
++   * \param mboard which motherboard to set the config
++   */
++  virtual void set_time_source(const std::string &source,
++                               const size_t mboard = 0) = 0;
++
++  /*!
++   * Get the currently set time source.
++   * \param mboard which motherboard to get the config
++   * \return the string representing the time source
++   */
++  virtual std::string get_time_source(const size_t mboard) = 0;
++
++  /*!
++   * Get a list of possible time sources.
++   * \param mboard which motherboard to get the list
++   * \return a vector of strings for possible settings
++   */
++  virtual std::vector<std::string> get_time_sources(const size_t mboard) = 0;
++
++  /*!
++   * Set the clock source for the device.
++   * This sets the source for a 10 Mhz reference clock.
++   * Typical options for source: internal, external, MIMO.
++   * \param source a string representing the clock source
++   * \param mboard which motherboard to set the config
++   */
++  virtual void set_clock_source(const std::string &source,
++                                const size_t mboard = 0) = 0;
++
++  /*!
++   * Get the currently set clock source.
++   * \param mboard which motherboard to get the config
++   * \return the string representing the clock source
++   */
++  virtual std::string get_clock_source(const size_t mboard) = 0;
++
++  /*!
++   * Get a list of possible clock sources.
++   * \param mboard which motherboard to get the list
++   * \return a vector of strings for possible settings
++   */
++  virtual std::vector<std::string> get_clock_sources(const size_t mboard) = 0;
++
++  /*!
++   * Get the master clock rate.
++   * \param mboard the motherboard index 0 to M-1
++   * \return the clock rate in Hz
++   */
++  virtual double get_clock_rate(size_t mboard = 0) = 0;
++
++  /*!
++   * Set the master clock rate.
++   * \param rate the new rate in Hz
++   * \param mboard the motherboard index 0 to M-1
++   */
++  virtual void set_clock_rate(double rate, size_t mboard = 0) = 0;
++
++  /*!
++   * Get the current time registers.
++   * \param mboard the motherboard index 0 to M-1
++   * \return the current device time
++   */
++  virtual ::osmosdr::time_spec_t get_time_now(size_t mboard = 0) = 0;
++
++  /*!
++   * Get the time when the last pps pulse occured.
++   * \param mboard the motherboard index 0 to M-1
++   * \return the current device time
++   */
++  virtual ::osmosdr::time_spec_t get_time_last_pps(size_t mboard = 0) = 0;
++
++  /*!
++   * Sets the time registers immediately.
++   * \param time_spec the new time
++   * \param mboard the motherboard index 0 to M-1
++   */
++  virtual void set_time_now(const ::osmosdr::time_spec_t &time_spec,
++                            size_t mboard = 0) = 0;
++
++  /*!
++   * Set the time registers at the next pps.
++   * \param time_spec the new time
++   */
++  virtual void set_time_next_pps(const ::osmosdr::time_spec_t &time_spec) = 0;
++
++  /*!
++   * Sync the time registers with an unknown pps edge.
++   * \param time_spec the new time
++   */
++  virtual void set_time_unknown_pps(const ::osmosdr::time_spec_t &time_spec) = 0;
+ };
+ 
+ } /* namespace osmosdr */
+diff --git a/include/osmosdr/time_spec.h b/include/osmosdr/time_spec.h
+new file mode 100644
+index 0000000..13fbfd6
+--- /dev/null
++++ b/include/osmosdr/time_spec.h
+@@ -0,0 +1,141 @@
++//
++// Copyright 2010-2012 Ettus Research LLC
++//
++// This program is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License as published by
++// the Free Software Foundation, either version 3 of the License, or
++// (at your option) any later version.
++//
++// This program is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with this program.  If not, see <http://www.gnu.org/licenses/>.
++//
++
++#ifndef INCLUDED_OSMOSDR_TIME_SPEC_H
++#define INCLUDED_OSMOSDR_TIME_SPEC_H
++
++#include <osmosdr/api.h>
++#include <boost/operators.hpp>
++#include <ctime>
++
++namespace osmosdr{
++
++    /*!
++     * A time_spec_t holds a seconds and a fractional seconds time value.
++     * Depending upon usage, the time_spec_t can represent absolute times,
++     * relative times, or time differences (between absolute times).
++     *
++     * The time_spec_t provides clock-domain independent time storage,
++     * but can convert fractional seconds to/from clock-domain specific units.
++     *
++     * The fractional seconds are stored as double precision floating point.
++     * This gives the fractional seconds enough precision to unambiguously
++     * specify a clock-tick/sample-count up to rates of several petahertz.
++     */
++    class OSMOSDR_API time_spec_t : boost::additive<time_spec_t>, boost::totally_ordered<time_spec_t>{
++    public:
++
++        /*!
++         * Get the system time in time_spec_t format.
++         * Uses the highest precision clock available.
++         * \return the system time as a time_spec_t
++         */
++        static time_spec_t get_system_time(void);
++
++        /*!
++         * Create a time_spec_t from a real-valued seconds count.
++         * \param secs the real-valued seconds count (default = 0)
++         */
++        time_spec_t(double secs = 0);
++
++        /*!
++         * Create a time_spec_t from whole and fractional seconds.
++         * \param full_secs the whole/integer seconds count
++         * \param frac_secs the fractional seconds count (default = 0)
++         */
++        time_spec_t(time_t full_secs, double frac_secs = 0);
++
++        /*!
++         * Create a time_spec_t from whole seconds and fractional ticks.
++         * Translation from clock-domain specific units.
++         * \param full_secs the whole/integer seconds count
++         * \param tick_count the fractional seconds tick count
++         * \param tick_rate the number of ticks per second
++         */
++        time_spec_t(time_t full_secs, long tick_count, double tick_rate);
++
++        /*!
++         * Create a time_spec_t from a 64-bit tick count.
++         * Translation from clock-domain specific units.
++         * \param ticks an integer count of ticks
++         * \param tick_rate the number of ticks per second
++         */
++        static time_spec_t from_ticks(long long ticks, double tick_rate);
++
++        /*!
++         * Convert the fractional seconds to clock ticks.
++         * Translation into clock-domain specific units.
++         * \param tick_rate the number of ticks per second
++         * \return the fractional seconds tick count
++         */
++        long get_tick_count(double tick_rate) const;
++
++        /*!
++         * Convert the time spec into a 64-bit tick count.
++         * Translation into clock-domain specific units.
++         * \param tick_rate the number of ticks per second
++         * \return an integer number of ticks
++         */
++        long long to_ticks(const double tick_rate) const;
++
++        /*!
++         * Get the time as a real-valued seconds count.
++         * Note: If this time_spec_t represents an absolute time,
++         * the precision of the fractional seconds may be lost.
++         * \return the real-valued seconds
++         */
++        double get_real_secs(void) const;
++
++        /*!
++         * Get the whole/integer part of the time in seconds.
++         * \return the whole/integer seconds
++         */
++        time_t get_full_secs(void) const;
++
++        /*!
++         * Get the fractional part of the time in seconds.
++         * \return the fractional seconds
++         */
++        double get_frac_secs(void) const;
++
++        //! Implement addable interface
++        time_spec_t &operator+=(const time_spec_t &);
++
++        //! Implement subtractable interface
++        time_spec_t &operator-=(const time_spec_t &);
++
++    //private time storage details
++    private: time_t _full_secs; double _frac_secs;
++    };
++
++    //! Implement equality_comparable interface
++    OSMOSDR_API bool operator==(const time_spec_t &, const time_spec_t &);
++
++    //! Implement less_than_comparable interface
++    OSMOSDR_API bool operator<(const time_spec_t &, const time_spec_t &);
++
++    inline time_t time_spec_t::get_full_secs(void) const{
++        return this->_full_secs;
++    }
++
++    inline double time_spec_t::get_frac_secs(void) const{
++        return this->_frac_secs;
++    }
++
++} //namespace osmosdr
++
++#endif /* INCLUDED_OSMOSDR_TIME_SPEC_H */
+diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
+index 00906f3..cd06ca8 100644
+--- a/lib/CMakeLists.txt
++++ b/lib/CMakeLists.txt
+@@ -40,6 +40,7 @@ GR_OSMOSDR_APPEND_SRCS(
+     sink_impl.cc
+     ranges.cc
+     device.cc
++    time_spec.cc
+ )
+ 
+ GR_OSMOSDR_APPEND_LIBS(
+@@ -48,6 +49,67 @@ GR_OSMOSDR_APPEND_LIBS(
+ )
+ 
+ ########################################################################
++# Setup defines for high resolution timing
++########################################################################
++MESSAGE(STATUS "")
++MESSAGE(STATUS "Configuring high resolution timing...")
++INCLUDE(CheckCXXSourceCompiles)
++
++SET(CMAKE_REQUIRED_LIBRARIES -lrt)
++CHECK_CXX_SOURCE_COMPILES("
++    #include <ctime>
++    int main(){
++        timespec ts;
++        return clock_gettime(CLOCK_MONOTONIC, &ts);
++    }
++    " HAVE_CLOCK_GETTIME
++)
++UNSET(CMAKE_REQUIRED_LIBRARIES)
++
++INCLUDE(CheckCXXSourceCompiles)
++CHECK_CXX_SOURCE_COMPILES("
++    #include <mach/mach_time.h>
++    int main(){
++        mach_timebase_info_data_t info;
++        mach_timebase_info(&info);
++        mach_absolute_time();
++        return 0;
++    }
++    " HAVE_MACH_ABSOLUTE_TIME
++)
++
++CHECK_CXX_SOURCE_COMPILES("
++    #include <Windows.h>
++    int main(){
++        LARGE_INTEGER value;
++        QueryPerformanceCounter(&value);
++        QueryPerformanceFrequency(&value);
++        return 0;
++    }
++    " HAVE_QUERY_PERFORMANCE_COUNTER
++)
++
++IF(HAVE_CLOCK_GETTIME)
++    MESSAGE(STATUS "  High resolution timing supported through clock_gettime.")
++    SET(TIME_SPEC_DEFS HAVE_CLOCK_GETTIME)
++    GR_OSMOSDR_APPEND_LIBS("-lrt")
++ELSEIF(HAVE_MACH_ABSOLUTE_TIME)
++    MESSAGE(STATUS "  High resolution timing supported through mach_absolute_time.")
++    SET(TIME_SPEC_DEFS HAVE_MACH_ABSOLUTE_TIME)
++ELSEIF(HAVE_QUERY_PERFORMANCE_COUNTER)
++    MESSAGE(STATUS "  High resolution timing supported through QueryPerformanceCounter.")
++    SET(TIME_SPEC_DEFS HAVE_QUERY_PERFORMANCE_COUNTER)
++ELSE()
++    MESSAGE(STATUS "  High resolution timing supported through microsec_clock.")
++    SET(TIME_SPEC_DEFS HAVE_MICROSEC_CLOCK)
++ENDIF()
++
++SET_SOURCE_FILES_PROPERTIES(
++    time_spec.cc
++    PROPERTIES COMPILE_DEFINITIONS "${TIME_SPEC_DEFS}"
++)
++
++########################################################################
+ # Setup IQBalance component
+ ########################################################################
+ GR_REGISTER_COMPONENT("Osmocom IQ Imbalance Correction" ENABLE_IQBALANCE GNURADIO_IQBALANCE_FOUND)
+diff --git a/lib/sink_iface.h b/lib/sink_iface.h
+index 49eea7b..39aabc7 100644
+--- a/lib/sink_iface.h
++++ b/lib/sink_iface.h
+@@ -22,6 +22,7 @@
+ #define OSMOSDR_SINK_IFACE_H
+ 
+ #include <osmosdr/ranges.h>
++#include <osmosdr/time_spec.h>
+ #include <gnuradio/basic_block.h>
+ 
+ /*!
+@@ -253,6 +254,115 @@ public:
+    */
+   virtual osmosdr::freq_range_t get_bandwidth_range( size_t chan = 0 )
+     { return osmosdr::freq_range_t(); }
++
++  /*!
++   * Set the time source for the device.
++   * This sets the method of time synchronization,
++   * typically a pulse per second or an encoded time.
++   * Typical options for source: external, MIMO.
++   * \param source a string representing the time source
++   * \param mboard which motherboard to set the config
++   */
++  virtual void set_time_source(const std::string &source,
++                               const size_t mboard = 0) { }
++
++  /*!
++   * Get the currently set time source.
++   * \param mboard which motherboard to get the config
++   * \return the string representing the time source
++   */
++  virtual std::string get_time_source(const size_t mboard) { return ""; }
++
++  /*!
++   * Get a list of possible time sources.
++   * \param mboard which motherboard to get the list
++   * \return a vector of strings for possible settings
++   */
++  virtual std::vector<std::string> get_time_sources(const size_t mboard)
++  {
++    return std::vector<std::string>();
++  }
++
++  /*!
++   * Set the clock source for the device.
++   * This sets the source for a 10 Mhz reference clock.
++   * Typical options for source: internal, external, MIMO.
++   * \param source a string representing the clock source
++   * \param mboard which motherboard to set the config
++   */
++  virtual void set_clock_source(const std::string &source,
++                                const size_t mboard = 0) { }
++
++  /*!
++   * Get the currently set clock source.
++   * \param mboard which motherboard to get the config
++   * \return the string representing the clock source
++   */
++  virtual std::string get_clock_source(const size_t mboard) { return ""; }
++
++  /*!
++   * Get a list of possible clock sources.
++   * \param mboard which motherboard to get the list
++   * \return a vector of strings for possible settings
++   */
++  virtual std::vector<std::string> get_clock_sources(const size_t mboard)
++  {
++    return std::vector<std::string>();
++  }
++
++  /*!
++   * Get the master clock rate.
++   * \param mboard the motherboard index 0 to M-1
++   * \return the clock rate in Hz
++   */
++  virtual double get_clock_rate(size_t mboard = 0) { return 0; }
++
++  /*!
++   * Set the master clock rate.
++   * \param rate the new rate in Hz
++   * \param mboard the motherboard index 0 to M-1
++   */
++  virtual void set_clock_rate(double rate, size_t mboard = 0) { }
++
++  /*!
++   * Get the current time registers.
++   * \param mboard the motherboard index 0 to M-1
++   * \return the current device time
++   */
++  virtual ::osmosdr::time_spec_t get_time_now(size_t mboard = 0)
++  {
++    return ::osmosdr::time_spec_t::get_system_time();
++  }
++
++  /*!
++   * Get the time when the last pps pulse occured.
++   * \param mboard the motherboard index 0 to M-1
++   * \return the current device time
++   */
++  virtual ::osmosdr::time_spec_t get_time_last_pps(size_t mboard = 0)
++  {
++    return ::osmosdr::time_spec_t::get_system_time();
++  }
++
++  /*!
++   * Sets the time registers immediately.
++   * \param time_spec the new time
++   * \param mboard the motherboard index 0 to M-1
++   */
++  virtual void set_time_now(const ::osmosdr::time_spec_t &time_spec,
++                            size_t mboard = 0) { }
++
++  /*!
++   * Set the time registers at the next pps.
++   * \param time_spec the new time
++   */
++  virtual void set_time_next_pps(const ::osmosdr::time_spec_t &time_spec) { }
++
++  /*!
++   * Sync the time registers with an unknown pps edge.
++   * \param time_spec the new time
++   */
++  virtual void set_time_unknown_pps(const ::osmosdr::time_spec_t &time_spec) { }
+ };
+ 
+ #endif // OSMOSDR_SINK_IFACE_H
+diff --git a/lib/sink_impl.cc b/lib/sink_impl.cc
+index 6b8f1bd..e17e9dc 100644
+--- a/lib/sink_impl.cc
++++ b/lib/sink_impl.cc
+@@ -166,7 +166,7 @@ sink_impl::sink_impl( const std::string &args )
+         connect(self(), channel++, block, i);
+       }
+     } else if ( (iface != NULL) || (long(block.get()) != 0) )
+-      throw std::runtime_error("Eitner iface or block are NULL.");
++      throw std::runtime_error("Either iface or block are NULL.");
+ 
+   }
+ 
+@@ -551,3 +551,102 @@ osmosdr::freq_range_t sink_impl::get_bandwidth_range( size_t chan )
+ 
+   return osmosdr::freq_range_t();
+ }
++
++void sink_impl::set_time_source(const std::string &source, const size_t mboard)
++{
++  if (mboard != osmosdr::ALL_MBOARDS){
++      _devs.at(mboard)->set_time_source( source );
++      return;
++  }
++
++  for (size_t m = 0; m < _devs.size(); m++){ /* propagate ALL_MBOARDS */
++      _devs.at(m)->set_time_source( source, osmosdr::ALL_MBOARDS );
++  }
++}
++
++std::string sink_impl::get_time_source(const size_t mboard)
++{
++  return _devs.at(mboard)->get_time_source( mboard );
++}
++
++std::vector<std::string> sink_impl::get_time_sources(const size_t mboard)
++{
++  return _devs.at(mboard)->get_time_sources( mboard );
++}
++
++void sink_impl::set_clock_source(const std::string &source, const size_t mboard)
++{
++  if (mboard != osmosdr::ALL_MBOARDS){
++      _devs.at(mboard)->set_clock_source( source );
++      return;
++  }
++
++  for (size_t m = 0; m < _devs.size(); m++){ /* propagate ALL_MBOARDS */
++      _devs.at(m)->set_clock_source( source, osmosdr::ALL_MBOARDS );
++  }
++}
++
++std::string sink_impl::get_clock_source(const size_t mboard)
++{
++  return _devs.at(mboard)->get_clock_source( mboard );
++}
++
++std::vector<std::string> sink_impl::get_clock_sources(const size_t mboard)
++{
++  return _devs.at(mboard)->get_clock_sources( mboard );
++}
++
++double sink_impl::get_clock_rate(size_t mboard)
++{
++  return _devs.at(mboard)->get_clock_rate( mboard );
++}
++
++void sink_impl::set_clock_rate(double rate, size_t mboard)
++{
++  if (mboard != osmosdr::ALL_MBOARDS){
++      _devs.at(mboard)->set_clock_rate( rate );
++      return;
++  }
++
++  for (size_t m = 0; m < _devs.size(); m++){ /* propagate ALL_MBOARDS */
++      _devs.at(m)->set_clock_rate( rate, osmosdr::ALL_MBOARDS );
++  }
++}
++
++osmosdr::time_spec_t sink_impl::get_time_now(size_t mboard)
++{
++  return _devs.at(mboard)->get_time_now( mboard );
++}
++
++osmosdr::time_spec_t sink_impl::get_time_last_pps(size_t mboard)
++{
++  return _devs.at(mboard)->get_time_last_pps( mboard );
++}
++
++void sink_impl::set_time_now(const osmosdr::time_spec_t &time_spec, size_t mboard)
++{
++  if (mboard != osmosdr::ALL_MBOARDS){
++      _devs.at(mboard)->set_time_now( time_spec );
++      return;
++  }
++
++  for (size_t m = 0; m < _devs.size(); m++){ /* propagate ALL_MBOARDS */
++      _devs.at(m)->set_time_now( time_spec, osmosdr::ALL_MBOARDS );
++  }
++}
++
++void sink_impl::set_time_next_pps(const osmosdr::time_spec_t &time_spec)
++{
++  BOOST_FOREACH( sink_iface *dev, _devs )
++  {
++    dev->set_time_next_pps( time_spec );
++  }
++}
++
++void sink_impl::set_time_unknown_pps(const osmosdr::time_spec_t &time_spec)
++{
++  BOOST_FOREACH( sink_iface *dev, _devs )
++  {
++    dev->set_time_unknown_pps( time_spec );
++  }
++}
+diff --git a/lib/sink_impl.h b/lib/sink_impl.h
+index 3b95a19..1642669 100644
+--- a/lib/sink_impl.h
++++ b/lib/sink_impl.h
+@@ -68,6 +68,20 @@ public:
+   double get_bandwidth( size_t chan = 0 );
+   osmosdr::freq_range_t get_bandwidth_range( size_t chan = 0 );
+ 
++  void set_time_source(const std::string &source, const size_t mboard = 0);
++  std::string get_time_source(const size_t mboard);
++  std::vector<std::string> get_time_sources(const size_t mboard);
++  void set_clock_source(const std::string &source, const size_t mboard = 0);
++  std::string get_clock_source(const size_t mboard);
++  std::vector<std::string> get_clock_sources(const size_t mboard);
++  double get_clock_rate(size_t mboard = 0);
++  void set_clock_rate(double rate, size_t mboard = 0);
++  ::osmosdr::time_spec_t get_time_now(size_t mboard = 0);
++  ::osmosdr::time_spec_t get_time_last_pps(size_t mboard = 0);
++  void set_time_now(const ::osmosdr::time_spec_t &time_spec, size_t mboard = 0);
++  void set_time_next_pps(const ::osmosdr::time_spec_t &time_spec);
++  void set_time_unknown_pps(const ::osmosdr::time_spec_t &time_spec);
++
+ private:
+   std::vector< sink_iface * > _devs;
+ 
+diff --git a/lib/source_iface.h b/lib/source_iface.h
+index cc3f73b..abb70eb 100644
+--- a/lib/source_iface.h
++++ b/lib/source_iface.h
+@@ -22,6 +22,7 @@
+ #define OSMOSDR_SOURCE_IFACE_H
+ 
+ #include <osmosdr/ranges.h>
++#include <osmosdr/time_spec.h>
+ #include <gnuradio/basic_block.h>
+ 
+ /*!
+@@ -285,6 +286,115 @@ public:
+    */
+   virtual osmosdr::freq_range_t get_bandwidth_range( size_t chan = 0 )
+     { return osmosdr::freq_range_t(); }
++
++  /*!
++   * Set the time source for the device.
++   * This sets the method of time synchronization,
++   * typically a pulse per second or an encoded time.
++   * Typical options for source: external, MIMO.
++   * \param source a string representing the time source
++   * \param mboard which motherboard to set the config
++   */
++  virtual void set_time_source(const std::string &source,
++                               const size_t mboard = 0) { }
++
++  /*!
++   * Get the currently set time source.
++   * \param mboard which motherboard to get the config
++   * \return the string representing the time source
++   */
++  virtual std::string get_time_source(const size_t mboard) { return ""; }
++
++  /*!
++   * Get a list of possible time sources.
++   * \param mboard which motherboard to get the list
++   * \return a vector of strings for possible settings
++   */
++  virtual std::vector<std::string> get_time_sources(const size_t mboard)
++  {
++    return std::vector<std::string>();
++  }
++
++  /*!
++   * Set the clock source for the device.
++   * This sets the source for a 10 Mhz reference clock.
++   * Typical options for source: internal, external, MIMO.
++   * \param source a string representing the clock source
++   * \param mboard which motherboard to set the config
++   */
++  virtual void set_clock_source(const std::string &source,
++                                const size_t mboard = 0) { }
++
++  /*!
++   * Get the currently set clock source.
++   * \param mboard which motherboard to get the config
++   * \return the string representing the clock source
++   */
++  virtual std::string get_clock_source(const size_t mboard) { return ""; }
++
++  /*!
++   * Get a list of possible clock sources.
++   * \param mboard which motherboard to get the list
++   * \return a vector of strings for possible settings
++   */
++  virtual std::vector<std::string> get_clock_sources(const size_t mboard)
++  {
++    return std::vector<std::string>();
++  }
++
++  /*!
++   * Get the master clock rate.
++   * \param mboard the motherboard index 0 to M-1
++   * \return the clock rate in Hz
++   */
++  virtual double get_clock_rate(size_t mboard = 0) { return 0; }
++
++  /*!
++   * Set the master clock rate.
++   * \param rate the new rate in Hz
++   * \param mboard the motherboard index 0 to M-1
++   */
++  virtual void set_clock_rate(double rate, size_t mboard = 0) { }
++
++  /*!
++   * Get the current time registers.
++   * \param mboard the motherboard index 0 to M-1
++   * \return the current device time
++   */
++  virtual ::osmosdr::time_spec_t get_time_now(size_t mboard = 0)
++  {
++    return ::osmosdr::time_spec_t::get_system_time();
++  }
++
++  /*!
++   * Get the time when the last pps pulse occured.
++   * \param mboard the motherboard index 0 to M-1
++   * \return the current device time
++   */
++  virtual ::osmosdr::time_spec_t get_time_last_pps(size_t mboard = 0)
++  {
++    return ::osmosdr::time_spec_t::get_system_time();
++  }
++
++  /*!
++   * Sets the time registers immediately.
++   * \param time_spec the new time
++   * \param mboard the motherboard index 0 to M-1
++   */
++  virtual void set_time_now(const ::osmosdr::time_spec_t &time_spec,
++                            size_t mboard = 0) { }
++
++  /*!
++   * Set the time registers at the next pps.
++   * \param time_spec the new time
++   */
++  virtual void set_time_next_pps(const ::osmosdr::time_spec_t &time_spec) { }
++
++  /*!
++   * Sync the time registers with an unknown pps edge.
++   * \param time_spec the new time
++   */
++  virtual void set_time_unknown_pps(const ::osmosdr::time_spec_t &time_spec) { }
+ };
+ 
+ #endif // OSMOSDR_SOURCE_IFACE_H
+diff --git a/lib/source_impl.cc b/lib/source_impl.cc
+index 68a8423..e4c9be6 100644
+--- a/lib/source_impl.cc
++++ b/lib/source_impl.cc
+@@ -329,7 +329,7 @@ source_impl::source_impl( const std::string &args )
+ #endif
+       }
+     } else if ( (iface != NULL) || (long(block.get()) != 0) )
+-      throw std::runtime_error("Eitner iface or block are NULL.");
++      throw std::runtime_error("Either iface or block are NULL.");
+ 
+   }
+ 
+@@ -811,3 +811,102 @@ osmosdr::freq_range_t source_impl::get_bandwidth_range( size_t chan )
+ 
+   return osmosdr::freq_range_t();
+ }
++
++void source_impl::set_time_source(const std::string &source, const size_t mboard)
++{
++  if (mboard != osmosdr::ALL_MBOARDS){
++      _devs.at(mboard)->set_time_source( source );
++      return;
++  }
++
++  for (size_t m = 0; m < _devs.size(); m++){ /* propagate ALL_MBOARDS */
++      _devs.at(m)->set_time_source( source, osmosdr::ALL_MBOARDS );
++  }
++}
++
++std::string source_impl::get_time_source(const size_t mboard)
++{
++  return _devs.at(mboard)->get_time_source( mboard );
++}
++
++std::vector<std::string> source_impl::get_time_sources(const size_t mboard)
++{
++  return _devs.at(mboard)->get_time_sources( mboard );
++}
++
++void source_impl::set_clock_source(const std::string &source, const size_t mboard)
++{
++  if (mboard != osmosdr::ALL_MBOARDS){
++      _devs.at(mboard)->set_clock_source( source );
++      return;
++  }
++
++  for (size_t m = 0; m < _devs.size(); m++){ /* propagate ALL_MBOARDS */
++      _devs.at(m)->set_clock_source( source, osmosdr::ALL_MBOARDS );
++  }
++}
++
++std::string source_impl::get_clock_source(const size_t mboard)
++{
++  return _devs.at(mboard)->get_clock_source( mboard );
++}
++
++std::vector<std::string> source_impl::get_clock_sources(const size_t mboard)
++{
++  return _devs.at(mboard)->get_clock_sources( mboard );
++}
++
++double source_impl::get_clock_rate(size_t mboard)
++{
++  return _devs.at(mboard)->get_clock_rate( mboard );
++}
++
++void source_impl::set_clock_rate(double rate, size_t mboard)
++{
++  if (mboard != osmosdr::ALL_MBOARDS){
++      _devs.at(mboard)->set_clock_rate( rate );
++      return;
++  }
++
++  for (size_t m = 0; m < _devs.size(); m++){ /* propagate ALL_MBOARDS */
++      _devs.at(m)->set_clock_rate( rate, osmosdr::ALL_MBOARDS );
++  }
++}
++
++osmosdr::time_spec_t source_impl::get_time_now(size_t mboard)
++{
++  return _devs.at(mboard)->get_time_now( mboard );
++}
++
++osmosdr::time_spec_t source_impl::get_time_last_pps(size_t mboard)
++{
++  return _devs.at(mboard)->get_time_last_pps( mboard );
++}
++
++void source_impl::set_time_now(const osmosdr::time_spec_t &time_spec, size_t mboard)
++{
++  if (mboard != osmosdr::ALL_MBOARDS){
++      _devs.at(mboard)->set_time_now( time_spec );
++      return;
++  }
++
++  for (size_t m = 0; m < _devs.size(); m++){ /* propagate ALL_MBOARDS */
++      _devs.at(m)->set_time_now( time_spec, osmosdr::ALL_MBOARDS );
++  }
++}
++
++void source_impl::set_time_next_pps(const osmosdr::time_spec_t &time_spec)
++{
++  BOOST_FOREACH( source_iface *dev, _devs )
++  {
++    dev->set_time_next_pps( time_spec );
++  }
++}
++
++void source_impl::set_time_unknown_pps(const osmosdr::time_spec_t &time_spec)
++{
++  BOOST_FOREACH( source_iface *dev, _devs )
++  {
++    dev->set_time_unknown_pps( time_spec );
++  }
++}
+diff --git a/lib/source_impl.h b/lib/source_impl.h
+index aa81232..4b65125 100644
+--- a/lib/source_impl.h
++++ b/lib/source_impl.h
+@@ -77,6 +77,20 @@ public:
+   double get_bandwidth( size_t chan = 0 );
+   osmosdr::freq_range_t get_bandwidth_range( size_t chan = 0 );
+ 
++  void set_time_source(const std::string &source, const size_t mboard = 0);
++  std::string get_time_source(const size_t mboard);
++  std::vector<std::string> get_time_sources(const size_t mboard);
++  void set_clock_source(const std::string &source, const size_t mboard = 0);
++  std::string get_clock_source(const size_t mboard);
++  std::vector<std::string> get_clock_sources(const size_t mboard);
++  double get_clock_rate(size_t mboard = 0);
++  void set_clock_rate(double rate, size_t mboard = 0);
++  ::osmosdr::time_spec_t get_time_now(size_t mboard = 0);
++  ::osmosdr::time_spec_t get_time_last_pps(size_t mboard = 0);
++  void set_time_now(const ::osmosdr::time_spec_t &time_spec, size_t mboard = 0);
++  void set_time_next_pps(const ::osmosdr::time_spec_t &time_spec);
++  void set_time_unknown_pps(const ::osmosdr::time_spec_t &time_spec);
++
+ private:
+   std::vector< source_iface * > _devs;
+ 
+diff --git a/lib/time_spec.cc b/lib/time_spec.cc
+new file mode 100644
+index 0000000..5e1043f
+--- /dev/null
++++ b/lib/time_spec.cc
+@@ -0,0 +1,163 @@
++//
++// Copyright 2011-2013 Ettus Research LLC
++//
++// This program is free software: you can redistribute it and/or modify
++// it under the terms of the GNU General Public License as published by
++// the Free Software Foundation, either version 3 of the License, or
++// (at your option) any later version.
++//
++// This program is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with this program.  If not, see <http://www.gnu.org/licenses/>.
++//
++
++#include <osmosdr/time_spec.h>
++
++using namespace osmosdr;
++
++/***********************************************************************
++ * Time spec system time
++ **********************************************************************/
++
++#ifdef HAVE_CLOCK_GETTIME
++#include <time.h>
++time_spec_t time_spec_t::get_system_time(void){
++    timespec ts; clock_gettime(CLOCK_MONOTONIC, &ts);
++    return time_spec_t(ts.tv_sec, ts.tv_nsec, 1e9);
++}
++#endif /* HAVE_CLOCK_GETTIME */
++
++
++#ifdef HAVE_MACH_ABSOLUTE_TIME
++#include <mach/mach_time.h>
++time_spec_t time_spec_t::get_system_time(void){
++    mach_timebase_info_data_t info; mach_timebase_info(&info);
++    intmax_t nanosecs = mach_absolute_time()*info.numer/info.denom;
++    return time_spec_t::from_ticks(nanosecs, 1e9);
++}
++#endif /* HAVE_MACH_ABSOLUTE_TIME */
++
++
++#ifdef HAVE_QUERY_PERFORMANCE_COUNTER
++#include <Windows.h>
++time_spec_t time_spec_t::get_system_time(void){
++    LARGE_INTEGER counts, freq;
++    QueryPerformanceCounter(&counts);
++    QueryPerformanceFrequency(&freq);
++    return time_spec_t::from_ticks(counts.QuadPart, double(freq.QuadPart));
++}
++#endif /* HAVE_QUERY_PERFORMANCE_COUNTER */
++
++
++#ifdef HAVE_MICROSEC_CLOCK
++#include <boost/date_time/posix_time/posix_time.hpp>
++namespace pt = boost::posix_time;
++time_spec_t time_spec_t::get_system_time(void){
++    pt::ptime time_now = pt::microsec_clock::universal_time();
++    pt::time_duration time_dur = time_now - pt::from_time_t(0);
++    return time_spec_t(
++        time_t(time_dur.total_seconds()),
++        long(time_dur.fractional_seconds()),
++        double(pt::time_duration::ticks_per_second())
++    );
++}
++#endif /* HAVE_MICROSEC_CLOCK */
++
++/***********************************************************************
++ * Time spec constructors
++ **********************************************************************/
++#define time_spec_init(full, frac) { \
++    const time_t _full = time_t(full); \
++    const double _frac = double(frac); \
++    const int _frac_int = int(_frac); \
++    _full_secs = _full + _frac_int; \
++    _frac_secs = _frac - _frac_int; \
++    if (_frac_secs < 0) {\
++        _full_secs -= 1; \
++        _frac_secs += 1; \
++    } \
++}
++
++inline long long fast_llround(const double x){
++    return (long long)(x + 0.5); // assumption of non-negativity
++}
++
++time_spec_t::time_spec_t(double secs){
++    time_spec_init(0, secs);
++}
++
++time_spec_t::time_spec_t(time_t full_secs, double frac_secs){
++    time_spec_init(full_secs, frac_secs);
++}
++
++time_spec_t::time_spec_t(time_t full_secs, long tick_count, double tick_rate){
++    const double frac_secs = tick_count/tick_rate;
++    time_spec_init(full_secs, frac_secs);
++}
++
++time_spec_t time_spec_t::from_ticks(long long ticks, double tick_rate){
++    const long long rate_i = (long long)(tick_rate);
++    const double rate_f = tick_rate - rate_i;
++    const time_t secs_full = time_t(ticks/rate_i);
++    const long long ticks_error = ticks - (secs_full*rate_i);
++    const double ticks_frac = ticks_error - secs_full*rate_f;
++    return time_spec_t(secs_full, ticks_frac/tick_rate);
++}
++
++/***********************************************************************
++ * Time spec accessors
++ **********************************************************************/
++long time_spec_t::get_tick_count(double tick_rate) const{
++    return long(fast_llround(this->get_frac_secs()*tick_rate));
++}
++
++long long time_spec_t::to_ticks(double tick_rate) const{
++    const long long rate_i = (long long)(tick_rate);
++    const double rate_f = tick_rate - rate_i;
++    const long long ticks_full = this->get_full_secs()*rate_i;
++    const double ticks_error = this->get_full_secs()*rate_f;
++    const double ticks_frac = this->get_frac_secs()*tick_rate;
++    return ticks_full + fast_llround(ticks_error + ticks_frac);
++}
++
++double time_spec_t::get_real_secs(void) const{
++    return this->get_full_secs() + this->get_frac_secs();
++}
++
++/***********************************************************************
++ * Time spec math overloads
++ **********************************************************************/
++time_spec_t &time_spec_t::operator+=(const time_spec_t &rhs){
++    time_spec_init(
++        this->get_full_secs() + rhs.get_full_secs(),
++        this->get_frac_secs() + rhs.get_frac_secs()
++    );
++    return *this;
++}
++
++time_spec_t &time_spec_t::operator-=(const time_spec_t &rhs){
++    time_spec_init(
++        this->get_full_secs() - rhs.get_full_secs(),
++        this->get_frac_secs() - rhs.get_frac_secs()
++    );
++    return *this;
++}
++
++bool osmosdr::operator==(const time_spec_t &lhs, const time_spec_t &rhs){
++    return
++        lhs.get_full_secs() == rhs.get_full_secs() and
++        lhs.get_frac_secs() == rhs.get_frac_secs()
++    ;
++}
++
++bool osmosdr::operator<(const time_spec_t &lhs, const time_spec_t &rhs){
++    return (
++        (lhs.get_full_secs() < rhs.get_full_secs()) or (
++        (lhs.get_full_secs() == rhs.get_full_secs()) and
++        (lhs.get_frac_secs() < rhs.get_frac_secs())
++    ));
++}
+diff --git a/lib/uhd/uhd_sink_c.cc b/lib/uhd/uhd_sink_c.cc
+index f09f437..a154556 100644
+--- a/lib/uhd/uhd_sink_c.cc
++++ b/lib/uhd/uhd_sink_c.cc
+@@ -356,3 +356,70 @@ osmosdr::freq_range_t uhd_sink_c::get_bandwidth_range( size_t chan )
+ 
+   return bandwidths;
+ }
++
++void uhd_sink_c::set_time_source(const std::string &source, const size_t mboard)
++{
++  _snk->set_time_source( source, mboard );
++}
++
++std::string uhd_sink_c::get_time_source(const size_t mboard)
++{
++  return _snk->get_time_source( mboard );
++}
++
++std::vector<std::string> uhd_sink_c::get_time_sources(const size_t mboard)
++{
++  return _snk->get_time_sources( mboard );
++}
++
++void uhd_sink_c::set_clock_source(const std::string &source, const size_t mboard)
++{
++  _snk->set_clock_source( source,  mboard );
++}
++
++std::string uhd_sink_c::get_clock_source(const size_t mboard)
++{
++  return _snk->get_clock_source( mboard );
++}
++
++std::vector<std::string> uhd_sink_c::get_clock_sources(const size_t mboard)
++{
++  return _snk->get_clock_sources( mboard );
++}
++
++double uhd_sink_c::get_clock_rate(size_t mboard)
++{
++  return _snk->get_clock_rate( mboard );
++}
++
++void uhd_sink_c::set_clock_rate(double rate, size_t mboard)
++{
++  _snk->set_clock_rate( rate, mboard );
++}
++
++osmosdr::time_spec_t uhd_sink_c::get_time_now(size_t mboard)
++{
++  uhd::time_spec_t ts = _snk->get_time_now( mboard );
++  return osmosdr::time_spec_t( ts.get_full_secs(), ts.get_frac_secs() );
++}
++
++osmosdr::time_spec_t uhd_sink_c::get_time_last_pps(size_t mboard)
++{
++  uhd::time_spec_t ts = _snk->get_time_last_pps( mboard );
++  return osmosdr::time_spec_t( ts.get_full_secs(), ts.get_frac_secs() );
++}
++
++void uhd_sink_c::set_time_now(const osmosdr::time_spec_t &time_spec, size_t mboard)
++{
++  _snk->set_time_now( uhd::time_spec_t( time_spec.get_full_secs(), time_spec.get_frac_secs() ), mboard );
++}
++
++void uhd_sink_c::set_time_next_pps(const osmosdr::time_spec_t &time_spec)
++{
++  _snk->set_time_next_pps( uhd::time_spec_t( time_spec.get_full_secs(), time_spec.get_frac_secs() ) );
++}
++
++void uhd_sink_c::set_time_unknown_pps(const osmosdr::time_spec_t &time_spec)
++{
++  _snk->set_time_unknown_pps( uhd::time_spec_t( time_spec.get_full_secs(), time_spec.get_frac_secs() ) );
++}
+diff --git a/lib/uhd/uhd_sink_c.h b/lib/uhd/uhd_sink_c.h
+index 0462186..700fe4a 100644
+--- a/lib/uhd/uhd_sink_c.h
++++ b/lib/uhd/uhd_sink_c.h
+@@ -79,6 +79,20 @@ public:
+   double get_bandwidth( size_t chan = 0 );
+   osmosdr::freq_range_t get_bandwidth_range( size_t chan = 0 );
+ 
++  void set_time_source(const std::string &source, const size_t mboard = 0);
++  std::string get_time_source(const size_t mboard);
++  std::vector<std::string> get_time_sources(const size_t mboard);
++  void set_clock_source(const std::string &source, const size_t mboard = 0);
++  std::string get_clock_source(const size_t mboard);
++  std::vector<std::string> get_clock_sources(const size_t mboard);
++  double get_clock_rate(size_t mboard = 0);
++  void set_clock_rate(double rate, size_t mboard = 0);
++  ::osmosdr::time_spec_t get_time_now(size_t mboard = 0);
++  ::osmosdr::time_spec_t get_time_last_pps(size_t mboard = 0);
++  void set_time_now(const ::osmosdr::time_spec_t &time_spec, size_t mboard = 0);
++  void set_time_next_pps(const ::osmosdr::time_spec_t &time_spec);
++  void set_time_unknown_pps(const ::osmosdr::time_spec_t &time_spec);
++
+ private:
+   double _center_freq;
+   double _freq_corr;
+diff --git a/lib/uhd/uhd_source_c.cc b/lib/uhd/uhd_source_c.cc
+index f800b0d..fc13017 100644
+--- a/lib/uhd/uhd_source_c.cc
++++ b/lib/uhd/uhd_source_c.cc
+@@ -388,3 +388,70 @@ osmosdr::freq_range_t uhd_source_c::get_bandwidth_range( size_t chan )
+ 
+   return bandwidths;
+ }
++
++void uhd_source_c::set_time_source(const std::string &source, const size_t mboard)
++{
++  _src->set_time_source( source, mboard );
++}
++
++std::string uhd_source_c::get_time_source(const size_t mboard)
++{
++  return _src->get_time_source( mboard );
++}
++
++std::vector<std::string> uhd_source_c::get_time_sources(const size_t mboard)
++{
++  return _src->get_time_sources( mboard );
++}
++
++void uhd_source_c::set_clock_source(const std::string &source, const size_t mboard)
++{
++  _src->set_clock_source( source,  mboard );
++}
++
++std::string uhd_source_c::get_clock_source(const size_t mboard)
++{
++  return _src->get_clock_source( mboard );
++}
++
++std::vector<std::string> uhd_source_c::get_clock_sources(const size_t mboard)
++{
++  return _src->get_clock_sources( mboard );
++}
++
++double uhd_source_c::get_clock_rate(size_t mboard)
++{
++  return _src->get_clock_rate( mboard );
++}
++
++void uhd_source_c::set_clock_rate(double rate, size_t mboard)
++{
++  _src->set_clock_rate( rate, mboard );
++}
++
++osmosdr::time_spec_t uhd_source_c::get_time_now(size_t mboard)
++{
++  uhd::time_spec_t ts = _src->get_time_now( mboard );
++  return osmosdr::time_spec_t( ts.get_full_secs(), ts.get_frac_secs() );
++}
++
++osmosdr::time_spec_t uhd_source_c::get_time_last_pps(size_t mboard)
++{
++  uhd::time_spec_t ts = _src->get_time_last_pps( mboard );
++  return osmosdr::time_spec_t( ts.get_full_secs(), ts.get_frac_secs() );
++}
++
++void uhd_source_c::set_time_now(const osmosdr::time_spec_t &time_spec, size_t mboard)
++{
++  _src->set_time_now( uhd::time_spec_t( time_spec.get_full_secs(), time_spec.get_frac_secs() ), mboard );
++}
++
++void uhd_source_c::set_time_next_pps(const osmosdr::time_spec_t &time_spec)
++{
++  _src->set_time_next_pps( uhd::time_spec_t( time_spec.get_full_secs(), time_spec.get_frac_secs() ) );
++}
++
++void uhd_source_c::set_time_unknown_pps(const osmosdr::time_spec_t &time_spec)
++{
++  _src->set_time_unknown_pps( uhd::time_spec_t( time_spec.get_full_secs(), time_spec.get_frac_secs() ) );
++}
+diff --git a/lib/uhd/uhd_source_c.h b/lib/uhd/uhd_source_c.h
+index eac0ed7..e80be99 100644
+--- a/lib/uhd/uhd_source_c.h
++++ b/lib/uhd/uhd_source_c.h
+@@ -81,6 +81,20 @@ public:
+   double get_bandwidth( size_t chan = 0 );
+   osmosdr::freq_range_t get_bandwidth_range( size_t chan = 0 );
+ 
++  void set_time_source(const std::string &source, const size_t mboard = 0);
++  std::string get_time_source(const size_t mboard);
++  std::vector<std::string> get_time_sources(const size_t mboard);
++  void set_clock_source(const std::string &source, const size_t mboard = 0);
++  std::string get_clock_source(const size_t mboard);
++  std::vector<std::string> get_clock_sources(const size_t mboard);
++  double get_clock_rate(size_t mboard = 0);
++  void set_clock_rate(double rate, size_t mboard = 0);
++  ::osmosdr::time_spec_t get_time_now(size_t mboard = 0);
++  ::osmosdr::time_spec_t get_time_last_pps(size_t mboard = 0);
++  void set_time_now(const ::osmosdr::time_spec_t &time_spec, size_t mboard = 0);
++  void set_time_next_pps(const ::osmosdr::time_spec_t &time_spec);
++  void set_time_unknown_pps(const ::osmosdr::time_spec_t &time_spec);
++
+ private:
+   double _center_freq;
+   double _freq_corr;
+diff --git a/swig/osmosdr_swig.i b/swig/osmosdr_swig.i
+index 4de4892..550008b 100644
+--- a/swig/osmosdr_swig.i
++++ b/swig/osmosdr_swig.i
+@@ -37,9 +37,31 @@
+ %template(devices_t) std::vector<osmosdr::device_t>;
+ %include <osmosdr/device.h>
+ 
++//%extend std::map<std::string, std::string>{
++//    std::string __getitem__(std::string key) {return (*self)[key];}
++//    void __setitem__(std::string key, std::string val) {(*self)[key] = val;}
++//};
++
+ %template(range_vector_t) std::vector<osmosdr::range_t>; //define before range
+ %include <osmosdr/ranges.h>
+ 
++%include <osmosdr/time_spec.h>
++
++%extend osmosdr::time_spec_t{
++    osmosdr::time_spec_t __add__(const osmosdr::time_spec_t &what)
++    {
++        osmosdr::time_spec_t temp = *self;
++        temp += what;
++        return temp;
++    }
++    osmosdr::time_spec_t __sub__(const osmosdr::time_spec_t &what)
++    {
++        osmosdr::time_spec_t temp = *self;
++        temp -= what;
++        return temp;
++    }
++};
++
+ %define OSMOSDR_SWIG_BLOCK_MAGIC2(PKG, BASE_NAME)
+ %template(BASE_NAME ## _sptr) boost::shared_ptr<PKG ## :: ## BASE_NAME>;
+ %pythoncode %{
+@@ -53,3 +75,8 @@ BASE_NAME = BASE_NAME.make;
+ 
+ OSMOSDR_SWIG_BLOCK_MAGIC2(osmosdr,source);
+ OSMOSDR_SWIG_BLOCK_MAGIC2(osmosdr,sink);
++
++%{
++static const size_t ALL_MBOARDS = osmosdr::ALL_MBOARDS;
++%}
++//static const size_t ALL_MBOARDS;
+-- 
+2.1.4
+

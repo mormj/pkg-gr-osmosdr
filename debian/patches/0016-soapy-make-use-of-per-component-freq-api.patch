@@ -1,0 +1,43 @@
+From 61184a19e7db7a9579908fa512617327998b00d5 Mon Sep 17 00:00:00 2001
+From: Josh Blum <josh@joshknows.com>
+Date: Tue, 24 Feb 2015 20:36:36 -0800
+Subject: [PATCH 16/48] soapy: make use of per component freq api
+
+---
+ lib/soapy/soapy_sink_c.cc   | 4 +---
+ lib/soapy/soapy_source_c.cc | 4 +---
+ 2 files changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/lib/soapy/soapy_sink_c.cc b/lib/soapy/soapy_sink_c.cc
+index 076aa56..dd4130e 100644
+--- a/lib/soapy/soapy_sink_c.cc
++++ b/lib/soapy/soapy_sink_c.cc
+@@ -167,9 +167,7 @@ double soapy_sink_c::get_center_freq( size_t chan)
+ 
+ double soapy_sink_c::set_freq_corr( double ppm, size_t chan)
+ {
+-    SoapySDR::Kwargs kw;
+-    kw["CORR"] = boost::lexical_cast<std::string>(ppm);
+-    _device->setFrequency(SOAPY_SDR_TX, chan, this->get_center_freq(chan), kw);
++    _device->setFrequency(SOAPY_SDR_TX, chan, "CORR", ppm);
+     return this->get_freq_corr(chan);
+ }
+ 
+diff --git a/lib/soapy/soapy_source_c.cc b/lib/soapy/soapy_source_c.cc
+index 05c7a05..4bd3aa3 100644
+--- a/lib/soapy/soapy_source_c.cc
++++ b/lib/soapy/soapy_source_c.cc
+@@ -164,9 +164,7 @@ double soapy_source_c::get_center_freq( size_t chan )
+ 
+ double soapy_source_c::set_freq_corr( double ppm, size_t chan )
+ {
+-    SoapySDR::Kwargs kw;
+-    kw["CORR"] = boost::lexical_cast<std::string>(ppm);
+-    _device->setFrequency(SOAPY_SDR_RX, chan, this->get_center_freq(chan), kw);
++    _device->setFrequency(SOAPY_SDR_RX, chan, "CORR", ppm);
+     return this->get_freq_corr(chan);
+ }
+ 
+-- 
+2.1.4
+

@@ -1,0 +1,143 @@
+From 535a505069834fdcba99aa0763f55e0c754b76a9 Mon Sep 17 00:00:00 2001
+From: Josh Blum <josh@joshknows.com>
+Date: Mon, 16 Feb 2015 21:04:05 -0800
+Subject: [PATCH 12/48] soapy: fixes from last commit w/ field test
+
+---
+ lib/arg_helpers.h           |  2 +-
+ lib/sink_impl.cc            |  4 ++--
+ lib/soapy/soapy_sink_c.cc   | 10 ++++++----
+ lib/soapy/soapy_sink_c.h    |  1 +
+ lib/soapy/soapy_source_c.cc | 10 ++++++----
+ lib/soapy/soapy_source_c.h  |  1 +
+ 6 files changed, 17 insertions(+), 11 deletions(-)
+
+diff --git a/lib/arg_helpers.h b/lib/arg_helpers.h
+index 1700cd2..6155ea5 100644
+--- a/lib/arg_helpers.h
++++ b/lib/arg_helpers.h
+@@ -39,7 +39,7 @@ inline std::string dict_to_args_string( const dict_t &d )
+     std::string out;
+     BOOST_FOREACH(const pair_t pair, d)
+     {
+-        if (not out.empty()) out += ", ";
++        if (not out.empty()) out += ",";
+         out += pair.first + "='" + pair.second + "'";
+     }
+     return out;
+diff --git a/lib/sink_impl.cc b/lib/sink_impl.cc
+index d8c9a5b..6f01522 100644
+--- a/lib/sink_impl.cc
++++ b/lib/sink_impl.cc
+@@ -172,8 +172,8 @@ sink_impl::sink_impl( const std::string &args )
+ 
+ #ifdef ENABLE_SOAPY
+     if ( dict.count("soapy") ) {
+-      soapy_sink_c_sptr src = make_soapy_sink_c( arg );
+-      block = src; iface = src.get();
++      soapy_sink_c_sptr sink = make_soapy_sink_c( arg );
++      block = sink; iface = sink.get();
+     }
+ #endif
+ 
+diff --git a/lib/soapy/soapy_sink_c.cc b/lib/soapy/soapy_sink_c.cc
+index 14984b5..80a5c54 100644
+--- a/lib/soapy/soapy_sink_c.cc
++++ b/lib/soapy/soapy_sink_c.cc
+@@ -69,9 +69,9 @@ soapy_sink_c::soapy_sink_c (const std::string &args)
+         boost::mutex::scoped_lock l(get_soapy_maker_mutex());
+         _device = SoapySDR::Device::make(params_to_dict(args));
+     }
+-    size_t num_chan = std::max(1, args_to_io_signature(args)->max_streams());
++    _nchan = std::max(1, args_to_io_signature(args)->max_streams());
+     std::vector<size_t> channels;
+-    for (size_t i = 0; i < num_chan; i++) channels.push_back(i);
++    for (size_t i = 0; i < _nchan; i++) channels.push_back(i);
+     _stream = _device->setupStream(SOAPY_SDR_TX, "CF32", channels);
+ }
+ 
+@@ -127,8 +127,10 @@ int soapy_sink_c::work( int noutput_items,
+ std::vector<std::string> soapy_sink_c::get_devices()
+ {
+     std::vector<std::string> result;
+-    BOOST_FOREACH(const SoapySDR::Kwargs &kw, SoapySDR::Device::enumerate())
++    int i = 0;
++    BOOST_FOREACH(SoapySDR::Kwargs kw, SoapySDR::Device::enumerate())
+     {
++        kw["soapy"] = boost::lexical_cast<std::string>(i++);
+         result.push_back(dict_to_args_string(kw));
+     }
+     return result;
+@@ -136,7 +138,7 @@ std::vector<std::string> soapy_sink_c::get_devices()
+ 
+ size_t soapy_sink_c::get_num_channels( void )
+ {
+-    return _device->getNumChannels(SOAPY_SDR_TX);
++    return _nchan;
+ }
+ 
+ osmosdr::meta_range_t soapy_sink_c::get_sample_rates( void )
+diff --git a/lib/soapy/soapy_sink_c.h b/lib/soapy/soapy_sink_c.h
+index 30e3f45..4900d15 100644
+--- a/lib/soapy/soapy_sink_c.h
++++ b/lib/soapy/soapy_sink_c.h
+@@ -132,6 +132,7 @@ void set_time_unknown_pps(const ::osmosdr::time_spec_t &time_spec);
+ private:
+     SoapySDR::Device *_device;
+     SoapySDR::Stream *_stream;
++    size_t _nchan;
+ };
+ 
+ #endif /* INCLUDED_SOAPY_SINK_C_H */
+diff --git a/lib/soapy/soapy_source_c.cc b/lib/soapy/soapy_source_c.cc
+index 683bd29..8c1dbf8 100644
+--- a/lib/soapy/soapy_source_c.cc
++++ b/lib/soapy/soapy_source_c.cc
+@@ -65,9 +65,9 @@ soapy_source_c::soapy_source_c (const std::string &args)
+         boost::mutex::scoped_lock l(get_soapy_maker_mutex());
+         _device = SoapySDR::Device::make(params_to_dict(args));
+     }
+-    size_t num_chan = std::max(1, args_to_io_signature(args)->max_streams());
++    _nchan = std::max(1, args_to_io_signature(args)->max_streams());
+     std::vector<size_t> channels;
+-    for (size_t i = 0; i < num_chan; i++) channels.push_back(i);
++    for (size_t i = 0; i < _nchan; i++) channels.push_back(i);
+     _stream = _device->setupStream(SOAPY_SDR_RX, "CF32", channels);
+ }
+ 
+@@ -123,8 +123,10 @@ int soapy_source_c::work( int noutput_items,
+ std::vector<std::string> soapy_source_c::get_devices()
+ {
+     std::vector<std::string> result;
+-    BOOST_FOREACH(const SoapySDR::Kwargs &kw, SoapySDR::Device::enumerate())
++    int i = 0;
++    BOOST_FOREACH(SoapySDR::Kwargs kw, SoapySDR::Device::enumerate())
+     {
++        kw["soapy"] = boost::lexical_cast<std::string>(i++);
+         result.push_back(dict_to_args_string(kw));
+     }
+     return result;
+@@ -132,7 +134,7 @@ std::vector<std::string> soapy_source_c::get_devices()
+ 
+ size_t soapy_source_c::get_num_channels( void )
+ {
+-    return _device->getNumChannels(SOAPY_SDR_RX);
++    return _nchan;
+ }
+ 
+ osmosdr::meta_range_t soapy_source_c::get_sample_rates( void )
+diff --git a/lib/soapy/soapy_source_c.h b/lib/soapy/soapy_source_c.h
+index 8a0a0d7..b4db1ce 100644
+--- a/lib/soapy/soapy_source_c.h
++++ b/lib/soapy/soapy_source_c.h
+@@ -134,6 +134,7 @@ void set_time_unknown_pps(const ::osmosdr::time_spec_t &time_spec);
+ private:
+     SoapySDR::Device *_device;
+     SoapySDR::Stream *_stream;
++    size_t _nchan;
+ };
+ 
+ #endif /* INCLUDED_SOAPY_SOURCE_C_H */
+-- 
+2.1.4
+

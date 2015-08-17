@@ -1,0 +1,88 @@
+From 8e6ecd0644519c96d8d9c1a606cf4b8c39bcf2a6 Mon Sep 17 00:00:00 2001
+From: Heikki Hannikainen <hessu@hes.iki.fi>
+Date: Tue, 24 Feb 2015 11:51:38 +0200
+Subject: [PATCH 36/48] hackrf_source: attempt device enumeration with
+ hackrf_device_list
+
+Signed-off-by: Heikki Hannikainen <hessu@hes.iki.fi>
+---
+ lib/hackrf/hackrf_source_c.cc | 39 ++++++++++++++++++++++++---------------
+ 1 file changed, 24 insertions(+), 15 deletions(-)
+
+diff --git a/lib/hackrf/hackrf_source_c.cc b/lib/hackrf/hackrf_source_c.cc
+index d916572..9a7aa72 100644
+--- a/lib/hackrf/hackrf_source_c.cc
++++ b/lib/hackrf/hackrf_source_c.cc
+@@ -368,30 +368,38 @@ std::vector<std::string> hackrf_source_c::get_devices()
+ {
+   std::vector<std::string> devices;
+   std::string label;
+-#if 0
+-  for (unsigned int i = 0; i < 1 /* TODO: missing libhackrf api */; i++) {
+-    std::string args = "hackrf=" + boost::lexical_cast< std::string >( i );
++  
++  {
++    boost::mutex::scoped_lock lock( _usage_mutex );
+ 
+-    label.clear();
++    if ( _usage == 0 )
++      hackrf_init(); /* call only once before the first open */
+ 
+-    label = "HackRF Jawbreaker"; /* TODO: missing libhackrf api */
++    _usage++;
++  }
++
++#if 1
++  hackrf_device_list_t *list = hackrf_device_list();
++  
++  for (unsigned int i = 0; i < list->devicecount; i++) {
++    std::string args;
++    if (list->serial_numbers[i])
++      args = "hackrf=" + boost::lexical_cast< std::string >( list->serial_numbers[i] );
++    else
++      args = "hackrf=" + boost::lexical_cast< std::string >( i );
++
++    label = "HackRF ";
++    label += hackrf_board_id_name(hackrf_board_id( list->product_ids[i] ));
+ 
+     boost::algorithm::trim(label);
+ 
+     args += ",label='" + label + "'";
+     devices.push_back( args );
+   }
++  
++  hackrf_device_list_free(list);
+ #else
+ 
+-  {
+-    boost::mutex::scoped_lock lock( _usage_mutex );
+-
+-    if ( _usage == 0 )
+-      hackrf_init(); /* call only once before the first open */
+-
+-    _usage++;
+-  }
+-
+   int ret;
+   hackrf_device *dev = NULL;
+   ret = hackrf_open(&dev);
+@@ -414,6 +422,8 @@ std::vector<std::string> hackrf_source_c::get_devices()
+     ret = hackrf_close(dev);
+   }
+ 
++#endif
++
+   {
+     boost::mutex::scoped_lock lock( _usage_mutex );
+ 
+@@ -423,7 +433,6 @@ std::vector<std::string> hackrf_source_c::get_devices()
+       hackrf_exit(); /* call only once after last close */
+   }
+ 
+-#endif
+   return devices;
+ }
+ 
+-- 
+2.1.4
+

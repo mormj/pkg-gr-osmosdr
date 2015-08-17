@@ -2,7 +2,7 @@ Source: gr-osmosdr
 Section: libdevel
 Priority: optional
 Maintainer: A. Maitland Bottoms <bottoms@debian.org>
-Build-Depends: debhelper (>= 9.0.0~), python-dev, cmake, gnuradio-dev (>=3.7.5),
+Build-Depends: debhelper (>= 9.0.0~), python-dev, cmake, gnuradio-dev (>=3.7.8),
  libboost-dev, libboost-system-dev, libboost-thread-dev, swig, pkg-config,
  gr-fcdproplus [!hurd-i386],
  gr-iqbal, libairspy-dev [!hurd-i386],
@@ -11,12 +11,12 @@ Build-Depends: debhelper (>= 9.0.0~), python-dev, cmake, gnuradio-dev (>=3.7.5),
  libmirisdr-dev [!hurd-i386],
  libosmosdr-dev [!hurd-i386],
  librtlsdr-dev [!hurd-i386],
- libuhd-dev, liblog4cpp5-dev, doxygen
+ libuhd-dev (>=3.8.5), liblog4cpp5-dev, doxygen
 X-Python-Version: >= 2.7, << 2.8
-Standards-Version: 3.9.5
+Standards-Version: 3.9.6
 Homepage: http://sdr.osmocom.org/trac/wiki/rtl-sdr
 Vcs-Git: git://anonscm.debian.org/users/bottoms/pkg-gr-osmosdr.git
-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=users/bottoms/pkg-gr-osmosdr.git;a=summary
+Vcs-Browser: http://anonscm.debian.org/cgit/users/bottoms/pkg-gr-osmosdr.git/
 
 Package: gr-osmosdr
 Architecture: any
@@ -46,7 +46,7 @@ Description: Gnuradio blocks from the OsmoSDR project
  software api in your application(s) independent of the underlying
  radio hardware.
 
-Package: libgnuradio-osmosdr0.1.3
+Package: libgnuradio-osmosdr0.1.4
 Section: libs
 Architecture: any
 Pre-Depends: multiarch-support, ${misc:Pre-Depends}
