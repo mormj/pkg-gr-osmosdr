@@ -130,7 +130,7 @@ License: GPL-2+
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  .
  On Debian systems, the complete text of the GNU General Public
- License (GPL) version 3 can be found in the file 
+ License (GPL) version 3 can be found in the file
  '/usr/share/common-licenses/GPL-2'.
 
 License: GPL-3+
@@ -145,5 +145,5 @@ License: GPL-3+
  GNU General Public License for more details.
  .
  On Debian systems, the complete text of the GNU General Public
- License (GPL) version 3 can be found in the file 
+ License (GPL) version 3 can be found in the file
  '/usr/share/common-licenses/GPL-3'.

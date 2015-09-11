@@ -1,3 +1,9 @@
+gr-osmosdr (0.1.4-2) unstable; urgency=medium
+
+  * add watch file, rebuild with uhd-3.9.0
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Thu, 10 Sep 2015 10:55:58 -0400
+
 gr-osmosdr (0.1.4-1) unstable; urgency=medium
 
   * New upstream, update to v0.1.4-48-g86ad584
