@@ -1,3 +1,10 @@
+gr-osmosdr (0.1.4-3) unstable; urgency=low
+
+  * rebuild with uhd-3.9.1
+  * post gcc-5 libstdc++6 transition build (Closes: #791062)
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Mon, 14 Sep 2015 20:51:16 -0400
+
 gr-osmosdr (0.1.4-2) unstable; urgency=medium
 
   * add watch file, rebuild with uhd-3.9.0
