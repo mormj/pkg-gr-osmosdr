@@ -1,3 +1,9 @@
+gr-osmosdr (0.1.4-4) unstable; urgency=medium
+
+  * Tighten libuhd003 versioned dependency via dh_makeshlibs
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Wed, 30 Sep 2015 01:04:40 -0400
+
 gr-osmosdr (0.1.4-3) unstable; urgency=low
 
   * rebuild with uhd-3.9.1
