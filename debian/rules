@@ -17,9 +17,6 @@ override_dh_auto_install:
 	rm -f debian/gr-osmosdr/usr/lib/python2.7/dist-packages/osmosdr/*pyc
 	rm -f debian/gr-osmosdr/usr/lib/python2.7/dist-packages/osmosdr/*pyo
 
-override_dh_makeshlibs:
-	dh_makeshlibs -V 'libuhd003 (>= 3.9)'
-
 version-to-get:
 	echo $(VER) is $(GITREV)
 
