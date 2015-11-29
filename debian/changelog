@@ -1,3 +1,9 @@
+gr-osmosdr (0.1.4-7) unstable; urgency=medium
+
+  * Lintian cleanups pre-depends and dep5-copyright
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sat, 28 Nov 2015 22:57:30 -0500
+
 gr-osmosdr (0.1.4-6) unstable; urgency=medium
 
   * Don't depend upon hackrf on non-linux

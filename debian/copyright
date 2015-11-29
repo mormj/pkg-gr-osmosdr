@@ -15,7 +15,7 @@ License: GPL-3+
 
 Files: COPYING
 Copyright: 2007 Free Software Foundation, Inc. <http://fsf.org/>
-License:
+License: FSF-COPYING
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
@@ -83,7 +83,7 @@ License: GPL-3+
 Files: cmake/Modules/CMakeParseArgumentsCopy.cmake
 Copyright: 2010 Alexander Neundorf <neundorf@kde.org>
 Comment: copy of CMakeParseArguments.cmake from cmake 2.8.x
-License:
+License: Kitware-BSD
  All rights reserved.
  .
  Redistribution and use in source and binary forms, with or without
