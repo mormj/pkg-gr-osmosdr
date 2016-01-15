@@ -1,7 +1,7 @@
 From 8d9e6b58bb8dac8a92603feb8804c42ecc1e5945 Mon Sep 17 00:00:00 2001
 From: Jon Szymaniak <jon.szymaniak@gmail.com>
 Date: Tue, 4 Nov 2014 21:52:23 -0500
-Subject: [PATCH 02/48] bladeRF: Fixed incorrectly placed 'else'
+Subject: [PATCH 02/66] bladeRF: Fixed incorrectly placed 'else'
 
 This addresses a defect introduced in 6e75abf which causes the
 _consecutive_failures count to get reset with every failure, rather

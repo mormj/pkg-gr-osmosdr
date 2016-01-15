@@ -1,0 +1,30 @@
+From 9ceadfb645f2aadc7e86b87a374340a928af42da Mon Sep 17 00:00:00 2001
+From: Josh Blum <josh@joshknows.com>
+Date: Sun, 6 Dec 2015 15:49:44 -0800
+Subject: [PATCH 50/66] rtl_tcp: fix ssize_t definition for MSVC
+
+This was actually causing a cryptic compile error because of the define.
+The fix was to typedef ssize_t as ptrdiff_t, the same as bladerf_common.h
+---
+ lib/rtl_tcp/rtl_tcp_source_f.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/lib/rtl_tcp/rtl_tcp_source_f.h b/lib/rtl_tcp/rtl_tcp_source_f.h
+index d1d918c..84ac57a 100644
+--- a/lib/rtl_tcp/rtl_tcp_source_f.h
++++ b/lib/rtl_tcp/rtl_tcp_source_f.h
+@@ -42,7 +42,10 @@ typedef char* optval_t;
+ typedef void* optval_t;
+ #endif
+ 
+-#define ssize_t int
++#ifdef _MSC_VER
++#include <cstddef>
++typedef ptrdiff_t ssize_t;
++#endif //_MSC_VER
+ 
+ /* copied from rtl sdr */
+ enum rtlsdr_tuner {
+-- 
+2.1.4
+

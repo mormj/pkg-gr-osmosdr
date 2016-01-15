@@ -1,7 +1,7 @@
 From 5dca65674565b6e44bf2e790430d5bb7370f2327 Mon Sep 17 00:00:00 2001
 From: Heikki Hannikainen <hessu@hes.iki.fi>
 Date: Tue, 24 Feb 2015 11:37:18 +0200
-Subject: [PATCH 34/48] style update to match surroundings
+Subject: [PATCH 34/66] style update to match surroundings
 
 Signed-off-by: Heikki Hannikainen <hessu@hes.iki.fi>
 ---

@@ -1,7 +1,7 @@
 From 46bb1ad1a08b44f9c06dd2bf099731aa3bc0e995 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Tue, 16 Dec 2014 00:14:35 +0100
-Subject: [PATCH 08/48] airspy: increase version string size to 128
+Subject: [PATCH 08/66] airspy: increase version string size to 128
 
 ---
  lib/airspy/airspy_source_c.cc | 2 +-

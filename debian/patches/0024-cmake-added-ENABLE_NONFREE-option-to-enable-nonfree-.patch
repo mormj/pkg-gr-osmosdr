@@ -1,7 +1,7 @@
 From 3916b5bc4f9ed504106cf0845e6daa077a84764c Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Tue, 12 May 2015 23:30:45 +0200
-Subject: [PATCH 24/48] cmake: added ENABLE_NONFREE option to enable nonfree
+Subject: [PATCH 24/66] cmake: added ENABLE_NONFREE option to enable nonfree
  components.
 
 ---

@@ -20,9 +20,7 @@ License: FSF-COPYING
  of this license document, but changing it is not allowed.
 
 Files: CMakeLists.txt apps/* docs/* python/* include/osmosdr/api.h
- GrTest.cmake GrPlatform.cmake GrVersion.cmake GrComponent.cmake
- GrPython.cmake GrSwig.cmake GrMiscUtils.cmake cmake/Modules/*
- grc/gen_osmosdr_blocks.py  include/osmosdr/CMakeLists.txt
+ cmake/Modules/* include/osmosdr/CMakeLists.txt
  lib/CMakeLists.txt lib/gnuradio-osmosdr.rc.in
  lib/bladerf/CMakeLists.txt swig/* grc/CMakeLists.txt
 Copyright: 2005,2007-2013 Free Software Foundation, Inc.
@@ -33,7 +31,7 @@ Files: debian/*
 Copyright: 2013 A. Maitland Bottoms <bottoms@debian.org>
 License: GPL-3+
 
-Files: grc/gen_osmosdr_blocks.p
+Files: grc/gen_osmosdr_blocks.py
 Copyright: 2012 Free Software Foundation, Inc.
 License: GPL-2+
 
@@ -47,11 +45,6 @@ FIles: lib/bladerf/bladerf_common.cc lib/bladerf/bladerf_common.h
  lib/bladerf/bladerf_source_c.cc lib/bladerf/bladerf_source_c.h
 Copyright: 2013 Nuand LLC
  2013 Dimitri Stolnikov <horiz0n@gmx.net>
-License: GPL-3+
-
-Files: lib/rtl_tcp/rtl_tcp_source_f.cc
-Copyright: 2012 Hoernchen <la@tfc-server.de>
- 2012 Dimitri Stolnikov <horiz0n@gmx.net>
 License: GPL-3+
 
 Files: lib/soapy/*

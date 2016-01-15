@@ -1,7 +1,7 @@
 From 592a814bdb023cf471e4ff9ead13c8e11712360e Mon Sep 17 00:00:00 2001
 From: Heikki Hannikainen <hessu@hes.iki.fi>
 Date: Tue, 24 Feb 2015 12:31:46 +0200
-Subject: [PATCH 37/48] hackrf_source: Truncate serial numbers to 16 chars when
+Subject: [PATCH 37/66] hackrf_source: Truncate serial numbers to 16 chars when
  enumerating, parse USB board IDs correctly
 
 Signed-off-by: Heikki Hannikainen <hessu@hes.iki.fi>

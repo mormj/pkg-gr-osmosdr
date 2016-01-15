@@ -1,7 +1,7 @@
 From aa4094b3fd103a5b7fbcd3b8a0e225cfe70a6c6f Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sat, 3 May 2014 22:25:23 +0200
-Subject: [PATCH 04/48] introduce time & clock synchronisation APIs
+Subject: [PATCH 04/66] introduce time & clock synchronisation APIs
 
 ---
  grc/gen_osmosdr_blocks.py      |  97 +++++++++++++++++++++++-

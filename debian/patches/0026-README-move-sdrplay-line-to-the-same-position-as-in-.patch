@@ -1,7 +1,7 @@
 From b226b85fa82f94dfc3d57d1083ea1fd6b4c62d13 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Tue, 12 May 2015 23:59:32 +0200
-Subject: [PATCH 26/48] README: move sdrplay line to the same position as in
+Subject: [PATCH 26/66] README: move sdrplay line to the same position as in
  grc template
 
 ---

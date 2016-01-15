@@ -1,7 +1,7 @@
 From 69181b0e858c109d1471d4a1c9a2c87f732e8df6 Mon Sep 17 00:00:00 2001
 From: Heikki Hannikainen <hessu@hes.iki.fi>
 Date: Tue, 24 Feb 2015 11:37:32 +0200
-Subject: [PATCH 35/48] hackrf_sink: support hackrf_open_by_serial
+Subject: [PATCH 35/66] hackrf_sink: support hackrf_open_by_serial
 
 Signed-off-by: Heikki Hannikainen <hessu@hes.iki.fi>
 ---

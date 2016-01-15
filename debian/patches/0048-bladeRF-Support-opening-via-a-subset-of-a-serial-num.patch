@@ -1,7 +1,7 @@
 From 86ad584204762eeb01f07daa683673f1ec3f1df5 Mon Sep 17 00:00:00 2001
 From: Jon Szymaniak <jon.szymaniak@gmail.com>
 Date: Thu, 16 Jul 2015 14:03:20 -0400
-Subject: [PATCH 48/48] bladeRF: Support opening via a (subset of a) serial
+Subject: [PATCH 48/66] bladeRF: Support opening via a (subset of a) serial
  number, using any backend
 
 The bladerf=X,[arguments] string now supports the following, where X is:

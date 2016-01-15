@@ -1,7 +1,7 @@
 From dd6690b6ca7b2cf735867a55a2e92ef1f0c01639 Mon Sep 17 00:00:00 2001
 From: Heikki Hannikainen <hessu@hes.iki.fi>
 Date: Mon, 1 Jun 2015 10:29:19 +0300
-Subject: [PATCH 42/48] hackrf: Add cmake magic to figure out if multiple
+Subject: [PATCH 42/66] hackrf: Add cmake magic to figure out if multiple
  devices support is available in libhackrf, so that backwards compatibility
  with old libhackrf is maintained.
 

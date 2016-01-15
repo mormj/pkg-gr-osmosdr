@@ -1,7 +1,7 @@
 From 48045b597d3a605d2cb1cd2df62d07317009b9ea Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sat, 10 Jan 2015 14:01:09 +0100
-Subject: [PATCH 09/48] bladerf: include rxvga1 to the BB gain setting
+Subject: [PATCH 09/66] bladerf: include rxvga1 to the BB gain setting
 
 Patch provided by Samu Laaja
 ---

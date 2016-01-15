@@ -1,7 +1,7 @@
 From 4582df6111c50042e0b8ae93c6cf04b795d9d233 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Thu, 14 May 2015 00:11:01 +0200
-Subject: [PATCH 28/48] add MANIFST.md for cgran.org
+Subject: [PATCH 28/66] add MANIFST.md for cgran.org
 
 ---
  MANIFEST.md | 33 +++++++++++++++++++++++++++++++++

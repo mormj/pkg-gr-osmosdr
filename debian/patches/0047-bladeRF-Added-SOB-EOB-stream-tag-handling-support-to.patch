@@ -1,7 +1,7 @@
 From 43a00ae785ba5e9703b28e079b2ba78f7021ebb0 Mon Sep 17 00:00:00 2001
 From: Jon Szymaniak <jon.szymaniak@gmail.com>
 Date: Mon, 22 Jun 2015 17:38:03 -0400
-Subject: [PATCH 47/48] bladeRF: Added SOB/EOB stream tag handling support to
+Subject: [PATCH 47/66] bladeRF: Added SOB/EOB stream tag handling support to
  bladerf_sink
 
 When running with metadata mode enabled, the bladerf_sink supports 'tx_sob' and

@@ -1,0 +1,275 @@
+From f8cba954f0b7c76e749a8a75b74055c22dbe00cf Mon Sep 17 00:00:00 2001
+From: Pavel Demin <pavel.demin@uclouvain.be>
+Date: Wed, 6 Jan 2016 16:49:02 +0100
+Subject: [PATCH 58/66] redpitaya: fix compilation errors on MS Windows and on
+ Mac OS X
+
+---
+ lib/redpitaya/redpitaya_common.cc   | 26 ++++++--------------------
+ lib/redpitaya/redpitaya_common.h    | 31 ++++++++++++++++++++++++++++++-
+ lib/redpitaya/redpitaya_sink_c.cc   | 24 +++++++-----------------
+ lib/redpitaya/redpitaya_sink_c.h    |  4 +++-
+ lib/redpitaya/redpitaya_source_c.cc | 24 +++++++-----------------
+ lib/redpitaya/redpitaya_source_c.h  |  4 +++-
+ 6 files changed, 56 insertions(+), 57 deletions(-)
+
+diff --git a/lib/redpitaya/redpitaya_common.cc b/lib/redpitaya/redpitaya_common.cc
+index 1d01638..25fe424 100644
+--- a/lib/redpitaya/redpitaya_common.cc
++++ b/lib/redpitaya/redpitaya_common.cc
+@@ -24,37 +24,23 @@
+ #include <sstream>
+ #include <stdexcept>
+ 
+-#ifdef _WIN32
+-#include <winsock2.h>
+-#include <ws2tcpip.h>
+-#include <windows.h>
+-#else
+-#include <sys/types.h>
+-#include <sys/socket.h>
+-#include <netinet/in.h>
+-#include <arpa/inet.h>
+-#endif
+-
+ #include "redpitaya_common.h"
+ 
+-#if defined(__APPLE__) || defined(__MACH__)
+-#ifndef MSG_NOSIGNAL
+-#define MSG_NOSIGNAL SO_NOSIGPIPE
+-#endif
+-#endif
+-
+-void redpitaya_send_command( int socket, uint32_t command )
++void redpitaya_send_command( SOCKET socket, uint32_t command )
+ {
+-  ssize_t size;
+   std::stringstream message;
+ 
+ #if defined(_WIN32)
++  int total = sizeof(command);
++  int size;
+   size = ::send( socket, (char *)&command, sizeof(command), 0 );
+ #else
++  ssize_t total = sizeof(command);
++  ssize_t size;
+   size = ::send( socket, &command, sizeof(command), MSG_NOSIGNAL );
+ #endif
+ 
+-  if ( size != sizeof(command) )
++  if ( size != total )
+   {
+     message << "Sending command failed: " << std::hex << command;
+     throw std::runtime_error( message.str() );
+diff --git a/lib/redpitaya/redpitaya_common.h b/lib/redpitaya/redpitaya_common.h
+index a3c574a..1983176 100644
+--- a/lib/redpitaya/redpitaya_common.h
++++ b/lib/redpitaya/redpitaya_common.h
+@@ -21,6 +21,35 @@
+ #ifndef REDPITAYA_COMMON_H
+ #define REDPITAYA_COMMON_H
+ 
+-void redpitaya_send_command( int socket, uint32_t command );
++#include <stdint.h>
++
++#if defined(_WIN32)
++#include <winsock2.h>
++#include <ws2tcpip.h>
++#pragma comment(lib, "ws2_32.lib")
++#include <windows.h>
++#define INVSOC INVALID_SOCKET
++#else
++#include <unistd.h>
++#include <fcntl.h>
++#include <sys/types.h>
++#include <sys/ioctl.h>
++#include <sys/socket.h>
++#include <sys/select.h>
++#include <netinet/in.h>
++#include <arpa/inet.h>
++#ifndef SOCKET
++#define SOCKET int
++#define INVSOC (-1)
++#endif
++#endif
++
++#if defined(__APPLE__) || defined(__MACH__)
++#ifndef MSG_NOSIGNAL
++#define MSG_NOSIGNAL SO_NOSIGPIPE
++#endif
++#endif
++
++void redpitaya_send_command( SOCKET socket, uint32_t command );
+ 
+ #endif // REDPITAYA_COMMON_H
+diff --git a/lib/redpitaya/redpitaya_sink_c.cc b/lib/redpitaya/redpitaya_sink_c.cc
+index 2d5fc69..a325a5c 100644
+--- a/lib/redpitaya/redpitaya_sink_c.cc
++++ b/lib/redpitaya/redpitaya_sink_c.cc
+@@ -24,28 +24,16 @@
+ #include <sstream>
+ #include <stdexcept>
+ 
+-#if defined(_WIN32)
+-#include <winsock2.h>
+-#include <ws2tcpip.h>
+-#include <windows.h>
+-#else
+-#include <sys/types.h>
+-#include <sys/socket.h>
+-#include <netinet/in.h>
+-#include <arpa/inet.h>
+-#endif
+-
+ #include <boost/assign.hpp>
+ #include <boost/format.hpp>
+ #include <boost/algorithm/string.hpp>
+ 
+ #include <gnuradio/io_signature.h>
+ 
+-#include "redpitaya_common.h"
+-#include "redpitaya_sink_c.h"
+-
+ #include "arg_helpers.h"
+ 
++#include "redpitaya_sink_c.h"
++
+ using namespace boost::assign;
+ 
+ redpitaya_sink_c_sptr make_redpitaya_sink_c(const std::string &args)
+@@ -105,7 +93,7 @@ redpitaya_sink_c::redpitaya_sink_c(const std::string &args) :
+ 
+     memset( &addr, 0, sizeof(addr) );
+     addr.sin_family = AF_INET;
+-    addr.sin_addr.s_addr = inet_addr( host.c_str() );
++    inet_pton( AF_INET, host.c_str(), &addr.sin_addr );
+     addr.sin_port = htons( port );
+ 
+     if ( ::connect( _sockets[i], (struct sockaddr *)&addr, sizeof(addr) ) < 0 )
+@@ -138,13 +126,15 @@ int redpitaya_sink_c::work( int noutput_items,
+                             gr_vector_const_void_star &input_items,
+                             gr_vector_void_star &output_items )
+ {
+-  ssize_t size;
+-  ssize_t total = sizeof(gr_complex) * noutput_items;
+   const gr_complex *in = (const gr_complex *)input_items[0];
+ 
+ #if defined(_WIN32)
++  int size;
++  int total = sizeof(gr_complex) * noutput_items;
+   size = ::send( _sockets[1], (char *)in, total, 0 );
+ #else
++  ssize_t size;
++  ssize_t total = sizeof(gr_complex) * noutput_items;
+   size = ::send( _sockets[1], in, total, MSG_NOSIGNAL );
+ #endif
+ 
+diff --git a/lib/redpitaya/redpitaya_sink_c.h b/lib/redpitaya/redpitaya_sink_c.h
+index b4a177b..e03a13a 100644
+--- a/lib/redpitaya/redpitaya_sink_c.h
++++ b/lib/redpitaya/redpitaya_sink_c.h
+@@ -25,6 +25,8 @@
+ 
+ #include "sink_iface.h"
+ 
++#include "redpitaya_common.h"
++
+ class redpitaya_sink_c;
+ 
+ typedef boost::shared_ptr< redpitaya_sink_c > redpitaya_sink_c_sptr;
+@@ -77,7 +79,7 @@ public:
+ 
+ private:
+   double _freq, _rate, _corr;
+-  int _sockets[2];
++  SOCKET _sockets[2];
+ };
+ 
+ #endif // REDPITAYA_SINK_C_H
+diff --git a/lib/redpitaya/redpitaya_source_c.cc b/lib/redpitaya/redpitaya_source_c.cc
+index 059d97e..433243a 100644
+--- a/lib/redpitaya/redpitaya_source_c.cc
++++ b/lib/redpitaya/redpitaya_source_c.cc
+@@ -24,28 +24,16 @@
+ #include <sstream>
+ #include <stdexcept>
+ 
+-#if defined(_WIN32)
+-#include <winsock2.h>
+-#include <ws2tcpip.h>
+-#include <windows.h>
+-#else
+-#include <sys/types.h>
+-#include <sys/socket.h>
+-#include <netinet/in.h>
+-#include <arpa/inet.h>
+-#endif
+-
+ #include <boost/assign.hpp>
+ #include <boost/format.hpp>
+ #include <boost/algorithm/string.hpp>
+ 
+ #include <gnuradio/io_signature.h>
+ 
+-#include "redpitaya_common.h"
+-#include "redpitaya_source_c.h"
+-
+ #include "arg_helpers.h"
+ 
++#include "redpitaya_source_c.h"
++
+ using namespace boost::assign;
+ 
+ redpitaya_source_c_sptr make_redpitaya_source_c(const std::string &args)
+@@ -100,7 +88,7 @@ redpitaya_source_c::redpitaya_source_c(const std::string &args) :
+ 
+     memset( &addr, 0, sizeof(addr) );
+     addr.sin_family = AF_INET;
+-    addr.sin_addr.s_addr = inet_addr( host.c_str() );
++    inet_pton( AF_INET, host.c_str(), &addr.sin_addr );
+     addr.sin_port = htons( port );
+ 
+     if ( ::connect( _sockets[i], (struct sockaddr *)&addr, sizeof(addr) ) < 0 )
+@@ -130,13 +118,15 @@ int redpitaya_source_c::work( int noutput_items,
+                               gr_vector_const_void_star &input_items,
+                               gr_vector_void_star &output_items )
+ {
+-  ssize_t size;
+-  ssize_t total = sizeof(gr_complex) * noutput_items;
+   gr_complex *out = (gr_complex *)output_items[0];
+ 
+ #if defined(_WIN32)
++  int size;
++  int total = sizeof(gr_complex) * noutput_items;
+   size = ::recv( _sockets[1], (char *)out, total, MSG_WAITALL );
+ #else
++  ssize_t size;
++  ssize_t total = sizeof(gr_complex) * noutput_items;
+   size = ::recv( _sockets[1], out, total, MSG_WAITALL );
+ #endif
+ 
+diff --git a/lib/redpitaya/redpitaya_source_c.h b/lib/redpitaya/redpitaya_source_c.h
+index 53f0040..7d536ee 100644
+--- a/lib/redpitaya/redpitaya_source_c.h
++++ b/lib/redpitaya/redpitaya_source_c.h
+@@ -25,6 +25,8 @@
+ 
+ #include "source_iface.h"
+ 
++#include "redpitaya_common.h"
++
+ class redpitaya_source_c;
+ 
+ typedef boost::shared_ptr< redpitaya_source_c > redpitaya_source_c_sptr;
+@@ -77,7 +79,7 @@ public:
+ 
+ private:
+   double _freq, _rate, _corr;
+-  int _sockets[2];
++  SOCKET _sockets[2];
+ };
+ 
+ #endif // REDPITAYA_SOURCE_C_H
+-- 
+2.1.4
+

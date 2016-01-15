@@ -1,0 +1,304 @@
+From 810a981d0c2975825a72c9c6c9db2700719928c3 Mon Sep 17 00:00:00 2001
+From: Pavel Demin <pavel.demin@cern.ch>
+Date: Mon, 21 Dec 2015 18:28:54 +0100
+Subject: [PATCH 57/66] redpitaya: change base class to gr::sync_block
+
+---
+ lib/redpitaya/redpitaya_common.cc   | 12 +++++++++-
+ lib/redpitaya/redpitaya_sink_c.cc   | 46 ++++++++++++++++++++++++++-----------
+ lib/redpitaya/redpitaya_sink_c.h    | 10 ++++----
+ lib/redpitaya/redpitaya_source_c.cc | 46 +++++++++++++++++++++++++------------
+ lib/redpitaya/redpitaya_source_c.h  | 10 ++++----
+ 5 files changed, 87 insertions(+), 37 deletions(-)
+
+diff --git a/lib/redpitaya/redpitaya_common.cc b/lib/redpitaya/redpitaya_common.cc
+index 7d91680..1d01638 100644
+--- a/lib/redpitaya/redpitaya_common.cc
++++ b/lib/redpitaya/redpitaya_common.cc
+@@ -37,12 +37,22 @@
+ 
+ #include "redpitaya_common.h"
+ 
++#if defined(__APPLE__) || defined(__MACH__)
++#ifndef MSG_NOSIGNAL
++#define MSG_NOSIGNAL SO_NOSIGPIPE
++#endif
++#endif
++
+ void redpitaya_send_command( int socket, uint32_t command )
+ {
+   ssize_t size;
+   std::stringstream message;
+ 
+-  size = send( socket, &command, sizeof(command), MSG_NOSIGNAL );
++#if defined(_WIN32)
++  size = ::send( socket, (char *)&command, sizeof(command), 0 );
++#else
++  size = ::send( socket, &command, sizeof(command), MSG_NOSIGNAL );
++#endif
+ 
+   if ( size != sizeof(command) )
+   {
+diff --git a/lib/redpitaya/redpitaya_sink_c.cc b/lib/redpitaya/redpitaya_sink_c.cc
+index dd399af..2d5fc69 100644
+--- a/lib/redpitaya/redpitaya_sink_c.cc
++++ b/lib/redpitaya/redpitaya_sink_c.cc
+@@ -24,7 +24,7 @@
+ #include <sstream>
+ #include <stdexcept>
+ 
+-#ifdef _WIN32
++#if defined(_WIN32)
+ #include <winsock2.h>
+ #include <ws2tcpip.h>
+ #include <windows.h>
+@@ -54,9 +54,9 @@ redpitaya_sink_c_sptr make_redpitaya_sink_c(const std::string &args)
+ }
+ 
+ redpitaya_sink_c::redpitaya_sink_c(const std::string &args) :
+-  gr::hier_block2("redpitaya_sink_c",
+-                  gr::io_signature::make(1, 1, sizeof(gr_complex)),
+-                  gr::io_signature::make(0, 0, 0))
++  gr::sync_block("redpitaya_sink_c",
++                 gr::io_signature::make(1, 1, sizeof(gr_complex)),
++                 gr::io_signature::make(0, 0, 0))
+ {
+   std::string host = "192.168.1.100";
+   std::stringstream message;
+@@ -64,7 +64,7 @@ redpitaya_sink_c::redpitaya_sink_c(const std::string &args) :
+   struct sockaddr_in addr;
+   uint32_t command;
+ 
+-#ifdef _WIN32
++#if defined(_WIN32)
+   WSADATA wsaData;
+   WSAStartup( MAKEWORD(2, 2), &wsaData );
+ #endif
+@@ -120,20 +120,40 @@ redpitaya_sink_c::redpitaya_sink_c(const std::string &args) :
+ 
+   command = ptt ? 2<<28 : 3<<28;
+   redpitaya_send_command( _sockets[0], command );
+-
+-  _sink = gr::blocks::file_descriptor_sink::make( sizeof(gr_complex), _sockets[1] );
+-
+-  connect( self(), 0, _sink, 0 );
+ }
+ 
+ redpitaya_sink_c::~redpitaya_sink_c()
+ {
+-  close( _sockets[1] );
+-  close( _sockets[0] );
+-
+-#ifdef _WIN32
++#if defined(_WIN32)
++  ::closesocket( _sockets[1] );
++  ::closesocket( _sockets[0] );
+   WSACleanup();
++#else
++  ::close( _sockets[1] );
++  ::close( _sockets[0] );
++#endif
++}
++
++int redpitaya_sink_c::work( int noutput_items,
++                            gr_vector_const_void_star &input_items,
++                            gr_vector_void_star &output_items )
++{
++  ssize_t size;
++  ssize_t total = sizeof(gr_complex) * noutput_items;
++  const gr_complex *in = (const gr_complex *)input_items[0];
++
++#if defined(_WIN32)
++  size = ::send( _sockets[1], (char *)in, total, 0 );
++#else
++  size = ::send( _sockets[1], in, total, MSG_NOSIGNAL );
+ #endif
++
++  if ( size != total )
++    throw std::runtime_error( "Sending samples failed." );
++
++  consume(0, noutput_items);
++
++  return 0;
+ }
+ 
+ std::string redpitaya_sink_c::name()
+diff --git a/lib/redpitaya/redpitaya_sink_c.h b/lib/redpitaya/redpitaya_sink_c.h
+index ecdc670..b4a177b 100644
+--- a/lib/redpitaya/redpitaya_sink_c.h
++++ b/lib/redpitaya/redpitaya_sink_c.h
+@@ -21,8 +21,7 @@
+ #ifndef REDPITAYA_SINK_C_H
+ #define REDPITAYA_SINK_C_H
+ 
+-#include <gnuradio/hier_block2.h>
+-#include <gnuradio/blocks/file_descriptor_sink.h>
++#include <gnuradio/sync_block.h>
+ 
+ #include "sink_iface.h"
+ 
+@@ -33,7 +32,7 @@ typedef boost::shared_ptr< redpitaya_sink_c > redpitaya_sink_c_sptr;
+ redpitaya_sink_c_sptr make_redpitaya_sink_c( const std::string & args = "" );
+ 
+ class redpitaya_sink_c :
+-    public gr::hier_block2,
++    public gr::sync_block,
+     public sink_iface
+ {
+ private:
+@@ -44,6 +43,10 @@ private:
+ public:
+   ~redpitaya_sink_c();
+ 
++  int work( int noutput_items,
++            gr_vector_const_void_star &input_items,
++            gr_vector_void_star &output_items );
++
+   std::string name();
+ 
+   static std::vector< std::string > get_devices( bool fake = false );
+@@ -73,7 +76,6 @@ public:
+   std::string get_antenna( size_t chan = 0 );
+ 
+ private:
+-  gr::blocks::file_descriptor_sink::sptr _sink;
+   double _freq, _rate, _corr;
+   int _sockets[2];
+ };
+diff --git a/lib/redpitaya/redpitaya_source_c.cc b/lib/redpitaya/redpitaya_source_c.cc
+index 23ad977..059d97e 100644
+--- a/lib/redpitaya/redpitaya_source_c.cc
++++ b/lib/redpitaya/redpitaya_source_c.cc
+@@ -24,7 +24,7 @@
+ #include <sstream>
+ #include <stdexcept>
+ 
+-#ifdef _WIN32
++#if defined(_WIN32)
+ #include <winsock2.h>
+ #include <ws2tcpip.h>
+ #include <windows.h>
+@@ -54,9 +54,9 @@ redpitaya_source_c_sptr make_redpitaya_source_c(const std::string &args)
+ }
+ 
+ redpitaya_source_c::redpitaya_source_c(const std::string &args) :
+-  gr::hier_block2("redpitaya_source_c",
+-                  gr::io_signature::make(0, 0, 0),
+-                  gr::io_signature::make(1, 1, sizeof(gr_complex)))
++  gr::sync_block("redpitaya_source_c",
++                 gr::io_signature::make(0, 0, 0),
++                 gr::io_signature::make(1, 1, sizeof(gr_complex)))
+ {
+   std::string host = "192.168.1.100";
+   std::stringstream message;
+@@ -64,7 +64,7 @@ redpitaya_source_c::redpitaya_source_c(const std::string &args) :
+   struct sockaddr_in addr;
+   uint32_t command;
+ 
+-#ifdef _WIN32
++#if defined(_WIN32)
+   WSADATA wsaData;
+   WSAStartup( MAKEWORD(2, 2), &wsaData );
+ #endif
+@@ -96,9 +96,7 @@ redpitaya_source_c::redpitaya_source_c(const std::string &args) :
+   for ( size_t i = 0; i < 2; ++i )
+   {
+     if ( ( _sockets[i] = socket( AF_INET, SOCK_STREAM, 0 ) ) < 0 )
+-    {
+       throw std::runtime_error( "Could not create TCP socket." );
+-    }
+ 
+     memset( &addr, 0, sizeof(addr) );
+     addr.sin_family = AF_INET;
+@@ -114,20 +112,38 @@ redpitaya_source_c::redpitaya_source_c(const std::string &args) :
+     command = i;
+     redpitaya_send_command( _sockets[i], command );
+   }
+-
+-  _source = gr::blocks::file_descriptor_source::make( sizeof(gr_complex), _sockets[1] );
+-
+-  connect( _source, 0, self(), 0 );
+ }
+ 
+ redpitaya_source_c::~redpitaya_source_c()
+ {
+-  close( _sockets[1] );
+-  close( _sockets[0] );
+-
+-#ifdef _WIN32
++#if defined(_WIN32)
++  ::closesocket( _sockets[1] );
++  ::closesocket( _sockets[0] );
+   WSACleanup();
++#else
++  ::close( _sockets[1] );
++  ::close( _sockets[0] );
++#endif
++}
++
++int redpitaya_source_c::work( int noutput_items,
++                              gr_vector_const_void_star &input_items,
++                              gr_vector_void_star &output_items )
++{
++  ssize_t size;
++  ssize_t total = sizeof(gr_complex) * noutput_items;
++  gr_complex *out = (gr_complex *)output_items[0];
++
++#if defined(_WIN32)
++  size = ::recv( _sockets[1], (char *)out, total, MSG_WAITALL );
++#else
++  size = ::recv( _sockets[1], out, total, MSG_WAITALL );
+ #endif
++
++  if ( size != total )
++    throw std::runtime_error( "Receiving samples failed." );
++
++  return noutput_items;
+ }
+ 
+ std::string redpitaya_source_c::name()
+diff --git a/lib/redpitaya/redpitaya_source_c.h b/lib/redpitaya/redpitaya_source_c.h
+index 20a8f9f..53f0040 100644
+--- a/lib/redpitaya/redpitaya_source_c.h
++++ b/lib/redpitaya/redpitaya_source_c.h
+@@ -21,8 +21,7 @@
+ #ifndef REDPITAYA_SOURCE_C_H
+ #define REDPITAYA_SOURCE_C_H
+ 
+-#include <gnuradio/hier_block2.h>
+-#include <gnuradio/blocks/file_descriptor_source.h>
++#include <gnuradio/sync_block.h>
+ 
+ #include "source_iface.h"
+ 
+@@ -33,7 +32,7 @@ typedef boost::shared_ptr< redpitaya_source_c > redpitaya_source_c_sptr;
+ redpitaya_source_c_sptr make_redpitaya_source_c( const std::string & args = "" );
+ 
+ class redpitaya_source_c :
+-    public gr::hier_block2,
++    public gr::sync_block,
+     public source_iface
+ {
+ private:
+@@ -44,6 +43,10 @@ private:
+ public:
+   ~redpitaya_source_c();
+ 
++  int work( int noutput_items,
++            gr_vector_const_void_star &input_items,
++            gr_vector_void_star &output_items );
++
+   std::string name();
+ 
+   static std::vector< std::string > get_devices( bool fake = false );
+@@ -73,7 +76,6 @@ public:
+   std::string get_antenna( size_t chan = 0 );
+ 
+ private:
+-  gr::blocks::file_descriptor_source::sptr _source;
+   double _freq, _rate, _corr;
+   int _sockets[2];
+ };
+-- 
+2.1.4
+

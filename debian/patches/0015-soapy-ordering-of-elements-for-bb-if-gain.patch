@@ -1,7 +1,7 @@
 From 53ed8918f396508133374e7ddc1beae9c8e67c6a Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Tue, 17 Feb 2015 19:57:27 -0800
-Subject: [PATCH 15/48] soapy: ordering of elements for bb/if gain
+Subject: [PATCH 15/66] soapy: ordering of elements for bb/if gain
 
 ---
  lib/soapy/soapy_sink_c.cc   | 8 ++++----

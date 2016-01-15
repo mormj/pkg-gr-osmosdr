@@ -1,7 +1,7 @@
 From c092f9e2a3cea524ff02e7cad333069ca3dcd290 Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Tue, 14 Apr 2015 00:43:43 -0700
-Subject: [PATCH 17/48] osmo: minor build tweaks w/ rtl on msvc
+Subject: [PATCH 17/66] osmo: minor build tweaks w/ rtl on msvc
 
 ---
  lib/arg_helpers.h | 1 +

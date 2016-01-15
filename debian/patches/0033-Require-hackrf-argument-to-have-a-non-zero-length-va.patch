@@ -1,7 +1,7 @@
 From d4387f436dd3555c7c590273916df6798cc9dd1f Mon Sep 17 00:00:00 2001
 From: Heikki Hannikainen <hessu@hes.iki.fi>
 Date: Tue, 24 Feb 2015 11:30:16 +0200
-Subject: [PATCH 33/48] Require hackrf argument to have a non-zero-length value
+Subject: [PATCH 33/66] Require hackrf argument to have a non-zero-length value
  to trigger serial number search
 
 Signed-off-by: Heikki Hannikainen <hessu@hes.iki.fi>

@@ -1,0 +1,46 @@
+From 11257d0aa6e9cddb92a6c5a277b8edd57209d0d5 Mon Sep 17 00:00:00 2001
+From: Dimitri Stolnikov <horiz0n@gmx.net>
+Date: Sun, 10 Jan 2016 22:19:13 +0100
+Subject: [PATCH 62/66] add Red Pitaya discovery in device find function
+
+---
+ lib/device.cc | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/lib/device.cc b/lib/device.cc
+index d8fcfba..3ce40fa 100644
+--- a/lib/device.cc
++++ b/lib/device.cc
+@@ -78,6 +78,10 @@
+ #include <airspy_source_c.h>
+ #endif
+ 
++#ifdef ENABLE_REDPITAYA
++#include <redpitaya_source_c.h>
++#endif
++
+ #include "arg_helpers.h"
+ 
+ using namespace osmosdr;
+@@ -174,6 +178,7 @@ devices_t device::find(const device_t &hint)
+   BOOST_FOREACH( std::string dev, airspy_source_c::get_devices() )
+     devices.push_back( device_t(dev) );
+ #endif
++
+   /* software-only sources should be appended at the very end,
+    * hopefully resulting in hardware sources to be shown first
+    * in a graphical interface etc... */
+@@ -182,6 +187,10 @@ devices_t device::find(const device_t &hint)
+   BOOST_FOREACH( std::string dev, rtl_tcp_source_c::get_devices( fake ) )
+     devices.push_back( device_t(dev) );
+ #endif
++#ifdef ENABLE_REDPITAYA
++  BOOST_FOREACH( std::string dev, redpitaya_source_c::get_devices( fake ) )
++    devices.push_back( device_t(dev) );
++#endif
+ #ifdef ENABLE_FILE
+   BOOST_FOREACH( std::string dev, file_source_c::get_devices( fake ) )
+     devices.push_back( device_t(dev) );
+-- 
+2.1.4
+

@@ -1,7 +1,7 @@
 From 79b53f50e42ecafa0cf2026f0274ecd1996e846c Mon Sep 17 00:00:00 2001
 From: SDRplay <SDRplay@users.noreply.github.com>
 Date: Tue, 14 Apr 2015 16:31:04 +0100
-Subject: [PATCH 20/48] changed bufi and bufq to std::vector
+Subject: [PATCH 20/66] changed bufi and bufq to std::vector
 
 ---
  lib/sdrplay/sdrplay_source_c.h | 4 ++--

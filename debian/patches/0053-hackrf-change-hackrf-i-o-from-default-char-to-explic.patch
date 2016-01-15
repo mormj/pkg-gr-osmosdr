@@ -1,0 +1,125 @@
+From 2ca720cfee7d12541aa84be96a0076fc8820f5ab Mon Sep 17 00:00:00 2001
+From: Dimitri Stolnikov <horiz0n@gmx.net>
+Date: Mon, 7 Dec 2015 20:37:32 +0100
+Subject: [PATCH 53/66] hackrf: change hackrf i/o from default char to explicit
+ int8_t
+
+original patch provided via github by Dirk Grunwald
+---
+ lib/hackrf/hackrf_sink_c.cc   | 16 ++++++++--------
+ lib/hackrf/hackrf_sink_c.h    |  2 +-
+ lib/hackrf/hackrf_source_c.cc |  8 ++++----
+ 3 files changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/lib/hackrf/hackrf_sink_c.cc b/lib/hackrf/hackrf_sink_c.cc
+index e81ae34..ee3745b 100644
+--- a/lib/hackrf/hackrf_sink_c.cc
++++ b/lib/hackrf/hackrf_sink_c.cc
+@@ -73,7 +73,7 @@ static inline bool cb_init(circular_buffer_t *cb, size_t capacity, size_t sz)
+   cb->buffer = malloc(capacity * sz);
+   if(cb->buffer == NULL)
+     return false; // handle error
+-  cb->buffer_end = (char *)cb->buffer + capacity * sz;
++  cb->buffer_end = (int8_t *)cb->buffer + capacity * sz;
+   cb->capacity = capacity;
+   cb->count = 0;
+   cb->sz = sz;
+@@ -109,7 +109,7 @@ static inline bool cb_push_back(circular_buffer_t *cb, const void *item)
+   if(cb->count == cb->capacity)
+     return false; // handle error
+   memcpy(cb->head, item, cb->sz);
+-  cb->head = (char *)cb->head + cb->sz;
++  cb->head = (int8_t *)cb->head + cb->sz;
+   if(cb->head == cb->buffer_end)
+     cb->head = cb->buffer;
+   cb->count++;
+@@ -121,7 +121,7 @@ static inline bool cb_pop_front(circular_buffer_t *cb, void *item)
+   if(cb->count == 0)
+     return false; // handle error
+   memcpy(item, cb->tail, cb->sz);
+-  cb->tail = (char *)cb->tail + cb->sz;
++  cb->tail = (int8_t *)cb->tail + cb->sz;
+   if(cb->tail == cb->buffer_end)
+     cb->tail = cb->buffer;
+   cb->count--;
+@@ -245,7 +245,7 @@ hackrf_sink_c::hackrf_sink_c (const std::string &args)
+     }
+   }
+ 
+-  _buf = (char *) malloc( BUF_LEN );
++  _buf = (int8_t *) malloc( BUF_LEN );
+ 
+   cb_init( &_cbuf, _buf_num, BUF_LEN );
+ 
+@@ -353,7 +353,7 @@ bool hackrf_sink_c::stop()
+ }
+ 
+ #ifdef USE_AVX
+-void convert_avx(const float* inbuf, char* outbuf,const unsigned int count)
++void convert_avx(const float* inbuf, int8_t* outbuf,const unsigned int count)
+ {
+   __m256 mulme = _mm256_set_ps(127.0f, 127.0f, 127.0f, 127.0f, 127.0f, 127.0f, 127.0f, 127.0f);
+   for(unsigned int i=0; i<count;i++){
+@@ -376,7 +376,7 @@ void convert_avx(const float* inbuf, char* outbuf,const unsigned int count)
+ }
+ 
+ #elif USE_SSE2
+-void convert_sse2(const float* inbuf, char* outbuf,const unsigned int count)
++void convert_sse2(const float* inbuf, int8_t* outbuf,const unsigned int count)
+ {
+   const register __m128 mulme = _mm_set_ps( 127.0f, 127.0f, 127.0f, 127.0f );
+   __m128 itmp1,itmp2,itmp3,itmp4;
+@@ -407,7 +407,7 @@ void convert_sse2(const float* inbuf, char* outbuf,const unsigned int count)
+ }
+ #endif
+ 
+-void convert_default(float* inbuf, char* outbuf,const unsigned int count)
++void convert_default(float* inbuf, int8_t* outbuf,const unsigned int count)
+ {
+   for(unsigned int i=0; i<count;i++){
+     outbuf[i]= inbuf[i]*127;
+@@ -427,7 +427,7 @@ int hackrf_sink_c::work( int noutput_items,
+       _buf_cond.wait( lock );
+   }
+ 
+-  char *buf = _buf + _buf_used;
++  int8_t *buf = _buf + _buf_used;
+   unsigned int prev_buf_used = _buf_used;
+ 
+   unsigned int remaining = (BUF_LEN-_buf_used)/2; //complex
+diff --git a/lib/hackrf/hackrf_sink_c.h b/lib/hackrf/hackrf_sink_c.h
+index 7750026..a7e7ab8 100644
+--- a/lib/hackrf/hackrf_sink_c.h
++++ b/lib/hackrf/hackrf_sink_c.h
+@@ -134,7 +134,7 @@ private:
+ //  gr::thread::thread _thread;
+ 
+   circular_buffer_t _cbuf;
+-  char *_buf;
++  int8_t *_buf;
+   unsigned int _buf_num;
+   unsigned int _buf_used;
+   boost::mutex _buf_mutex;
+diff --git a/lib/hackrf/hackrf_source_c.cc b/lib/hackrf/hackrf_source_c.cc
+index 79a8c71..03a43d4 100644
+--- a/lib/hackrf/hackrf_source_c.cc
++++ b/lib/hackrf/hackrf_source_c.cc
+@@ -125,11 +125,11 @@ hackrf_source_c::hackrf_source_c (const std::string &args)
+   // create a lookup table for gr_complex values
+   for (unsigned int i = 0; i <= 0xffff; i++) {
+ #ifdef BOOST_LITTLE_ENDIAN
+-    _lut.push_back( gr_complex( (float(char(i & 0xff))) * (1.0f/128.0f),
+-                                (float(char(i >> 8))) * (1.0f/128.0f) ) );
++    _lut.push_back( gr_complex( (float(int8_t(i & 0xff))) * (1.0f/128.0f),
++                                (float(int8_t(i >> 8))) * (1.0f/128.0f) ) );
+ #else // BOOST_BIG_ENDIAN
+-    _lut.push_back( gr_complex( (float(char(i >> 8))) * (1.0f/128.0f),
+-                                (float(char(i & 0xff))) * (1.0f/128.0f) ) );
++    _lut.push_back( gr_complex( (float(int8_t(i >> 8))) * (1.0f/128.0f),
++                                (float(int8_t(i & 0xff))) * (1.0f/128.0f) ) );
+ #endif
+   }
+ 
+-- 
+2.1.4
+
