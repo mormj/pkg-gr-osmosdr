@@ -1,0 +1,268 @@
+From 2b798113503be73d67348dec5ed9f944de6fe7b6 Mon Sep 17 00:00:00 2001
+From: Dimitri Stolnikov <horiz0n@gmx.net>
+Date: Sun, 28 Feb 2016 17:45:54 +0100
+Subject: [PATCH 68/71] bladerf: implement options for clock configuration
+
+Since firmware 2016.01-rc1 bladeRF has the ability to lock to an
+external reference as well as produce arbitrary frequency signal
+(25 MHz here) on its clock output.
+
+Use gr-osmosdr source with the following arguments to produce 25
+MHz on the SMB connector:
+
+osmocom_fft -a bladerf,smb=25e6
+
+smb=25e6
+
+To lock the bladeRF itself to an external GPSDO reference, use
+additional arguments tamer=external for 10MHz or tamer=external_1pps for
+1PPS GPSDO signals.
+
+osmocom_fft -a bladerf,smb=25e6,tamer=external
+
+tamer={internal,external_1pps,external}
+
+The described method requires https://github.com/Nuand/bladeRF/releases/
+tag/2016.01-rc1
+
+Carefully *read the instructions for external reference locking*
+(especially max allowed voltage levels) on Nuand's blog https://
+www.nuand.com/blog/2016-01-rc1-release/
+---
+ CMakeLists.txt                  |  2 +-
+ grc/gen_osmosdr_blocks.py       |  3 +-
+ lib/bladerf/bladerf_common.cc   | 81 +++++++++++++++++++++++++++++++++++++++++
+ lib/bladerf/bladerf_common.h    |  7 ++++
+ lib/bladerf/bladerf_sink_c.cc   | 15 ++++++++
+ lib/bladerf/bladerf_sink_c.h    |  4 ++
+ lib/bladerf/bladerf_source_c.cc | 15 ++++++++
+ lib/bladerf/bladerf_source_c.h  |  4 ++
+ 8 files changed, 129 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 212a30e..32e7ff5 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -150,7 +150,7 @@ set(GRC_BLOCKS_DIR      ${GR_PKG_DATA_DIR}/grc/blocks)
+ # Find build dependencies
+ ########################################################################
+ set(GR_REQUIRED_COMPONENTS RUNTIME PMT BLOCKS)
+-set(MIN_GR_VERSION "3.7.3")
++set(MIN_GR_VERSION "3.7.8")
+ find_package(Gnuradio REQUIRED)
+ if("${Gnuradio_VERSION}" VERSION_LESS MIN_GR_VERSION)
+     MESSAGE(FATAL_ERROR "GnuRadio version required: >=\"" ${MIN_GR_VERSION} "\" found: \"" ${Gnuradio_VERSION} "\"")
+diff --git a/grc/gen_osmosdr_blocks.py b/grc/gen_osmosdr_blocks.py
+index d29de3e..ad36d39 100644
+--- a/grc/gen_osmosdr_blocks.py
++++ b/grc/gen_osmosdr_blocks.py
+@@ -150,6 +150,7 @@ self.\$(id).set_bandwidth(\$bw$(n), $n)
+     <option><name>Default</name><key></key></option>
+     <option><name>Internal</name><key>internal</key></option>
+     <option><name>External</name><key>external</key></option>
++    <option><name>External 1PPS</name><key>external_1pps</key></option>
+     <option><name>MIMO Cable</name><key>mimo</key></option>
+     <option><name>O/B GPSDO</name><key>gpsdo</key></option>
+   </param>
+@@ -264,7 +265,7 @@ Lines ending with ... mean it's possible to bind devices together by specifying
+ #end if
+   redpitaya=192.168.1.100[:1001]
+   hackrf=0[,buffers=32][,bias=0|1][,bias_tx=0|1]
+-  bladerf=0[,fpga='/path/to/the/bitstream.rbf']
++  bladerf=0[,tamer=internal|external|external_1pps][,smb=25e6]
+   uhd[,serial=...][,lo_offset=0][,mcr=52e6][,nchan=2][,subdev='\\\\'B:0 A:0\\\\''] ...
+ 
+ Num Channels:
+diff --git a/lib/bladerf/bladerf_common.cc b/lib/bladerf/bladerf_common.cc
+index 3a6c24a..bb6746a 100644
+--- a/lib/bladerf/bladerf_common.cc
++++ b/lib/bladerf/bladerf_common.cc
+@@ -414,6 +414,16 @@ void bladerf_common::init(dict_t &dict, bladerf_module module)
+ 
+   std::cerr << std::endl;
+ 
++  if (dict.count("tamer")) {
++    set_clock_source( dict["tamer"] );
++    std::cerr << _pfx << "Tamer mode set to '" << get_clock_source() << "'";
++  }
++
++  if (dict.count("smb")) {
++    set_smb_frequency( boost::lexical_cast< double >( dict["smb"] ) );
++    std::cerr << _pfx << "SMB frequency set to " << get_smb_frequency() << " Hz";
++  }
++
+   /* Initialize buffer and sample configuration */
+   _num_buffers = 0;
+   if (dict.count("buffers")) {
+@@ -618,3 +628,74 @@ int bladerf_common::set_iq_balance(bladerf_module module, const std::complex<dou
+ 
+     return ret;
+ }
++
++void bladerf_common::set_clock_source(const std::string &source, const size_t mboard)
++{
++  bladerf_vctcxo_tamer_mode tamer_mode = BLADERF_VCTCXO_TAMER_DISABLED;
++
++  std::vector<std::string> clock_sources = get_clock_sources(mboard);
++
++  int index = std::find(clock_sources.begin(), clock_sources.end(), source) - clock_sources.begin();
++
++  if ( index < int(clock_sources.size()) ) {
++    tamer_mode = static_cast<bladerf_vctcxo_tamer_mode>(index);
++  }
++
++  int status = bladerf_set_vctcxo_tamer_mode( _dev.get(), tamer_mode );
++  if ( status != 0 )
++    throw std::runtime_error(_pfx + "Failed to set VCTCXO tamer mode: " +
++                             bladerf_strerror(status));
++}
++
++std::string bladerf_common::get_clock_source(const size_t mboard)
++{
++  bladerf_vctcxo_tamer_mode tamer_mode = BLADERF_VCTCXO_TAMER_INVALID;
++
++  int status = bladerf_get_vctcxo_tamer_mode( _dev.get(), &tamer_mode );
++  if ( status != 0 )
++    throw std::runtime_error(_pfx + "Failed to get VCTCXO tamer mode: " +
++                             bladerf_strerror(status));
++
++  std::vector<std::string> clock_sources = get_clock_sources(mboard);
++
++  return clock_sources.at(tamer_mode);
++}
++
++std::vector<std::string> bladerf_common::get_clock_sources(const size_t mboard)
++{
++  std::vector<std::string> sources;
++
++  // assumes zero-based 1:1 mapping
++  sources.push_back("internal");      // BLADERF_VCTCXO_TAMER_DISABLED
++  sources.push_back("external_1pps"); // BLADERF_VCTCXO_TAMER_1_PPS
++  sources.push_back("external");      // BLADERF_VCTCXO_TAMER_10_MHZ
++
++  return sources;
++}
++
++void bladerf_common::set_smb_frequency(double frequency)
++{
++  uint32_t actual_frequency = frequency;
++
++  int status = bladerf_set_smb_frequency( _dev.get(), uint32_t(frequency), &actual_frequency );
++  if ( status != 0 )
++    throw std::runtime_error(_pfx + "Failed to set SMB frequency: " +
++                             bladerf_strerror(status));
++
++  if ( uint32_t(frequency) != actual_frequency )
++    std::cerr << _pfx << "Wanted SMB frequency is " << frequency
++              << ", actual is " << actual_frequency
++              << std::endl;
++}
++
++double bladerf_common::get_smb_frequency()
++{
++  unsigned int actual_frequency;
++
++  int status = bladerf_get_smb_frequency( _dev.get(), &actual_frequency );
++  if ( status != 0 )
++    throw std::runtime_error(_pfx + "Failed to get SMB frequency: " +
++                             bladerf_strerror(status));
++
++  return actual_frequency;
++}
+diff --git a/lib/bladerf/bladerf_common.h b/lib/bladerf/bladerf_common.h
+index b791003..9c311f7 100644
+--- a/lib/bladerf/bladerf_common.h
++++ b/lib/bladerf/bladerf_common.h
+@@ -67,6 +67,13 @@ protected:
+   int set_dc_offset(bladerf_module module, const std::complex<double> &offset, size_t chan);
+   int set_iq_balance(bladerf_module module, const std::complex<double> &balance, size_t chan);
+ 
++  void set_clock_source(const std::string &source, const size_t mboard = 0);
++  std::string get_clock_source(const size_t mboard = 0);
++  std::vector<std::string> get_clock_sources(const size_t mboard = 0);
++
++  void set_smb_frequency(double frequency);
++  double get_smb_frequency();
++
+   osmosdr::freq_range_t freq_range();
+   osmosdr::meta_range_t sample_rates();
+   osmosdr::freq_range_t filter_bandwidths();
+diff --git a/lib/bladerf/bladerf_sink_c.cc b/lib/bladerf/bladerf_sink_c.cc
+index fffe8dd..5c4b45f 100644
+--- a/lib/bladerf/bladerf_sink_c.cc
++++ b/lib/bladerf/bladerf_sink_c.cc
+@@ -565,3 +565,18 @@ osmosdr::freq_range_t bladerf_sink_c::get_bandwidth_range( size_t chan )
+ {
+   return filter_bandwidths();
+ }
++
++void bladerf_sink_c::set_clock_source(const std::string &source, const size_t mboard)
++{
++  bladerf_common::set_clock_source(source, mboard);
++}
++
++std::string bladerf_sink_c::get_clock_source(const size_t mboard)
++{
++  return bladerf_common::get_clock_source(mboard);
++}
++
++std::vector<std::string> bladerf_sink_c::get_clock_sources(const size_t mboard)
++{
++  return bladerf_common::get_clock_sources(mboard);
++}
+diff --git a/lib/bladerf/bladerf_sink_c.h b/lib/bladerf/bladerf_sink_c.h
+index 57d174b..496abf4 100644
+--- a/lib/bladerf/bladerf_sink_c.h
++++ b/lib/bladerf/bladerf_sink_c.h
+@@ -117,6 +117,10 @@ public:
+   double set_bandwidth( double bandwidth, size_t chan = 0 );
+   double get_bandwidth( size_t chan = 0 );
+   osmosdr::freq_range_t get_bandwidth_range( size_t chan = 0 );
++
++  void set_clock_source(const std::string &source, const size_t mboard = 0);
++  std::string get_clock_source(const size_t mboard);
++  std::vector<std::string> get_clock_sources(const size_t mboard);
+ };
+ 
+ #endif /* INCLUDED_BLADERF_SINK_C_H */
+diff --git a/lib/bladerf/bladerf_source_c.cc b/lib/bladerf/bladerf_source_c.cc
+index b4afcb2..ac002db 100644
+--- a/lib/bladerf/bladerf_source_c.cc
++++ b/lib/bladerf/bladerf_source_c.cc
+@@ -537,3 +537,18 @@ osmosdr::freq_range_t bladerf_source_c::get_bandwidth_range( size_t chan )
+ {
+   return filter_bandwidths();
+ }
++
++void bladerf_source_c::set_clock_source(const std::string &source, const size_t mboard)
++{
++  bladerf_common::set_clock_source(source, mboard);
++}
++
++std::string bladerf_source_c::get_clock_source(const size_t mboard)
++{
++  return bladerf_common::get_clock_source(mboard);
++}
++
++std::vector<std::string> bladerf_source_c::get_clock_sources(const size_t mboard)
++{
++  return bladerf_common::get_clock_sources(mboard);
++}
+diff --git a/lib/bladerf/bladerf_source_c.h b/lib/bladerf/bladerf_source_c.h
+index ecaa78e..131b5ed 100644
+--- a/lib/bladerf/bladerf_source_c.h
++++ b/lib/bladerf/bladerf_source_c.h
+@@ -113,6 +113,10 @@ public:
+   double get_bandwidth( size_t chan = 0 );
+   osmosdr::freq_range_t get_bandwidth_range( size_t chan = 0 );
+ 
++  void set_clock_source(const std::string &source, const size_t mboard = 0);
++  std::string get_clock_source(const size_t mboard);
++  std::vector<std::string> get_clock_sources(const size_t mboard);
++
+ private:
+   osmosdr::gain_range_t _lna_range;
+ };
+-- 
+2.1.4
+

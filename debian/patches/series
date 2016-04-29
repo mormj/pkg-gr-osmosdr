@@ -63,3 +63,8 @@
 0064-cmake-update-component-name-update-AUTHORS-file.patch
 0065-airspy-implement-sensitivity-and-linerity-gain-profi.patch
 0066-do-not-check-for-NULL-before-calling-free.patch
+0067-allow-both-3.7.-and-git-version-of-GnuRadio.patch
+0068-bladerf-implement-options-for-clock-configuration.patch
+0069-apps-added-clock-source-option-to-fft-and-siggen.patch
+0070-apps-implement-peak-hold-option-for-fft.patch
+0071-airspy-Option-pack-0-1-to-enable-USB-bit-packing.patch
