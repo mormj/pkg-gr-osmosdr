@@ -1,9 +1,21 @@
+gr-osmosdr (0.1.4-9~bpo8+1) jessie-backports; urgency=medium
+
+  * Rebuild for jessie-backports.
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Tue, 17 May 2016 23:51:31 -0400
+
 gr-osmosdr (0.1.4-9) unstable; urgency=medium
 
   * update to v0.1.4-72-g164a09f
   * rebuild on kfreebsd (Closes: #822132)
 
  -- A. Maitland Bottoms <bottoms@debian.org>  Fri, 29 Apr 2016 05:10:35 -0400
+
+gr-osmosdr (0.1.4-8~bpo8+1) jessie-backports; urgency=medium
+
+  * Rebuild for jessie-backports.
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Mon, 25 Jan 2016 13:09:59 -0500
 
 gr-osmosdr (0.1.4-8) unstable; urgency=medium
 
