@@ -5,11 +5,11 @@ Maintainer: A. Maitland Bottoms <bottoms@debian.org>
 Build-Depends: cmake,
                debhelper (>= 9.0.0~),
                doxygen,
-               gnuradio-dev (>=3.7.8-7),
+               gnuradio-dev (>=3.7.10),
                gr-fcdproplus [!hurd-i386],
                gr-iqbal,
                libairspy-dev [!hurd-i386],
-               libbladerf-dev (>=0.2014.09~rc2) [!hurd-i386],
+               libbladerf-dev (>=0.2016.01~rc1) [!hurd-i386],
                libboost-dev,
                libboost-system-dev,
                libboost-thread-dev,
@@ -18,15 +18,15 @@ Build-Depends: cmake,
                libmirisdr-dev [!hurd-i386],
                libosmosdr-dev [!hurd-i386],
                librtlsdr-dev [!hurd-i386],
-               libuhd-dev (>=3.9.0),
+               libuhd-dev (>=3.9.4),
                pkg-config,
                python-dev,
                swig
 X-Python-Version: >= 2.7, << 2.8
-Standards-Version: 3.9.6
+Standards-Version: 3.9.8
 Homepage: http://sdr.osmocom.org/trac/wiki/rtl-sdr
-Vcs-Git: git://anonscm.debian.org/users/bottoms/pkg-gr-osmosdr.git
-Vcs-Browser: http://anonscm.debian.org/cgit/users/bottoms/pkg-gr-osmosdr.git/
+Vcs-Git: https://anonscm.debian.org/git/users/bottoms/pkg-gr-osmosdr.git
+Vcs-Browser: https://anonscm.debian.org/cgit/users/bottoms/pkg-gr-osmosdr.git/
 
 Package: gr-osmosdr
 Architecture: any
