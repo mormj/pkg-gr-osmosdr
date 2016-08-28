@@ -18,9 +18,11 @@ Build-Depends: cmake,
                libmirisdr-dev [!hurd-i386],
                libosmosdr-dev [!hurd-i386],
                librtlsdr-dev [!hurd-i386],
+	       libsoapysdr-dev,
                libuhd-dev (>=3.9.4),
                pkg-config,
                python-dev,
+	       python-soapysdr,
                swig
 X-Python-Version: >= 2.7, << 2.8
 Standards-Version: 3.9.8

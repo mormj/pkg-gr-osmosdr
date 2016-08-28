@@ -68,3 +68,6 @@
 0069-apps-added-clock-source-option-to-fft-and-siggen.patch
 0070-apps-implement-peak-hold-option-for-fft.patch
 0071-airspy-Option-pack-0-1-to-enable-USB-bit-packing.patch
+0072-soapy-support-automatic-bandwidth-param.patch
+0073-soapy-provide-default-gain-range-step.patch
+0074-soapy-support-newer-getBandwidthRange-API-call.patch

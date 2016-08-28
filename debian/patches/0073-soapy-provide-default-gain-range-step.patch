@@ -1,0 +1,62 @@
+From 860e9a1a727688a0b7d2040ed4afdc0669331160 Mon Sep 17 00:00:00 2001
+From: Josh Blum <josh@joshknows.com>
+Date: Tue, 7 Jun 2016 13:52:52 -0700
+Subject: [PATCH 2/3] soapy: provide default gain range step
+
+The soapysdr range type does not provide a step size,
+however apps like the osmocom siggen use this size for a slider,
+and a value of zero will cause a divide by zero error.
+
+Although many ranges are not actually linear,
+the idea to provide some default step to avoid crashes.
+A future addition to the API may include providing a step.
+---
+ lib/soapy/soapy_sink_c.cc   | 4 ++--
+ lib/soapy/soapy_source_c.cc | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/lib/soapy/soapy_sink_c.cc b/lib/soapy/soapy_sink_c.cc
+index c1f6fc1..b4dd219 100644
+--- a/lib/soapy/soapy_sink_c.cc
++++ b/lib/soapy/soapy_sink_c.cc
+@@ -184,14 +184,14 @@ std::vector<std::string> soapy_sink_c::get_gain_names( size_t chan)
+ osmosdr::gain_range_t soapy_sink_c::get_gain_range( size_t chan)
+ {
+     SoapySDR::Range r = _device->getGainRange(SOAPY_SDR_TX, chan);
+-    return osmosdr::gain_range_t(r.minimum(), r.maximum());
++    return osmosdr::gain_range_t(r.minimum(), r.maximum(), 1.0);
+ }
+ 
+ osmosdr::gain_range_t soapy_sink_c::get_gain_range( const std::string & name,
+                                                 size_t chan)
+ {
+     SoapySDR::Range r = _device->getGainRange(SOAPY_SDR_TX, chan, name);
+-    return osmosdr::gain_range_t(r.minimum(), r.maximum());
++    return osmosdr::gain_range_t(r.minimum(), r.maximum(), 1.0);
+ }
+ 
+ bool soapy_sink_c::set_gain_mode( bool automatic, size_t chan)
+diff --git a/lib/soapy/soapy_source_c.cc b/lib/soapy/soapy_source_c.cc
+index e64f34a..5fc0dbc 100644
+--- a/lib/soapy/soapy_source_c.cc
++++ b/lib/soapy/soapy_source_c.cc
+@@ -181,14 +181,14 @@ std::vector<std::string> soapy_source_c::get_gain_names( size_t chan )
+ osmosdr::gain_range_t soapy_source_c::get_gain_range( size_t chan )
+ {
+     SoapySDR::Range r = _device->getGainRange(SOAPY_SDR_RX, chan);
+-    return osmosdr::gain_range_t(r.minimum(), r.maximum());
++    return osmosdr::gain_range_t(r.minimum(), r.maximum(), 1.0);
+ }
+ 
+ osmosdr::gain_range_t soapy_source_c::get_gain_range( const std::string & name,
+                                                 size_t chan )
+ {
+     SoapySDR::Range r = _device->getGainRange(SOAPY_SDR_RX, chan, name);
+-    return osmosdr::gain_range_t(r.minimum(), r.maximum());
++    return osmosdr::gain_range_t(r.minimum(), r.maximum(), 1.0);
+ }
+ 
+ bool soapy_source_c::set_gain_mode( bool automatic, size_t chan )
+-- 
+2.1.4
+
