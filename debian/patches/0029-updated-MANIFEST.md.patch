@@ -1,7 +1,7 @@
 From 44c223cb5d473a760877e8c8b2d58e2638173192 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Thu, 14 May 2015 00:22:39 +0200
-Subject: [PATCH 29/66] updated MANIFEST.md
+Subject: [PATCH 29/96] updated MANIFEST.md
 
 ---
  MANIFEST.md | 4 ++--
@@ -28,5 +28,5 @@ index 3851ff5..9e19f5f 100644
  ![FFT](http://sdr.osmocom.org/trac/raw-attachment/wiki/GrOsmoSDR/fft-lte.png "osmocom_fft")
  ![SIG](http://sdr.osmocom.org/trac/raw-attachment/wiki/GrOsmoSDR/siggen-gsm.png "osmocom_siggen")
 -- 
-2.1.4
+2.11.0
 

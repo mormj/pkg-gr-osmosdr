@@ -1,7 +1,7 @@
 From afed5df615de4ca15f2b8201b48cdc06236d7cab Mon Sep 17 00:00:00 2001
 From: SDRplay <info@sdrplay.com>
 Date: Wed, 4 Mar 2015 20:35:59 +0000
-Subject: [PATCH 19/66] Added SDRplay RSP support
+Subject: [PATCH 19/96] Added SDRplay RSP support
 
 Initial build for SDRplay RSP support. Basic functionality, AGC etc. to
 be added
@@ -977,5 +977,5 @@ index b9fead3..5d7d305 100644
      if ( dict.count("hackrf") ) {
        hackrf_source_c_sptr src = make_hackrf_source_c( arg );
 -- 
-2.1.4
+2.11.0
 

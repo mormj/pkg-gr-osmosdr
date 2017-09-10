@@ -1,7 +1,7 @@
 From 84249efbea6220fa193a3ce08c4be119545ce41b Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marcus=20M=C3=BCller?= <marcus.mueller@ettus.com>
 Date: Tue, 29 Dec 2015 19:08:14 +0100
-Subject: [PATCH 59/66] added file_sink_c
+Subject: [PATCH 59/96] added file_sink_c
 
 ---
  lib/file/CMakeLists.txt |   1 +
@@ -417,5 +417,5 @@ index 146f1a9..f291b95 100644
      if ( iface != NULL && long(block.get()) != 0 ) {
        _devs.push_back( iface );
 -- 
-2.1.4
+2.11.0
 

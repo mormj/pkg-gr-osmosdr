@@ -1,0 +1,193 @@
+From 3823c8efce1fd3f9b51debb5569c9419dbb38a89 Mon Sep 17 00:00:00 2001
+From: Alexandru Csete <oz9aec@gmail.com>
+Date: Sun, 11 Sep 2016 12:39:54 +0200
+Subject: [PATCH 79/96] Custom FIR kernels for Airspy.
+
+---
+ lib/airspy/airspy_fir_kernels.h | 101 ++++++++++++++++++++++++++++++++++++++++
+ lib/airspy/airspy_source_c.cc   |  49 ++++++++++++++++++-
+ 2 files changed, 149 insertions(+), 1 deletion(-)
+ create mode 100644 lib/airspy/airspy_fir_kernels.h
+
+diff --git a/lib/airspy/airspy_fir_kernels.h b/lib/airspy/airspy_fir_kernels.h
+new file mode 100644
+index 0000000..e15f4e1
+--- /dev/null
++++ b/lib/airspy/airspy_fir_kernels.h
+@@ -0,0 +1,101 @@
++#pragma once
++
++#define KERNEL_16_110_LEN   7
++const float KERNEL_16_110[] =
++{
++    -0.031835079193115234f,
++     0.000000000000000000f,
++     0.281831502914428710f,
++     0.500007271766662600f,
++     0.281831502914428710f,
++     0.000000000000000000f,
++    -0.031835079193115234f
++};
++
++#define KERNEL_8_100_LEN    11
++const float KERNEL_8_100[] =
++{
++     0.006633400917053223f,
++     0.000000000000000000f,
++    -0.051035523414611816f,
++     0.000000000000000000f,
++     0.294403314590454100f,
++     0.499997496604919430f,
++     0.294403314590454100f,
++     0.000000000000000000f,
++    -0.051035523414611816f,
++     0.000000000000000000f,
++     0.006633400917053223f
++};
++
++#define KERNEL_4_90_LEN     15
++const float KERNEL_4_90[] =
++{
++    -0.002474188804626465f,
++     0.000000000000000000f,
++     0.016965746879577637f,
++     0.000000000000000000f,
++    -0.067680597305297852f,
++     0.000000000000000000f,
++     0.303180575370788570f,
++     0.500017046928405760f,
++     0.303180575370788570f,
++     0.000000000000000000f,
++    -0.067680597305297852f,
++     0.000000000000000000f,
++     0.016965746879577637f,
++     0.000000000000000000f,
++    -0.002474188804626465f
++};
++
++#define KERNEL_2_80_LEN     47
++const float KERNEL_2_80[KERNEL_2_80_LEN] =
++{
++    -0.000198006629943848f,
++     0.000000000000000000f,
++     0.000576853752136230f,
++     0.000000000000000000f,
++    -0.001352190971374512f,
++     0.000000000000000000f,
++     0.002729177474975586f,
++     0.000000000000000000f,
++    -0.004988193511962891f,
++     0.000000000000000000f,
++     0.008499503135681152f,
++     0.000000000000000000f,
++    -0.013788580894470215f,
++     0.000000000000000000f,
++     0.021713137626647949f,
++     0.000000000000000000f,
++    -0.033980011940002441f,
++     0.000000000000000000f,
++     0.054944872856140137f,
++     0.000000000000000000f,
++    -0.100657463073730470f,
++     0.000000000000000000f,
++     0.316457390785217290f,
++     0.500000000000000000f,
++     0.316457390785217290f,
++     0.000000000000000000f,
++    -0.100657463073730470f,
++     0.000000000000000000f,
++     0.054944872856140137f,
++     0.000000000000000000f,
++    -0.033980011940002441f,
++     0.000000000000000000f,
++     0.021713137626647949f,
++     0.000000000000000000f,
++    -0.013788580894470215f,
++     0.000000000000000000f,
++     0.008499503135681152f,
++     0.000000000000000000f,
++    -0.004988193511962891f,
++     0.000000000000000000f,
++     0.002729177474975586f,
++     0.000000000000000000f,
++    -0.001352190971374512f,
++     0.000000000000000000f,
++     0.000576853752136230f,
++     0.000000000000000000f,
++    -0.000198006629943848f
++};
+diff --git a/lib/airspy/airspy_source_c.cc b/lib/airspy/airspy_source_c.cc
+index 25f73d4..bbeb3aa 100644
+--- a/lib/airspy/airspy_source_c.cc
++++ b/lib/airspy/airspy_source_c.cc
+@@ -40,6 +40,7 @@
+ #include <gnuradio/io_signature.h>
+ 
+ #include "airspy_source_c.h"
++#include "airspy_fir_kernels.h"
+ 
+ #include "arg_helpers.h"
+ 
+@@ -638,12 +639,58 @@ std::string airspy_source_c::get_antenna( size_t chan )
+ 
+ double airspy_source_c::set_bandwidth( double bandwidth, size_t chan )
+ {
++  if (bandwidth == 0.f)
++    return get_bandwidth( chan );
++
++  {
++    int     ret;
++    int     decim;
++    int     size;
++    const float  *kernel;
++
++    decim = (int)(_sample_rate / bandwidth);
++//    if (decim < 2)
++//    {
++//      kernel = 0;
++//      size = 0;
++//    }
++//    else
++    if (decim < 4)
++    {
++      kernel = KERNEL_2_80;
++      size = KERNEL_2_80_LEN;
++    }
++    else if (decim < 8)
++    {
++      kernel = KERNEL_4_90;
++      size = KERNEL_4_90_LEN;
++    }
++    else if (decim < 16)
++    {
++      kernel = KERNEL_8_100;
++      size = KERNEL_8_100_LEN;
++    }
++    else
++    {
++      kernel = KERNEL_16_110;
++      size = KERNEL_16_110_LEN;
++    }
++
++    if (size)
++    {
++      std::cout << "  Airspy decim:" << decim
++                << "  kernel size:" << size << std::endl;
++      ret = airspy_set_conversion_filter_float32(_dev, kernel, size);
++      AIRSPY_THROW_ON_ERROR(ret, "Failed to set IQ conversion filter")
++    }
++  }
++
+   return get_bandwidth( chan );
+ }
+ 
+ double airspy_source_c::get_bandwidth( size_t chan )
+ {
+-  return 10e6;
++  return _sample_rate;
+ }
+ 
+ osmosdr::freq_range_t airspy_source_c::get_bandwidth_range( size_t chan )
+-- 
+2.11.0
+

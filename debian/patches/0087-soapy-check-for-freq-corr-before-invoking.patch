@@ -1,0 +1,89 @@
+From a9e536f45bae3c283a1ad7ed13ff17bbda6173ba Mon Sep 17 00:00:00 2001
+From: Josh Blum <josh@joshknows.com>
+Date: Sat, 1 Apr 2017 19:45:51 -0700
+Subject: [PATCH 87/96] soapy - check for freq corr before invoking
+
+set_freq_corr() is often a NOP for devices.
+checking avoids crashes for some applications (ex GQRX)
+---
+ lib/soapy/soapy_sink_c.cc   | 14 ++++++++++++--
+ lib/soapy/soapy_source_c.cc | 14 ++++++++++++--
+ 2 files changed, 24 insertions(+), 4 deletions(-)
+
+diff --git a/lib/soapy/soapy_sink_c.cc b/lib/soapy/soapy_sink_c.cc
+index 1af5a65..dbdfa7e 100644
+--- a/lib/soapy/soapy_sink_c.cc
++++ b/lib/soapy/soapy_sink_c.cc
+@@ -29,6 +29,7 @@
+ #endif
+ 
+ #include <iostream>
++#include <algorithm> //find
+ 
+ #include <boost/assign.hpp>
+ #include <boost/format.hpp>
+@@ -163,13 +164,22 @@ double soapy_sink_c::get_center_freq( size_t chan)
+ 
+ double soapy_sink_c::set_freq_corr( double ppm, size_t chan)
+ {
+-    _device->setFrequency(SOAPY_SDR_TX, chan, "CORR", ppm);
++    std::vector<std::string> components = _device->listFrequencies(SOAPY_SDR_TX, chan);
++    if (std::find(components.begin(), components.end(), "COOR") != components.end())
++    {
++        _device->setFrequency(SOAPY_SDR_TX, chan, "CORR", ppm);
++    }
+     return this->get_freq_corr(chan);
+ }
+ 
+ double soapy_sink_c::get_freq_corr( size_t chan)
+ {
+-    return _device->getFrequency(SOAPY_SDR_TX, chan, "CORR");
++    std::vector<std::string> components = _device->listFrequencies(SOAPY_SDR_TX, chan);
++    if (std::find(components.begin(), components.end(), "COOR") != components.end())
++    {
++        return _device->getFrequency(SOAPY_SDR_TX, chan, "CORR");
++    }
++    return 0.0;
+ }
+ 
+ std::vector<std::string> soapy_sink_c::get_gain_names( size_t chan)
+diff --git a/lib/soapy/soapy_source_c.cc b/lib/soapy/soapy_source_c.cc
+index d066ed8..fe1e8d9 100644
+--- a/lib/soapy/soapy_source_c.cc
++++ b/lib/soapy/soapy_source_c.cc
+@@ -29,6 +29,7 @@
+ #endif
+ 
+ #include <iostream>
++#include <algorithm> //find
+ 
+ #include <boost/assign.hpp>
+ #include <boost/format.hpp>
+@@ -164,13 +165,22 @@ double soapy_source_c::get_center_freq( size_t chan )
+ 
+ double soapy_source_c::set_freq_corr( double ppm, size_t chan )
+ {
+-    _device->setFrequency(SOAPY_SDR_RX, chan, "CORR", ppm);
++    std::vector<std::string> components = _device->listFrequencies(SOAPY_SDR_RX, chan);
++    if (std::find(components.begin(), components.end(), "COOR") != components.end())
++    {
++        _device->setFrequency(SOAPY_SDR_RX, chan, "CORR", ppm);
++    }
+     return this->get_freq_corr(chan);
+ }
+ 
+ double soapy_source_c::get_freq_corr( size_t chan )
+ {
+-    return _device->getFrequency(SOAPY_SDR_RX, chan, "CORR");
++    std::vector<std::string> components = _device->listFrequencies(SOAPY_SDR_RX, chan);
++    if (std::find(components.begin(), components.end(), "COOR") != components.end())
++    {
++        return _device->getFrequency(SOAPY_SDR_RX, chan, "CORR");
++    }
++    return 0.0;
+ }
+ 
+ std::vector<std::string> soapy_source_c::get_gain_names( size_t chan )
+-- 
+2.11.0
+

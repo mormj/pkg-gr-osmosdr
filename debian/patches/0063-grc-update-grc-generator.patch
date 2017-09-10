@@ -1,7 +1,7 @@
 From 64cfd98c5b2a8508715a1d48b09daf85a96049ee Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sun, 10 Jan 2016 22:27:42 +0100
-Subject: [PATCH 63/66] grc: update grc generator
+Subject: [PATCH 63/96] grc: update grc generator
 
 ---
  grc/gen_osmosdr_blocks.py | 9 ++++++++-
@@ -36,5 +36,5 @@ index 36210f8..d29de3e 100644
    redpitaya=192.168.1.100[:1001]
    hackrf=0[,buffers=32][,bias=0|1][,bias_tx=0|1]
 -- 
-2.1.4
+2.11.0
 

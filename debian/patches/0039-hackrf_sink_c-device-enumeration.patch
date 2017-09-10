@@ -1,7 +1,7 @@
 From dd6536757a3a2ce115491f12d730a592fbc07999 Mon Sep 17 00:00:00 2001
 From: Heikki Hannikainen <hessu@hes.iki.fi>
 Date: Tue, 24 Feb 2015 13:10:36 +0200
-Subject: [PATCH 39/66] hackrf_sink_c: device enumeration
+Subject: [PATCH 39/96] hackrf_sink_c: device enumeration
 
 Signed-off-by: Heikki Hannikainen <hessu@hes.iki.fi>
 ---
@@ -87,5 +87,5 @@ index a052093..2c8025b 100644
  }
  
 -- 
-2.1.4
+2.11.0
 

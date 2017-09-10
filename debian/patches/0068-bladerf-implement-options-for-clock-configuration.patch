@@ -1,7 +1,7 @@
 From 2b798113503be73d67348dec5ed9f944de6fe7b6 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sun, 28 Feb 2016 17:45:54 +0100
-Subject: [PATCH 68/71] bladerf: implement options for clock configuration
+Subject: [PATCH 68/96] bladerf: implement options for clock configuration
 
 Since firmware 2016.01-rc1 bladeRF has the ability to lock to an
 external reference as well as produce arbitrary frequency signal
@@ -264,5 +264,5 @@ index ecaa78e..131b5ed 100644
    osmosdr::gain_range_t _lna_range;
  };
 -- 
-2.1.4
+2.11.0
 

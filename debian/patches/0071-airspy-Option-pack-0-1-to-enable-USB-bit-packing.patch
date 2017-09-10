@@ -1,7 +1,7 @@
 From 164a09fc11cec2d8b15b38e8b512fa542d6cecc7 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sun, 28 Feb 2016 17:52:01 +0100
-Subject: [PATCH 71/71] airspy: Option pack={0,1} to enable USB bit packing
+Subject: [PATCH 71/96] airspy: Option pack={0,1} to enable USB bit packing
 
 Patch provided by Martin Smith.
 
@@ -96,5 +96,5 @@ index 3c1bbb4..25f73d4 100644
    if (!_fifo) {
      throw std::runtime_error( std::string(__FUNCTION__) + " " +
 -- 
-2.1.4
+2.11.0
 

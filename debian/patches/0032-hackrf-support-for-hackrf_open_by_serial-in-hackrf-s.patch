@@ -1,7 +1,7 @@
 From 9595b044b659f6ba2ee38e48cc3721b562726912 Mon Sep 17 00:00:00 2001
 From: Heikki Hannikainen <hessu@hes.iki.fi>
 Date: Tue, 24 Feb 2015 10:53:10 +0200
-Subject: [PATCH 32/66] hackrf: support for hackrf_open_by_serial in hackrf
+Subject: [PATCH 32/96] hackrf: support for hackrf_open_by_serial in hackrf
  source
 
 Signed-off-by: Heikki Hannikainen <hessu@hes.iki.fi>
@@ -40,5 +40,5 @@ index c845840..f9ed206 100644
  
    uint8_t board_id;
 -- 
-2.1.4
+2.11.0
 

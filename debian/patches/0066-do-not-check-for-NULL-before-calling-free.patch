@@ -1,7 +1,7 @@
 From ac15e7897bb740d083c71bf02729467ca6528635 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ji=C5=99=C3=AD=20Pinkava?= <j-pi@seznam.cz>
 Date: Sun, 4 Oct 2015 14:11:29 +0200
-Subject: [PATCH 66/66] do not check for NULL before calling free
+Subject: [PATCH 66/96] do not check for NULL before calling free
 
 ---
  lib/hackrf/hackrf_sink_c.cc     | 12 ++++--------
@@ -117,5 +117,5 @@ index 81926a3..9a9ee40 100644
     if (_running)
     {
 -- 
-2.1.4
+2.11.0
 

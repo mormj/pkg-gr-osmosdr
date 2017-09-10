@@ -1,7 +1,7 @@
 From f8cba954f0b7c76e749a8a75b74055c22dbe00cf Mon Sep 17 00:00:00 2001
 From: Pavel Demin <pavel.demin@uclouvain.be>
 Date: Wed, 6 Jan 2016 16:49:02 +0100
-Subject: [PATCH 58/66] redpitaya: fix compilation errors on MS Windows and on
+Subject: [PATCH 58/96] redpitaya: fix compilation errors on MS Windows and on
  Mac OS X
 
 ---
@@ -271,5 +271,5 @@ index 53f0040..7d536ee 100644
  
  #endif // REDPITAYA_SOURCE_C_H
 -- 
-2.1.4
+2.11.0
 

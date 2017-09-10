@@ -1,7 +1,7 @@
 From 11257d0aa6e9cddb92a6c5a277b8edd57209d0d5 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sun, 10 Jan 2016 22:19:13 +0100
-Subject: [PATCH 62/66] add Red Pitaya discovery in device find function
+Subject: [PATCH 62/96] add Red Pitaya discovery in device find function
 
 ---
  lib/device.cc | 9 +++++++++
@@ -42,5 +42,5 @@ index d8fcfba..3ce40fa 100644
    BOOST_FOREACH( std::string dev, file_source_c::get_devices( fake ) )
      devices.push_back( device_t(dev) );
 -- 
-2.1.4
+2.11.0
 

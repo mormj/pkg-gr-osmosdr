@@ -1,7 +1,7 @@
 From 3fda9d6be5f2cfe9723478bdefd17041efbb6051 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sun, 10 Jan 2016 22:17:09 +0100
-Subject: [PATCH 61/66] cmake: If we are cross compiling, we shouldn't make
+Subject: [PATCH 61/96] cmake: If we are cross compiling, we shouldn't make
  decisions based on the build system distribution.
 
 Signed-off-by: Philip Balister <philip@balister.org>
@@ -33,5 +33,5 @@ index 5b7e886..fbbea5f 100644
  endif()
  
 -- 
-2.1.4
+2.11.0
 

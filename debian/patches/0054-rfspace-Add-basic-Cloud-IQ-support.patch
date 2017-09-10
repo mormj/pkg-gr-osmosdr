@@ -1,7 +1,7 @@
 From 7cec4c0f517144f271630f78dd6acd1f26f6b1f7 Mon Sep 17 00:00:00 2001
 From: Alexandru Csete <oz9aec@gmail.com>
 Date: Wed, 29 Jul 2015 23:08:21 +0200
-Subject: [PATCH 54/66] rfspace: Add basic Cloud-IQ support.
+Subject: [PATCH 54/96] rfspace: Add basic Cloud-IQ support.
 
 Cloud-IQ uses essentially the NetSDR protocol with different sample
 rates and product ID.
@@ -167,5 +167,5 @@ index 5d7d305..9b81dde 100644
        block = src; iface = src.get();
      }
 -- 
-2.1.4
+2.11.0
 

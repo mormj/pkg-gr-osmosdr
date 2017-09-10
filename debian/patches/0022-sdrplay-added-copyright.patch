@@ -1,7 +1,7 @@
 From 17c9497d4da855a81a6f871b4b4ce457ec465336 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Tue, 12 May 2015 23:28:35 +0200
-Subject: [PATCH 22/66] sdrplay: added copyright
+Subject: [PATCH 22/96] sdrplay: added copyright
 
 ---
  lib/sdrplay/sdrplay_source_c.cc | 1 +
@@ -31,5 +31,5 @@ index 8eadf43..2e4631e 100644
   *
   * GNU Radio is free software; you can redistribute it and/or modify
 -- 
-2.1.4
+2.11.0
 

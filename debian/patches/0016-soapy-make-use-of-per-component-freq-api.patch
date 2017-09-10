@@ -1,7 +1,7 @@
 From 61184a19e7db7a9579908fa512617327998b00d5 Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Tue, 24 Feb 2015 20:36:36 -0800
-Subject: [PATCH 16/66] soapy: make use of per component freq api
+Subject: [PATCH 16/96] soapy: make use of per component freq api
 
 ---
  lib/soapy/soapy_sink_c.cc   | 4 +---
@@ -39,5 +39,5 @@ index 05c7a05..4bd3aa3 100644
  }
  
 -- 
-2.1.4
+2.11.0
 

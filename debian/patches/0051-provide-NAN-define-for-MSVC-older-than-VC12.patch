@@ -1,7 +1,7 @@
 From c804460f5dbe0cc673cf95298285a3afa87fd232 Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Sun, 6 Dec 2015 17:10:25 -0800
-Subject: [PATCH 51/66] provide NAN define for MSVC older than VC12
+Subject: [PATCH 51/96] provide NAN define for MSVC older than VC12
 
 This fixes a minor compile issue on VC11 and below
 where source_impl.cc and sink_impl.cc use the float NAN define.
@@ -27,5 +27,5 @@ index 66c3e1b..542b364 100644
 +
  #endif // CONFIG_H_IN
 -- 
-2.1.4
+2.11.0
 

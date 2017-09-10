@@ -1,7 +1,7 @@
 From e6f46a1c04f3f6daa48d2a49b00592a6e1f32b5c Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sun, 28 Feb 2016 17:46:55 +0100
-Subject: [PATCH 69/71] apps: added --clock-source option to fft and siggen
+Subject: [PATCH 69/96] apps: added --clock-source option to fft and siggen
 
 ---
  apps/osmocom_fft            | 6 ++++++
@@ -57,5 +57,5 @@ index cee3eb1..b6e9a0c 100644
                        help="Set sample rate (bandwidth), minimum by default")
      parser.add_option("-g", "--gain", type="eng_float", default=None,
 -- 
-2.1.4
+2.11.0
 

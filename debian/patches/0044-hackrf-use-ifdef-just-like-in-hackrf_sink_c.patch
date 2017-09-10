@@ -1,7 +1,7 @@
 From f33f30815a7b9494315d4782245447ebca21c02e Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Mon, 1 Jun 2015 22:24:32 +0200
-Subject: [PATCH 44/66] hackrf: use #ifdef just like in hackrf_sink_c
+Subject: [PATCH 44/96] hackrf: use #ifdef just like in hackrf_sink_c
 
 ---
  lib/hackrf/hackrf_source_c.cc | 2 +-
@@ -21,5 +21,5 @@ index 13df11e..81ddad6 100644
    
    for (unsigned int i = 0; i < list->devicecount; i++) {
 -- 
-2.1.4
+2.11.0
 

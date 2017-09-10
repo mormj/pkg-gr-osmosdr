@@ -1,7 +1,7 @@
 From 20a5986ca0ae2c123f08ae58001f187a27914ad1 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marcus=20M=C3=BCller?= <marcus.mueller@ettus.com>
 Date: Tue, 29 Dec 2015 19:08:40 +0100
-Subject: [PATCH 60/66] made siggen cooperate with sinks without bw range
+Subject: [PATCH 60/96] made siggen cooperate with sinks without bw range
 
 ---
  apps/osmocom_siggen         | 23 +++++++++++++----------
@@ -112,5 +112,5 @@ index e55e767..cee3eb1 100644
              bw = self._sink.set_bandwidth(clipped_bw)
  
 -- 
-2.1.4
+2.11.0
 

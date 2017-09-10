@@ -1,7 +1,7 @@
 From e3210954459e2683120ebf51ec8edd0ba887f9be Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sun, 10 Jan 2016 22:32:07 +0100
-Subject: [PATCH 65/66] airspy: implement sensitivity and linerity gain
+Subject: [PATCH 65/96] airspy: implement sensitivity and linerity gain
  profiles for set_gain()
 
 use them with airspy,linearity (the default) or airspy,sensitivity
@@ -239,5 +239,5 @@ index f9ad2fa..f8617e6 100644
    double _mix_gain;
    double _vga_gain;
 -- 
-2.1.4
+2.11.0
 

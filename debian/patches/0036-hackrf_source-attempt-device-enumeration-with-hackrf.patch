@@ -1,7 +1,7 @@
 From 8e6ecd0644519c96d8d9c1a606cf4b8c39bcf2a6 Mon Sep 17 00:00:00 2001
 From: Heikki Hannikainen <hessu@hes.iki.fi>
 Date: Tue, 24 Feb 2015 11:51:38 +0200
-Subject: [PATCH 36/66] hackrf_source: attempt device enumeration with
+Subject: [PATCH 36/96] hackrf_source: attempt device enumeration with
  hackrf_device_list
 
 Signed-off-by: Heikki Hannikainen <hessu@hes.iki.fi>
@@ -84,5 +84,5 @@ index d916572..9a7aa72 100644
  }
  
 -- 
-2.1.4
+2.11.0
 

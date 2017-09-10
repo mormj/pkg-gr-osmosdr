@@ -5,7 +5,7 @@ Maintainer: A. Maitland Bottoms <bottoms@debian.org>
 Build-Depends: cmake,
                debhelper (>= 9.0.0~),
                doxygen,
-               gnuradio-dev (>=3.7.10),
+               gnuradio-dev (>=3.7.11),
                gr-fcdproplus [!hurd-i386],
                gr-iqbal,
                libairspy-dev (>= 1.0.9~) [!hurd-i386],
@@ -19,14 +19,14 @@ Build-Depends: cmake,
                libosmosdr-dev [!hurd-i386],
                librtlsdr-dev [!hurd-i386],
 	       libsoapysdr-dev,
-               libuhd-dev (>=3.9.4),
+               libuhd-dev (>=3.10),
                pkg-config,
                python-dev,
 	       python-soapysdr,
                swig
 X-Python-Version: >= 2.7, << 2.8
-Standards-Version: 3.9.8
-Homepage: http://sdr.osmocom.org/trac/wiki/rtl-sdr
+Standards-Version: 4.1.0
+Homepage: http://sdr.osmocom.org/trac/wiki/GrOsmoSDR
 Vcs-Git: https://anonscm.debian.org/git/users/bottoms/pkg-gr-osmosdr.git
 Vcs-Browser: https://anonscm.debian.org/cgit/users/bottoms/pkg-gr-osmosdr.git/
 
@@ -53,6 +53,8 @@ Description: Gnuradio blocks from the OsmoSDR project
   - Nuand LLC bladeRF through libbladeRF library
   - Ettus USRP Devices through Ettus UHD library
   - Fairwaves UmTRX through Fairwaves' fork of UHD
+  - Red Pitaya SDR transceiver (http://bazaar.redpitaya.com)
+  - FreeSRP through libfreesrp
  .
  By using the OsmoSDR block you can take advantage of a common
  software API in your application(s) independent of the underlying

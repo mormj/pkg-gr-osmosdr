@@ -1,3 +1,12 @@
+gr-osmosdr (0.1.4-13) unstable; urgency=medium
+
+  * update to v0.1.4-98-gc653754
+  * freeSRP support
+  * rtl-sdr bias-T support
+  * build with gnuradio-3.7.11
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Thu, 07 Sep 2017 19:50:05 -0400
+
 gr-osmosdr (0.1.4-12) unstable; urgency=medium
 
   * rebuild with airspy-host 1.0.9

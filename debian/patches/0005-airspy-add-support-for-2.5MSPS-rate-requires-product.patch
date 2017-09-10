@@ -1,7 +1,7 @@
 From 13114b78301ac4fb716ce79b41934ee897726a4b Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Thu, 27 Nov 2014 16:22:27 +0100
-Subject: [PATCH 05/66] airspy: add support for 2.5MSPS rate (requires
+Subject: [PATCH 05/96] airspy: add support for 2.5MSPS rate (requires
  production firmware)
 
 ---
@@ -75,5 +75,5 @@ index fdab994..49501d8 100644
    }
  
 -- 
-2.1.4
+2.11.0
 

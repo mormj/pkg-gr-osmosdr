@@ -1,7 +1,7 @@
 From 46e95395e09f952654da30bf575790ad1f7736e1 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sat, 6 Jun 2015 22:01:33 +0200
-Subject: [PATCH 45/66] cmake: move check for hackrf_device_list to hackrf
+Subject: [PATCH 45/96] cmake: move check for hackrf_device_list to hackrf
  subdirectory
 
 ---
@@ -47,5 +47,5 @@ index 31f991b..c7af0c9 100644
  # Append gnuradio-osmosdr library sources
  ########################################################################
 -- 
-2.1.4
+2.11.0
 

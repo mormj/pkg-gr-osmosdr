@@ -1,7 +1,7 @@
 From 3582ba17e0d7a5237c6393a1c5849533692018f7 Mon Sep 17 00:00:00 2001
 From: Pavel Demin <pavel.demin@uclouvain.be>
 Date: Thu, 17 Dec 2015 21:12:45 +0100
-Subject: [PATCH 55/66] redpitaya: add support for Red Pitaya SDR transceiver
+Subject: [PATCH 55/96] redpitaya: add support for Red Pitaya SDR transceiver
 
 This patch adds two gr-osmosdr blocks that can be used with the SDR transceiver
 application available from the Red Pitaya application marketplace:
@@ -1071,5 +1071,5 @@ index 9b81dde..3aa17f9 100644
        _devs.push_back( iface );
  
 -- 
-2.1.4
+2.11.0
 

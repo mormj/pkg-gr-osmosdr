@@ -1,7 +1,7 @@
 From 9fd5b367c115c19402d35e3408daf45888918b43 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Wed, 5 Nov 2014 00:07:26 +0100
-Subject: [PATCH 01/66] update version to 0.1.5git
+Subject: [PATCH 01/96] update version to 0.1.5git
 
 ---
  CMakeLists.txt | 4 ++--
@@ -23,5 +23,5 @@ index 3d67607..abaddd4 100644
  
  ########################################################################
 -- 
-2.1.4
+2.11.0
 

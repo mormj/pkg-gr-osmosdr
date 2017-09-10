@@ -1,7 +1,7 @@
 From 860e9a1a727688a0b7d2040ed4afdc0669331160 Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Tue, 7 Jun 2016 13:52:52 -0700
-Subject: [PATCH 2/3] soapy: provide default gain range step
+Subject: [PATCH 73/96] soapy: provide default gain range step
 
 The soapysdr range type does not provide a step size,
 however apps like the osmocom siggen use this size for a slider,
@@ -58,5 +58,5 @@ index e64f34a..5fc0dbc 100644
  
  bool soapy_source_c::set_gain_mode( bool automatic, size_t chan )
 -- 
-2.1.4
+2.11.0
 

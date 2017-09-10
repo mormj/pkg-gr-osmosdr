@@ -1,7 +1,7 @@
 From cd0d9350c6a534dd057f709ee1d9f00a19c90306 Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Mon, 16 Feb 2015 21:25:38 -0800
-Subject: [PATCH 13/66] soapy: fix set_dc_offset_mode implementation
+Subject: [PATCH 13/96] soapy: fix set_dc_offset_mode implementation
 
 ---
  lib/soapy/soapy_source_c.cc | 15 ++++++++++++++-
@@ -41,5 +41,5 @@ index 8c1dbf8..330173b 100644
  
  void soapy_source_c::set_dc_offset( const std::complex<double> &offset, size_t chan )
 -- 
-2.1.4
+2.11.0
 

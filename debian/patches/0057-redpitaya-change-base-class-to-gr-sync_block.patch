@@ -1,7 +1,7 @@
 From 810a981d0c2975825a72c9c6c9db2700719928c3 Mon Sep 17 00:00:00 2001
 From: Pavel Demin <pavel.demin@cern.ch>
 Date: Mon, 21 Dec 2015 18:28:54 +0100
-Subject: [PATCH 57/66] redpitaya: change base class to gr::sync_block
+Subject: [PATCH 57/96] redpitaya: change base class to gr::sync_block
 
 ---
  lib/redpitaya/redpitaya_common.cc   | 12 +++++++++-
@@ -300,5 +300,5 @@ index 20a8f9f..53f0040 100644
    int _sockets[2];
  };
 -- 
-2.1.4
+2.11.0
 

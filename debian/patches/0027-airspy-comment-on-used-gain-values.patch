@@ -1,7 +1,7 @@
 From 275e6aed19b9ba8563bffd318a227a1196e1da2c Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Wed, 13 May 2015 00:16:54 +0200
-Subject: [PATCH 27/66] airspy: comment on used gain values
+Subject: [PATCH 27/96] airspy: comment on used gain values
 
 ---
  lib/airspy/airspy_source_c.cc | 2 ++
@@ -21,5 +21,5 @@ index c5a389b..4daea8d 100644
      return osmosdr::gain_range_t( 0, 15, 1 );
    }
 -- 
-2.1.4
+2.11.0
 
