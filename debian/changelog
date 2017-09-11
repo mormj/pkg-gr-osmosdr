@@ -1,7 +1,6 @@
 gr-osmosdr (0.1.4-13) unstable; urgency=medium
 
   * update to v0.1.4-98-gc653754
-  * freeSRP support
   * rtl-sdr bias-T support
   * build with gnuradio-3.7.11
 

@@ -4,10 +4,11 @@ Priority: optional
 Maintainer: A. Maitland Bottoms <bottoms@debian.org>
 Build-Depends: cmake,
                debhelper (>= 9.0.0~),
+	       dh-python,
                doxygen,
                gnuradio-dev (>=3.7.11),
-               gr-fcdproplus [!hurd-i386],
-               gr-iqbal,
+               gr-fcdproplus (>=3.7.25.4b6464b-3) [!hurd-i386],
+               gr-iqbal (>=0.37.2-8),
                libairspy-dev (>= 1.0.9~) [!hurd-i386],
                libbladerf-dev (>=0.2016.01~rc1) [!hurd-i386],
                libboost-dev,
