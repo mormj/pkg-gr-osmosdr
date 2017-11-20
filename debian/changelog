@@ -1,3 +1,10 @@
+gr-osmosdr (0.1.4-14) unstable; urgency=medium
+
+  * Add initial support for Airspy HF+
+  * Support for FreeSRP via libfreesrp
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sun, 19 Nov 2017 20:19:31 -0500
+
 gr-osmosdr (0.1.4-13) unstable; urgency=medium
 
   * update to v0.1.4-98-gc653754
