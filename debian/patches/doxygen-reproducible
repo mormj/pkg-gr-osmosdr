@@ -1,0 +1,31 @@
+--- a/docs/doxygen/doxyxml/example/Doxyfile
++++ b/docs/doxygen/doxyxml/example/Doxyfile
+@@ -105,7 +105,7 @@
+ # path before files name in the file list and in the header files. If set
+ # to NO the shortest path that makes the file name unique will be used.
+ 
+-FULL_PATH_NAMES        = YES
++FULL_PATH_NAMES        = NO
+ 
+ # If the FULL_PATH_NAMES tag is set to YES then the STRIP_FROM_PATH tag
+ # can be used to strip a user-defined part of the path. Stripping is
+@@ -806,7 +806,7 @@
+ # page will contain the date and time when the page was generated. Setting
+ # this to NO can help when comparing the output of multiple runs.
+ 
+-HTML_TIMESTAMP         = YES
++HTML_TIMESTAMP         = NO
+ 
+ # If the HTML_ALIGN_MEMBERS tag is set to YES, the members of classes,
+ # files or namespaces will be aligned in HTML using tables. If set to
+--- a/docs/doxygen/Doxyfile.swig_doc.in
++++ b/docs/doxygen/Doxyfile.swig_doc.in
+@@ -105,7 +105,7 @@
+ # path before files name in the file list and in the header files. If set
+ # to NO the shortest path that makes the file name unique will be used.
+ 
+-FULL_PATH_NAMES        = YES
++FULL_PATH_NAMES        = NO
+ 
+ # If the FULL_PATH_NAMES tag is set to YES then the STRIP_FROM_PATH tag
+ # can be used to strip a user-defined part of the path. Stripping is

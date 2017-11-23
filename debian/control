@@ -56,6 +56,9 @@ Description: Gnuradio blocks from the OsmoSDR project
   - Nuand LLC bladeRF through libbladeRF library
   - Ettus USRP Devices through Ettus UHD library
   - Fairwaves UmTRX through Fairwaves' fork of UHD
+  - AIRSPY Receiver
+  - AIRSPY HF+ Receiver
+  - SoapySDR support
   - Red Pitaya SDR transceiver (http://bazaar.redpitaya.com)
   - FreeSRP through libfreesrp
  .
