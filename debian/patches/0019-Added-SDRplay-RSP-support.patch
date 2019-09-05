@@ -1,7 +1,7 @@
 From afed5df615de4ca15f2b8201b48cdc06236d7cab Mon Sep 17 00:00:00 2001
 From: SDRplay <info@sdrplay.com>
 Date: Wed, 4 Mar 2015 20:35:59 +0000
-Subject: [PATCH 19/96] Added SDRplay RSP support
+Subject: [PATCH 019/131] Added SDRplay RSP support
 
 Initial build for SDRplay RSP support. Basic functionality, AGC etc. to
 be added
@@ -13,10 +13,10 @@ be added
  lib/CMakeLists.txt                 |   8 +
  lib/config.h.in                    |   1 +
  lib/device.cc                      |   8 +
- lib/sdrplay/CMakeLists.txt         |  37 +++
- lib/sdrplay/sdrplay_source_c.cc    | 587 +++++++++++++++++++++++++++++++++++++
- lib/sdrplay/sdrplay_source_c.h     | 135 +++++++++
- lib/source_impl.cc                 |  18 ++
+ lib/sdrplay/CMakeLists.txt         |  37 ++
+ lib/sdrplay/sdrplay_source_c.cc    | 587 +++++++++++++++++++++++++++++
+ lib/sdrplay/sdrplay_source_c.h     | 135 +++++++
+ lib/source_impl.cc                 |  18 +
  11 files changed, 824 insertions(+)
  create mode 100644 cmake/Modules/FindLibSDRplay.cmake
  create mode 100644 lib/sdrplay/CMakeLists.txt
@@ -96,10 +96,11 @@ diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
 index e22f850..003686d 100644
 --- a/lib/CMakeLists.txt
 +++ b/lib/CMakeLists.txt
-@@ -183,6 +183,14 @@ GR_INCLUDE_SUBDIRECTORY(miri)
+@@ -182,6 +182,14 @@ if(ENABLE_MIRI)
+ GR_INCLUDE_SUBDIRECTORY(miri)
  endif(ENABLE_MIRI)
  
- ########################################################################
++########################################################################
 +# Setup SDRplay component
 +########################################################################
 +GR_REGISTER_COMPONENT("SDRplay RSP" ENABLE_SDRPLAY LIBSDRPLAY_FOUND)
@@ -107,10 +108,9 @@ index e22f850..003686d 100644
 +GR_INCLUDE_SUBDIRECTORY(sdrplay)
 +endif(ENABLE_SDRPLAY)
 +
-+########################################################################
+ ########################################################################
  # Setup HackRF component
  ########################################################################
- GR_REGISTER_COMPONENT("HackRF Jawbreaker" ENABLE_HACKRF LIBHACKRF_FOUND)
 diff --git a/lib/config.h.in b/lib/config.h.in
 index f7d960d..66c3e1b 100644
 --- a/lib/config.h.in
@@ -977,5 +977,5 @@ index b9fead3..5d7d305 100644
      if ( dict.count("hackrf") ) {
        hackrf_source_c_sptr src = make_hackrf_source_c( arg );
 -- 
-2.11.0
+2.20.1
 

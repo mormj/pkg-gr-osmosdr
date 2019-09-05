@@ -1,7 +1,7 @@
 From ac1d8ec02def12a31168a1d06683c027cecdfe0e Mon Sep 17 00:00:00 2001
 From: Utomnia <info@utomnia.com>
 Date: Thu, 16 Jul 2015 11:15:41 +0100
-Subject: [PATCH 46/96] bug fixes
+Subject: [PATCH 046/131] bug fixes
 
 ---
  lib/sdrplay/sdrplay_source_c.cc | 19 +++++++++++++++----
@@ -66,5 +66,5 @@ index 654c0c8..81926a3 100644
  
  osmosdr::freq_range_t sdrplay_source_c::get_bandwidth_range( size_t chan )
 -- 
-2.11.0
+2.20.1
 

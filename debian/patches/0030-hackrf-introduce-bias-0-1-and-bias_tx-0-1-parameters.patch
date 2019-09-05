@@ -1,7 +1,7 @@
 From 594391982845b4ac0e4e48bbb91b4b85552f2af6 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Wed, 27 May 2015 23:55:00 +0200
-Subject: [PATCH 30/96] hackrf: introduce bias=0|1 and bias_tx=0|1 parameters
+Subject: [PATCH 030/131] hackrf: introduce bias=0|1 and bias_tx=0|1 parameters
 
 ... to support antenna/phantom power via a new device argument "bias"
 (to match Airspy's existing bias power syntax). 0=disable and 1=enable.
@@ -103,5 +103,5 @@ index e3b3ea4..c845840 100644
  
    if (_buf) {
 -- 
-2.11.0
+2.20.1
 

@@ -1,0 +1,124 @@
+From c06db96489f8a314a859afb9e96cb3ffcc62ad3a Mon Sep 17 00:00:00 2001
+From: Rey Tucker <rey.tucker@nuand.com>
+Date: Fri, 30 Mar 2018 16:25:18 -0400
+Subject: [PATCH 123/131] bladeRF: add support for biastee on bladeRF micro
+
+---
+ lib/bladerf/bladerf_sink_c.cc   | 25 +++++++++++++++++++++++++
+ lib/bladerf/bladerf_sink_c.h    |  2 ++
+ lib/bladerf/bladerf_source_c.cc | 25 +++++++++++++++++++++++++
+ lib/bladerf/bladerf_source_c.h  |  2 ++
+ 4 files changed, 54 insertions(+)
+
+diff --git a/lib/bladerf/bladerf_sink_c.cc b/lib/bladerf/bladerf_sink_c.cc
+index 74a4bc9..fe64439 100644
+--- a/lib/bladerf/bladerf_sink_c.cc
++++ b/lib/bladerf/bladerf_sink_c.cc
+@@ -90,6 +90,11 @@ bladerf_sink_c::bladerf_sink_c(const std::string &args) :
+                     "and will have no effect.");
+   }
+ 
++  /* Bias tee */
++  if (dict.count("biastee")) {
++    set_biastee_mode(dict["biastee"]);
++  }
++
+   /* Initialize channel <-> antenna map */
+   BOOST_FOREACH(std::string ant, get_antennas()) {
+     _chanmap[str2channel(ant)] = -1;
+@@ -582,3 +587,23 @@ std::string bladerf_sink_c::get_clock_source(size_t mboard)
+ {
+   return bladerf_common::get_clock_source(mboard);
+ }
++
++void bladerf_sink_c::set_biastee_mode(const std::string &mode)
++{
++  int status;
++  bool enable;
++
++  if (mode == "on" || mode == "1" || mode == "rx") {
++    enable = true;
++  } else {
++    enable = false;
++  }
++
++  status = bladerf_set_bias_tee(_dev.get(), BLADERF_CHANNEL_TX(0), enable);
++  if (BLADERF_ERR_UNSUPPORTED == status) {
++    // unsupported, but not worth crashing out
++    BLADERF_WARNING("Bias-tee not supported by device");
++  } else if (status != 0) {
++    BLADERF_THROW_STATUS(status, "Failed to set bias-tee");
++  }
++}
+diff --git a/lib/bladerf/bladerf_sink_c.h b/lib/bladerf/bladerf_sink_c.h
+index fc5b02c..9f8a496 100644
+--- a/lib/bladerf/bladerf_sink_c.h
++++ b/lib/bladerf/bladerf_sink_c.h
+@@ -117,6 +117,8 @@ public:
+   void set_clock_source(const std::string &source, size_t mboard = 0);
+   std::string get_clock_source(size_t mboard);
+ 
++  void set_biastee_mode(const std::string &mode);
++
+ private:
+   int transmit_with_tags(int16_t const *samples, int noutput_items);
+ 
+diff --git a/lib/bladerf/bladerf_source_c.cc b/lib/bladerf/bladerf_source_c.cc
+index edd8a4d..fb7d42c 100644
+--- a/lib/bladerf/bladerf_source_c.cc
++++ b/lib/bladerf/bladerf_source_c.cc
+@@ -101,6 +101,11 @@ bladerf_source_c::bladerf_source_c(const std::string &args) :
+     }
+   }
+ 
++  /* Bias tee */
++  if (dict.count("biastee")) {
++    set_biastee_mode(dict["biastee"]);
++  }
++
+   /* Loopback */
+   set_loopback_mode(dict.count("loopback") ? dict["loopback"] : "none");
+ 
+@@ -548,6 +553,26 @@ std::string bladerf_source_c::get_clock_source(size_t mboard)
+   return bladerf_common::get_clock_source(mboard);
+ }
+ 
++void bladerf_source_c::set_biastee_mode(const std::string &mode)
++{
++  int status;
++  bool enable;
++
++  if (mode == "on" || mode == "1" || mode == "rx") {
++    enable = true;
++  } else {
++    enable = false;
++  }
++
++  status = bladerf_set_bias_tee(_dev.get(), BLADERF_CHANNEL_RX(0), enable);
++  if (BLADERF_ERR_UNSUPPORTED == status) {
++    // unsupported, but not worth crashing out
++    BLADERF_WARNING("Bias-tee not supported by device");
++  } else if (status != 0) {
++    BLADERF_THROW_STATUS(status, "Failed to set bias-tee");
++  }
++}
++
+ void bladerf_source_c::set_loopback_mode(const std::string &loopback)
+ {
+   int status;
+diff --git a/lib/bladerf/bladerf_source_c.h b/lib/bladerf/bladerf_source_c.h
+index 4bc3af2..05f9ddf 100644
+--- a/lib/bladerf/bladerf_source_c.h
++++ b/lib/bladerf/bladerf_source_c.h
+@@ -120,6 +120,8 @@ public:
+   void set_clock_source(const std::string &source, size_t mboard = 0);
+   std::string get_clock_source(size_t mboard);
+ 
++  void set_biastee_mode(const std::string &mode);
++
+   void set_loopback_mode(const std::string &loopback);
+   void set_rx_mux_mode(const std::string &rxmux);
+   void set_agc_mode(const std::string &agcmode);
+-- 
+2.20.1
+

@@ -1,7 +1,7 @@
 From 33a8d1c2aef31ab7fb9f40e673c974334081853e Mon Sep 17 00:00:00 2001
 From: Krzysztof Halasa <khc@pm.wav.pl>
 Date: Sat, 18 Mar 2017 10:07:19 +0100
-Subject: [PATCH 91/96] RTL-SDR: convert _lut to float[] to reduce size by a
+Subject: [PATCH 091/131] RTL-SDR: convert _lut to float[] to reduce size by a
  factor of 256
 
 The _lut is being indexed by I + Q (16 bits = 65536 entries), however
@@ -80,5 +80,5 @@ index 76de400..902b386 100644
    unsigned int _buf_len;
    unsigned int _buf_head;
 -- 
-2.11.0
+2.20.1
 

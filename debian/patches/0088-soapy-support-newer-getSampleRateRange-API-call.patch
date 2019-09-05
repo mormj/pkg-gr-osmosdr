@@ -1,7 +1,7 @@
 From b361fa5a7768864901821567bba0f89a18646b9e Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Fri, 14 Apr 2017 10:57:16 -0500
-Subject: [PATCH 88/96] soapy: support newer getSampleRateRange() API call
+Subject: [PATCH 088/131] soapy: support newer getSampleRateRange() API call
 
 Switch to the newer API call which can provide a list of ranges.
 There are feature detection ifdefs provided by the library
@@ -56,5 +56,5 @@ index fe1e8d9..a1a1885 100644
  }
  
 -- 
-2.11.0
+2.20.1
 

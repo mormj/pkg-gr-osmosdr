@@ -1,7 +1,7 @@
 From da27f3fb0a614c2cb9f5f867be8df77f53058f28 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Tue, 25 Nov 2014 20:03:26 +0100
-Subject: [PATCH 03/96] apps: fix named gain access on osmocom_siggen_base.py
+Subject: [PATCH 003/131] apps: fix named gain access on osmocom_siggen_base.py
 
 ---
  apps/osmocom_siggen_base.py | 8 ++++----
@@ -37,5 +37,5 @@ index 2719aa7..e55e767 100644
  
          # Set the antenna
 -- 
-2.11.0
+2.20.1
 

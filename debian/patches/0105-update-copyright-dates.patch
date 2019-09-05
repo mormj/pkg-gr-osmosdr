@@ -1,0 +1,89 @@
+From 4ffccd1363f404aa3833090f615cb3a34231d6e8 Mon Sep 17 00:00:00 2001
+From: Rey Tucker <git@ryantucker.us>
+Date: Mon, 26 Jun 2017 11:16:57 -0400
+Subject: [PATCH 105/131] update copyright dates
+
+---
+ lib/bladerf/bladerf_common.cc   | 2 +-
+ lib/bladerf/bladerf_common.h    | 2 +-
+ lib/bladerf/bladerf_sink_c.cc   | 2 +-
+ lib/bladerf/bladerf_sink_c.h    | 2 +-
+ lib/bladerf/bladerf_source_c.cc | 2 +-
+ lib/bladerf/bladerf_source_c.h  | 2 +-
+ 6 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/lib/bladerf/bladerf_common.cc b/lib/bladerf/bladerf_common.cc
+index afdf49c..6458790 100644
+--- a/lib/bladerf/bladerf_common.cc
++++ b/lib/bladerf/bladerf_common.cc
+@@ -1,6 +1,6 @@
+ /* -*- c++ -*- */
+ /*
+- * Copyright 2013-2015 Nuand LLC
++ * Copyright 2013-2017 Nuand LLC
+  * Copyright 2013 Dimitri Stolnikov <horiz0n@gmx.net>
+  *
+  * GNU Radio is free software; you can redistribute it and/or modify
+diff --git a/lib/bladerf/bladerf_common.h b/lib/bladerf/bladerf_common.h
+index 4805368..a918579 100644
+--- a/lib/bladerf/bladerf_common.h
++++ b/lib/bladerf/bladerf_common.h
+@@ -1,6 +1,6 @@
+ /* -*- c++ -*- */
+ /*
+- * Copyright 2013 Nuand LLC
++ * Copyright 2013-2017 Nuand LLC
+  * Copyright 2013 Dimitri Stolnikov <horiz0n@gmx.net>
+  *
+  * GNU Radio is free software; you can redistribute it and/or modify
+diff --git a/lib/bladerf/bladerf_sink_c.cc b/lib/bladerf/bladerf_sink_c.cc
+index 3ca3fae..41ce945 100644
+--- a/lib/bladerf/bladerf_sink_c.cc
++++ b/lib/bladerf/bladerf_sink_c.cc
+@@ -1,6 +1,6 @@
+ /* -*- c++ -*- */
+ /*
+- * Copyright 2013 Nuand LLC
++ * Copyright 2013-2017 Nuand LLC
+  * Copyright 2013 Dimitri Stolnikov <horiz0n@gmx.net>
+  *
+  * GNU Radio is free software; you can redistribute it and/or modify
+diff --git a/lib/bladerf/bladerf_sink_c.h b/lib/bladerf/bladerf_sink_c.h
+index 20ed9f7..76df696 100644
+--- a/lib/bladerf/bladerf_sink_c.h
++++ b/lib/bladerf/bladerf_sink_c.h
+@@ -1,6 +1,6 @@
+ /* -*- c++ -*- */
+ /*
+- * Copyright 2013 Nuand LLC
++ * Copyright 2013-2017 Nuand LLC
+  * Copyright 2013 Dimitri Stolnikov <horiz0n@gmx.net>
+  *
+  * GNU Radio is free software; you can redistribute it and/or modify
+diff --git a/lib/bladerf/bladerf_source_c.cc b/lib/bladerf/bladerf_source_c.cc
+index 340b5fa..1dabb77 100644
+--- a/lib/bladerf/bladerf_source_c.cc
++++ b/lib/bladerf/bladerf_source_c.cc
+@@ -1,6 +1,6 @@
+ /* -*- c++ -*- */
+ /*
+- * Copyright 2013 Nuand LLC
++ * Copyright 2013-2017 Nuand LLC
+  * Copyright 2013 Dimitri Stolnikov <horiz0n@gmx.net>
+  *
+  * GNU Radio is free software; you can redistribute it and/or modify
+diff --git a/lib/bladerf/bladerf_source_c.h b/lib/bladerf/bladerf_source_c.h
+index d7e8ad5..5c5b208 100644
+--- a/lib/bladerf/bladerf_source_c.h
++++ b/lib/bladerf/bladerf_source_c.h
+@@ -1,6 +1,6 @@
+ /* -*- c++ -*- */
+ /*
+- * Copyright 2013 Nuand LLC
++ * Copyright 2013-2017 Nuand LLC
+  * Copyright 2013 Dimitri Stolnikov <horiz0n@gmx.net>
+  *
+  * GNU Radio is free software; you can redistribute it and/or modify
+-- 
+2.20.1
+

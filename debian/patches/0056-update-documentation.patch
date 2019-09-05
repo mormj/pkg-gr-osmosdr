@@ -1,7 +1,7 @@
 From 55fe96198733c9c57689d18e81cb2d7e8b2ebbfd Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Fri, 18 Dec 2015 22:20:27 +0100
-Subject: [PATCH 56/96] update documentation
+Subject: [PATCH 056/131] update documentation
 
 ---
  README                    | 2 ++
@@ -88,5 +88,5 @@ index 4ebc3e8..550c24e 100644
  GR_INCLUDE_SUBDIRECTORY(redpitaya)
  endif(ENABLE_REDPITAYA)
 -- 
-2.11.0
+2.20.1
 

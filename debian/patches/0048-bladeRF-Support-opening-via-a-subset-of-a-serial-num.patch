@@ -1,7 +1,7 @@
 From 86ad584204762eeb01f07daa683673f1ec3f1df5 Mon Sep 17 00:00:00 2001
 From: Jon Szymaniak <jon.szymaniak@gmail.com>
 Date: Thu, 16 Jul 2015 14:03:20 -0400
-Subject: [PATCH 48/96] bladeRF: Support opening via a (subset of a) serial
+Subject: [PATCH 048/131] bladeRF: Support opening via a (subset of a) serial
  number, using any backend
 
 The bladerf=X,[arguments] string now supports the following, where X is:
@@ -17,7 +17,7 @@ The bladerf=X,[arguments] string now supports the following, where X is:
 The backend specifier has been changed from "libusb" to the wildcard
 ("*"), allowing any available backend to be used.
 ---
- lib/bladerf/bladerf_common.cc | 74 +++++++++++++++++++++++++++++++++++--------
+ lib/bladerf/bladerf_common.cc | 74 ++++++++++++++++++++++++++++-------
  1 file changed, 60 insertions(+), 14 deletions(-)
 
 diff --git a/lib/bladerf/bladerf_common.cc b/lib/bladerf/bladerf_common.cc
@@ -142,5 +142,5 @@ index 191a327..3a6c24a 100644
  
    if ( bladerf_fw_version( _dev.get(), &ver ) == 0 )
 -- 
-2.11.0
+2.20.1
 

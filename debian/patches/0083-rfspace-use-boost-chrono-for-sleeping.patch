@@ -1,7 +1,7 @@
 From 43df1c98c4110a4d3b66ce867da7c21dbf1e6d58 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Mon, 27 Feb 2017 23:03:09 +0100
-Subject: [PATCH 83/96] rfspace: use boost::chrono for sleeping
+Subject: [PATCH 083/131] rfspace: use boost::chrono for sleeping
 
 ---
  lib/rfspace/rfspace_source_c.cc | 4 +++-
@@ -24,5 +24,5 @@ index 74708c6..80f34df 100644
    std::vector< unsigned char > response;
  
 -- 
-2.11.0
+2.20.1
 

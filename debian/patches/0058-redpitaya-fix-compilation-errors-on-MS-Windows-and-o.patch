@@ -1,15 +1,15 @@
 From f8cba954f0b7c76e749a8a75b74055c22dbe00cf Mon Sep 17 00:00:00 2001
 From: Pavel Demin <pavel.demin@uclouvain.be>
 Date: Wed, 6 Jan 2016 16:49:02 +0100
-Subject: [PATCH 58/96] redpitaya: fix compilation errors on MS Windows and on
- Mac OS X
+Subject: [PATCH 058/131] redpitaya: fix compilation errors on MS Windows and
+ on Mac OS X
 
 ---
- lib/redpitaya/redpitaya_common.cc   | 26 ++++++--------------------
- lib/redpitaya/redpitaya_common.h    | 31 ++++++++++++++++++++++++++++++-
- lib/redpitaya/redpitaya_sink_c.cc   | 24 +++++++-----------------
+ lib/redpitaya/redpitaya_common.cc   | 26 ++++++------------------
+ lib/redpitaya/redpitaya_common.h    | 31 ++++++++++++++++++++++++++++-
+ lib/redpitaya/redpitaya_sink_c.cc   | 24 +++++++---------------
  lib/redpitaya/redpitaya_sink_c.h    |  4 +++-
- lib/redpitaya/redpitaya_source_c.cc | 24 +++++++-----------------
+ lib/redpitaya/redpitaya_source_c.cc | 24 +++++++---------------
  lib/redpitaya/redpitaya_source_c.h  |  4 +++-
  6 files changed, 56 insertions(+), 57 deletions(-)
 
@@ -271,5 +271,5 @@ index 53f0040..7d536ee 100644
  
  #endif // REDPITAYA_SOURCE_C_H
 -- 
-2.11.0
+2.20.1
 

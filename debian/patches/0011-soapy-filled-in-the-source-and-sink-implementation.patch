@@ -1,13 +1,13 @@
 From 6d6a483cfbe7ecae6d0858ef862d44405efb6e6f Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Sun, 15 Feb 2015 19:20:01 -0800
-Subject: [PATCH 11/96] soapy: filled in the source and sink implementation
+Subject: [PATCH 011/131] soapy: filled in the source and sink implementation
 
 ---
- lib/arg_helpers.h           |  11 +++
- lib/soapy/soapy_sink_c.cc   | 194 ++++++++++++++++++++++++++++++++------------
+ lib/arg_helpers.h           |  11 ++
+ lib/soapy/soapy_sink_c.cc   | 194 ++++++++++++++++++++++++++----------
  lib/soapy/soapy_sink_c.h    |  12 +++
- lib/soapy/soapy_source_c.cc | 153 ++++++++++++++++++++++++++++++----
+ lib/soapy/soapy_source_c.cc | 153 +++++++++++++++++++++++++---
  lib/soapy/soapy_source_c.h  |  12 +++
  5 files changed, 314 insertions(+), 68 deletions(-)
 
@@ -861,5 +861,5 @@ index 145bd1d..8a0a0d7 100644
  
  #endif /* INCLUDED_SOAPY_SOURCE_C_H */
 -- 
-2.11.0
+2.20.1
 

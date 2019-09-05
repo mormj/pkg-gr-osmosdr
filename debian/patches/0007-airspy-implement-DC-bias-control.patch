@@ -1,7 +1,7 @@
 From 20fd6a8c34339125dc509dc33ae7c3b1ed6e1959 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Thu, 27 Nov 2014 16:38:25 +0100
-Subject: [PATCH 07/96] airspy: implement DC bias control
+Subject: [PATCH 007/131] airspy: implement DC bias control
 
 use with -a "airspy,bias=1" to enable DC bias on antenna input
 ---
@@ -41,5 +41,5 @@ index 2bfef77..bc33fed 100644
    if (!_fifo) {
      throw std::runtime_error( std::string(__FUNCTION__) + " " +
 -- 
-2.11.0
+2.20.1
 

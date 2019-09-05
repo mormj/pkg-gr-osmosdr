@@ -1,7 +1,7 @@
 From 26f93e46874824cd36bd9f05baf3fe3b851aa640 Mon Sep 17 00:00:00 2001
 From: Krzysztof Halasa <khc@pm.wav.pl>
 Date: Sat, 18 Mar 2017 10:16:48 +0100
-Subject: [PATCH 92/96] RTL-TCP: Convert to single class model
+Subject: [PATCH 092/131] RTL-TCP: Convert to single class model
 
 The existing RTL TCP driver is quite different from its brother RTL_SDR.
 It's much more complicated, uses gr::blocks::deinterleave and
@@ -13,8 +13,8 @@ I've converted the RTL TCP driver to the model used by RTL_SDR,
 simplifying it in the process, and fixing the GQRX issue.
 ---
  lib/rtl_tcp/CMakeLists.txt      |   1 -
- lib/rtl_tcp/rtl_tcp_source_c.cc | 352 ++++++++++++++++++++++++++++++++--------
- lib/rtl_tcp/rtl_tcp_source_c.h  |  32 +++-
+ lib/rtl_tcp/rtl_tcp_source_c.cc | 352 +++++++++++++++++++++++++-------
+ lib/rtl_tcp/rtl_tcp_source_c.h  |  32 ++-
  3 files changed, 309 insertions(+), 76 deletions(-)
 
 diff --git a/lib/rtl_tcp/CMakeLists.txt b/lib/rtl_tcp/CMakeLists.txt
@@ -599,5 +599,5 @@ index 454d1a2..b07e5dd 100644
  
  #endif // RTL_TCP_SOURCE_C_H
 -- 
-2.11.0
+2.20.1
 

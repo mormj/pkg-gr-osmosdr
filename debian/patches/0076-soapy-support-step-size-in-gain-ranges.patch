@@ -1,17 +1,17 @@
 From 2a2236cc9e97581e59cfc8018bd03d90659e6acc Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Thu, 2 Feb 2017 11:33:34 -0800
-Subject: [PATCH 76/96] soapy: support step size in gain ranges
+Subject: [PATCH 076/131] soapy: support step size in gain ranges
 
 * This change is backwards compatible and checks for API support for step size.
 * Created soapy_common.cc/h to house common gain range functions
 * Moved factory mutex declaration to common source files as well
 ---
  lib/soapy/CMakeLists.txt    |  1 +
- lib/soapy/soapy_common.cc   | 43 +++++++++++++++++++++++++++++++++++++++++++
- lib/soapy/soapy_common.h    | 40 ++++++++++++++++++++++++++++++++++++++++
- lib/soapy/soapy_sink_c.cc   | 13 ++++---------
- lib/soapy/soapy_source_c.cc |  9 ++++-----
+ lib/soapy/soapy_common.cc   | 43 +++++++++++++++++++++++++++++++++++++
+ lib/soapy/soapy_common.h    | 40 ++++++++++++++++++++++++++++++++++
+ lib/soapy/soapy_sink_c.cc   | 13 ++++-------
+ lib/soapy/soapy_source_c.cc |  9 ++++----
  5 files changed, 92 insertions(+), 14 deletions(-)
  create mode 100644 lib/soapy/soapy_common.cc
  create mode 100644 lib/soapy/soapy_common.h
@@ -217,5 +217,5 @@ index 608138e..d066ed8 100644
  
  bool soapy_source_c::set_gain_mode( bool automatic, size_t chan )
 -- 
-2.11.0
+2.20.1
 

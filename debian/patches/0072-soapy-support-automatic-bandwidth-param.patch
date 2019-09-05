@@ -1,7 +1,7 @@
 From e3b6560b0423efbaecb743e7edf6cbb28a1ee3c7 Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Tue, 7 Jun 2016 13:45:25 -0700
-Subject: [PATCH 72/96] soapy: support automatic bandwidth param
+Subject: [PATCH 072/131] soapy: support automatic bandwidth param
 
 When the special 0.0 bandwidth setting is used, set the filter bandwidth to rate * 0.75.
 Passing automatic 0.0 bandwidth for some devices was problematic.
@@ -55,5 +55,5 @@ index ea84467..e64f34a 100644
      return this->get_bandwidth(chan);
  }
 -- 
-2.11.0
+2.20.1
 

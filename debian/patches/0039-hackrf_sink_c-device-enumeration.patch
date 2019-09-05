@@ -1,11 +1,11 @@
 From dd6536757a3a2ce115491f12d730a592fbc07999 Mon Sep 17 00:00:00 2001
 From: Heikki Hannikainen <hessu@hes.iki.fi>
 Date: Tue, 24 Feb 2015 13:10:36 +0200
-Subject: [PATCH 39/96] hackrf_sink_c: device enumeration
+Subject: [PATCH 039/131] hackrf_sink_c: device enumeration
 
 Signed-off-by: Heikki Hannikainen <hessu@hes.iki.fi>
 ---
- lib/hackrf/hackrf_sink_c.cc | 43 ++++++++++++++++++++++++++++---------------
+ lib/hackrf/hackrf_sink_c.cc | 43 ++++++++++++++++++++++++-------------
  1 file changed, 28 insertions(+), 15 deletions(-)
 
 diff --git a/lib/hackrf/hackrf_sink_c.cc b/lib/hackrf/hackrf_sink_c.cc
@@ -87,5 +87,5 @@ index a052093..2c8025b 100644
  }
  
 -- 
-2.11.0
+2.20.1
 

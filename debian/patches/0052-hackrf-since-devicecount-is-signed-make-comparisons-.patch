@@ -1,7 +1,7 @@
 From 69ec75a0b4d2a7fbab0dd456e7190b5c644880f2 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Mon, 7 Dec 2015 20:27:02 +0100
-Subject: [PATCH 52/96] hackrf: since devicecount is signed, make comparisons
+Subject: [PATCH 052/131] hackrf: since devicecount is signed, make comparisons
  signed as well
 
 ---
@@ -54,5 +54,5 @@ index 81ddad6..79a8c71 100644
      label += hackrf_usb_board_id_name( list->usb_board_ids[i] );
      
 -- 
-2.11.0
+2.20.1
 

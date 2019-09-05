@@ -1,13 +1,13 @@
 From 6ea6c19028f8a93c3a942856def5afcf894cba9d Mon Sep 17 00:00:00 2001
 From: Alexandru Csete <oz9aec@gmail.com>
 Date: Mon, 3 Oct 2016 22:47:05 +0200
-Subject: [PATCH 78/96] rfspace: Send periodic keep-alive packets.
+Subject: [PATCH 078/131] rfspace: Send periodic keep-alive packets.
 
 This patch enables sending keep-alive packets at 1 minute interval to
 RFSpace networked radios. Without this the TCP connection to the radio
 is closed after about 5 minutes (by the OS?).
 ---
- lib/rfspace/rfspace_source_c.cc | 34 ++++++++++++++++++++++++++++++++++
+ lib/rfspace/rfspace_source_c.cc | 34 +++++++++++++++++++++++++++++++++
  lib/rfspace/rfspace_source_c.h  |  3 +++
  2 files changed, 37 insertions(+)
 
@@ -99,5 +99,5 @@ index 7d89ddc..c656063 100644
    boost::circular_buffer<gr_complex> *_fifo;
    boost::mutex _fifo_lock;
 -- 
-2.11.0
+2.20.1
 

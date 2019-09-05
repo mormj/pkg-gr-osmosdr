@@ -1,7 +1,7 @@
 From be9af0fe6f81bce327f9b1a2cd23a09533725d9b Mon Sep 17 00:00:00 2001
 From: SDRplay <SDRplay@users.noreply.github.com>
 Date: Tue, 14 Apr 2015 16:34:01 +0100
-Subject: [PATCH 21/96] changed bufi and bufq to std::vector
+Subject: [PATCH 021/131] changed bufi and bufq to std::vector
 
 ---
  lib/sdrplay/sdrplay_source_c.cc | 10 +++++++---
@@ -53,5 +53,5 @@ index ac3e1f0..6c9044b 100644
        {
           *out++ = gr_complex( float(_bufi[i]) * (1.0f/4096.0f), float(_bufq[i]) * (1.0f/4096.0f) );
 -- 
-2.11.0
+2.20.1
 

@@ -1,7 +1,7 @@
 From d230397957603a026c688dd462d349f8dcb645c8 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ji=C5=99=C3=AD=20Pinkava?= <j-pi@seznam.cz>
 Date: Mon, 15 Feb 2016 14:22:04 +0100
-Subject: [PATCH 67/96] allow both 3.7.* and git version of GnuRadio
+Subject: [PATCH 067/131] allow both 3.7.* and git version of GnuRadio
 
 ---
  CMakeLists.txt | 7 ++++++-
@@ -26,5 +26,5 @@ index f0b1283..212a30e 100644
  find_package(UHD)
  find_package(GnuradioUHD)
 -- 
-2.11.0
+2.20.1
 

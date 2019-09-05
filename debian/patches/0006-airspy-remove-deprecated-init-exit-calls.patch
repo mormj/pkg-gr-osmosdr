@@ -1,10 +1,10 @@
 From 163cad2e96195745c76631eec3a32197f20c787c Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Thu, 27 Nov 2014 16:28:30 +0100
-Subject: [PATCH 06/96] airspy: remove deprecated init/exit calls
+Subject: [PATCH 006/131] airspy: remove deprecated init/exit calls
 
 ---
- lib/airspy/airspy_source_c.cc | 39 ---------------------------------------
+ lib/airspy/airspy_source_c.cc | 39 -----------------------------------
  lib/airspy/airspy_source_c.h  |  3 ---
  2 files changed, 42 deletions(-)
 
@@ -101,5 +101,5 @@ index 9876c89..13f2eab 100644
  
    boost::circular_buffer<gr_complex> *_fifo;
 -- 
-2.11.0
+2.20.1
 

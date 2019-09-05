@@ -1,7 +1,7 @@
 From 9ceadfb645f2aadc7e86b87a374340a928af42da Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Sun, 6 Dec 2015 15:49:44 -0800
-Subject: [PATCH 50/96] rtl_tcp: fix ssize_t definition for MSVC
+Subject: [PATCH 050/131] rtl_tcp: fix ssize_t definition for MSVC
 
 This was actually causing a cryptic compile error because of the define.
 The fix was to typedef ssize_t as ptrdiff_t, the same as bladerf_common.h
@@ -26,5 +26,5 @@ index d1d918c..84ac57a 100644
  /* copied from rtl sdr */
  enum rtlsdr_tuner {
 -- 
-2.11.0
+2.20.1
 

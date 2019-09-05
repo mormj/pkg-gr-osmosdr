@@ -1,8 +1,8 @@
 From 2ca720cfee7d12541aa84be96a0076fc8820f5ab Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Mon, 7 Dec 2015 20:37:32 +0100
-Subject: [PATCH 53/96] hackrf: change hackrf i/o from default char to explicit
- int8_t
+Subject: [PATCH 053/131] hackrf: change hackrf i/o from default char to
+ explicit int8_t
 
 original patch provided via github by Dirk Grunwald
 ---
@@ -121,5 +121,5 @@ index 79a8c71..03a43d4 100644
    }
  
 -- 
-2.11.0
+2.20.1
 

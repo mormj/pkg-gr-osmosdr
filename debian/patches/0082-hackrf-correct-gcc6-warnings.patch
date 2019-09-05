@@ -1,7 +1,7 @@
 From 20a5fd1a68f704b000244d35316efdd40f3e5619 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Mon, 27 Feb 2017 23:01:51 +0100
-Subject: [PATCH 82/96] hackrf: correct gcc6 warnings
+Subject: [PATCH 082/131] hackrf: correct gcc6 warnings
 
 ---
  lib/hackrf/hackrf_sink_c.cc   | 27 +++++++++++++++++----------
@@ -123,5 +123,5 @@ index 4211603..30b63c7 100644
  
      {
 -- 
-2.11.0
+2.20.1
 

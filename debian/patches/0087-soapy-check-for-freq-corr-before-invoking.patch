@@ -1,7 +1,7 @@
 From a9e536f45bae3c283a1ad7ed13ff17bbda6173ba Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Sat, 1 Apr 2017 19:45:51 -0700
-Subject: [PATCH 87/96] soapy - check for freq corr before invoking
+Subject: [PATCH 087/131] soapy - check for freq corr before invoking
 
 set_freq_corr() is often a NOP for devices.
 checking avoids crashes for some applications (ex GQRX)
@@ -85,5 +85,5 @@ index d066ed8..fe1e8d9 100644
  
  std::vector<std::string> soapy_source_c::get_gain_names( size_t chan )
 -- 
-2.11.0
+2.20.1
 

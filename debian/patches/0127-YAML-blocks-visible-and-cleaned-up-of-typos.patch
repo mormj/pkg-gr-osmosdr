@@ -1,0 +1,138 @@
+From 9615c8f154ef6362b05b37a1a751380046257c78 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mickey=20V=C3=A4nsk=C3=A4?= <mvaenskae@gmail.com>
+Date: Wed, 3 Apr 2019 23:28:37 +0200
+Subject: [PATCH 127/131] YAML blocks visible and cleaned up of typos.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Mickey Vänskä <mvaenskae@gmail.com>
+---
+ grc/CMakeLists.txt        |  6 +++---
+ grc/gen_osmosdr_blocks.py | 28 ++++++++++++++--------------
+ 2 files changed, 17 insertions(+), 17 deletions(-)
+
+diff --git a/grc/CMakeLists.txt b/grc/CMakeLists.txt
+index 26b4d3a..714d88c 100644
+--- a/grc/CMakeLists.txt
++++ b/grc/CMakeLists.txt
+@@ -32,9 +32,9 @@ macro(GEN_BLOCK_YAML _generator _yaml_block)
+     )
+ endmacro(GEN_BLOCK_YAML)
+ 
+-GEN_BLOCK_YAML(gen_osmosdr_blocks.py    rtlsdr_source.yml)
+-GEN_BLOCK_YAML(gen_osmosdr_blocks.py    osmosdr_source.yml)
+-GEN_BLOCK_YAML(gen_osmosdr_blocks.py    osmosdr_sink.yml)
++GEN_BLOCK_YAML(gen_osmosdr_blocks.py    rtlsdr_source.block.yml)
++GEN_BLOCK_YAML(gen_osmosdr_blocks.py    osmosdr_source.block.yml)
++GEN_BLOCK_YAML(gen_osmosdr_blocks.py    osmosdr_sink.block.yml)
+ 
+ add_custom_target(osmosdr_grc_yaml_blocks ALL DEPENDS ${yaml_blocks})
+ 
+diff --git a/grc/gen_osmosdr_blocks.py b/grc/gen_osmosdr_blocks.py
+index 8f7244d..e30cc70 100644
+--- a/grc/gen_osmosdr_blocks.py
++++ b/grc/gen_osmosdr_blocks.py
+@@ -29,8 +29,8 @@ parameters:
+   label: '${direction.title()}put Type'
+   dtype: enum
+   options: [fc32]
+-  options_labels: [Complex Float32]
+-  options_attributes:
++  option_labels: [Complex Float32]
++  option_attributes:
+       type: [fc32]
+   hide: part
+ - id: dev_args
+@@ -42,11 +42,11 @@ parameters:
+   label: Sync
+   dtype: enum
+   options: [sync, pc_clock, none]
+-  options_labels: [Unknown PPS, PC Clock, Don't Sync]
++  option_labels: [Unknown PPS, PC Clock, Don't Sync]
+   hide: ${'$'}{ 'none' if sync else 'part'}
+ - id: num_mboards
+   label: 'Number MBoards'
+-  type: int
++  dtype: int
+   default: 1
+   options: [ ${", ".join([str(n) for n in range(1, max_mboards+1)])} ]
+   hide: part
+@@ -55,18 +55,18 @@ parameters:
+   label: 'MB${m}: Clock Source'
+   dtype: string
+   options: ['', internal, external, external_1pps, mimo, gpsdo]
+-  options_labels: [Default, Internal, External, External 1PPS, MIMO Cable, O/B GPSDO]
++  option_labels: [Default, Internal, External, External 1PPS, MIMO Cable, O/B GPSDO]
+   hide: ${'$'}{ 'all' if not (num_mboards > ${m}) else ( 'none' if clock_source${m} else 'part' )}
+ - id: time_source${m}
+   label: 'MB${m}: Time Source'
+   dtype: string
+   options: ['', external, mimo, gpsdo]
+-  options_labels: [Default, External, MIMO Cable, O/B GPSDO]
++  option_labels: [Default, External, MIMO Cable, O/B GPSDO]
+   hide: ${'$'}{ 'all' if not (num_mboards > ${m}) else ( 'none' if time_source${m} else 'part' )}  
+ % endfor
+ - id: nchan
+   label: 'Number Channels'
+-  type: int
++  dtype: int
+   default: 1
+   options: [ ${", ".join([str(n) for n in range(1, max_nchan+1)])} ]
+ - id: sample_rate
+@@ -303,21 +303,21 @@ PARAMS_TMPL = """
+   dtype: int
+   default: 0
+   options: [0, 1, 2]
+-  options_labels: [Off, Manual, Automatic]
++  option_labels: [Off, Manual, Automatic]
+   hide: ${'$'}{'none' if (nchan > ${n}) else 'all'}
+ - id: iq_balance_mode${n}
+   label: 'Ch${n}: IQ Balance Mode'
+   dtype: int
+   default: 0
+   options: [0, 1, 2]
+-  options_labels: [Off, Manual, Automatic]
++  option_labels: [Off, Manual, Automatic]
+   hide: ${'$'}{'none' if (nchan > ${n}) else 'all'}
+ - id: gain_mode${n}
+   label: 'Ch${n}: Gain Mode'
+   dtype: bool
+   default: False
+   options: [False, True]
+-  options_labels: [Manual, Automatic]
++  option_labels: [Manual, Automatic]
+   hide: ${'$'}{'none' if (nchan > ${n}) else 'all'}
+ % endif
+ - id: gain${n}
+@@ -339,12 +339,12 @@ PARAMS_TMPL = """
+   label: 'Ch${n}: Antenna'
+   dtype: string
+   default: ""
+-  hide: ${'$'}{'all' if not (nchan > ${n}) else ('none' if eval('ant' + str(n)) else 'part')}
++  hide: ${'$'}{'all' if not (nchan > ${n}) else ('none' if eval('ant' + str(${n})) else 'part')}
+ - id: bw${n}
+   label: 'Ch${n}: Bandwidth (Hz)'
+   dtype: real
+   default: 0
+-  hide: ${'$'}{'all' if not (nchan > ${n}) else ('none' if eval('bw' + str(n)) else 'part')}
++  hide: ${'$'}{'all' if not (nchan > ${n}) else ('none' if eval('bw' + str(${n})) else 'part')}
+ """
+ 
+ # def parse_tmpl(_tmpl, **kwargs):
+@@ -381,10 +381,10 @@ if __name__ == '__main__':
+         else:
+             raise Exception("file {} has wrong syntax!".format(tail))
+ 
+-        if tail.endswith('source.yml'):
++        if tail.endswith('source.block.yml'):
+             sourk = 'source'
+             direction = 'out'
+-        elif tail.endswith('sink.yml'):
++        elif tail.endswith('sink.block.yml'):
+             sourk = 'sink'
+             direction = 'in'
+         else:
+-- 
+2.20.1
+

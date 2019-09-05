@@ -1,0 +1,58 @@
+From c4a078136736f21d9dba9b02650e9b9a600f0534 Mon Sep 17 00:00:00 2001
+From: Rey Tucker <rey.tucker@nuand.com>
+Date: Wed, 9 Aug 2017 16:15:08 -0400
+Subject: [PATCH 118/131] bladerf_common: tweak buffer/transfer settings
+
+Based on experimentation, a good value for transfers seems to be 16, but
+more buffers are definitely warranted for an optimal default experience.
+---
+ lib/bladerf/bladerf_common.cc | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/lib/bladerf/bladerf_common.cc b/lib/bladerf/bladerf_common.cc
+index 1b6c1db..22bfc74 100644
+--- a/lib/bladerf/bladerf_common.cc
++++ b/lib/bladerf/bladerf_common.cc
+@@ -40,8 +40,9 @@
+ 
+ #include "bladerf_common.h"
+ 
+-#define NUM_BUFFERS 32
++#define NUM_BUFFERS 256
+ #define NUM_SAMPLES_PER_BUFFER (4 * 1024)
++#define NUM_TRANSFERS 16
+ 
+ using namespace boost::assign;
+ 
+@@ -584,12 +585,12 @@ void bladerf_common::init(dict_t &dict, bladerf_direction direction)
+   }
+ 
+   /* If the user hasn't specified the desired number of transfers, set it to
+-   * min(32, num_buffers / 2) */
++   * min(NUM_TRANSFERS, num_buffers / 2) */
+   if (_num_transfers == 0) {
+     _num_transfers = _num_buffers / 2;
+ 
+-    if (_num_transfers > 32) {
+-      _num_transfers = 32;
++    if (_num_transfers > NUM_TRANSFERS) {
++      _num_transfers = NUM_TRANSFERS;
+     }
+   } else if (_num_transfers >= _num_buffers) {
+     _num_transfers = _num_buffers - 1;
+@@ -599,6 +600,12 @@ void bladerf_common::init(dict_t &dict, bladerf_direction direction)
+               << std::endl;
+   }
+ 
++  std::cerr << _pfx
++            << "Buffers: " << _num_buffers << ", "
++            << "Samples per buffer: " << _samples_per_buffer << ", "
++            << "Transfers: " << _num_transfers
++            << std::endl;
++
+   _conv_buf = static_cast<int16_t *>(malloc(_conv_buf_size * 2 * sizeof(int16_t)));
+ 
+   if (NULL == _conv_buf) {
+-- 
+2.20.1
+

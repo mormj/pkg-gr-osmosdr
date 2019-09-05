@@ -1,7 +1,7 @@
 From ae686c462df73285fc13d3a0dc76f360a911500b Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Wed, 22 Jun 2016 18:13:11 -0700
-Subject: [PATCH 74/96] soapy: support newer getBandwidthRange() API call
+Subject: [PATCH 074/131] soapy: support newer getBandwidthRange() API call
 
 Switch to the newer API call which can provide a list of ranges.
 There are feature detection ifdefs provided by the library
@@ -72,5 +72,5 @@ index 5fc0dbc..608138e 100644
  }
  
 -- 
-2.11.0
+2.20.1
 

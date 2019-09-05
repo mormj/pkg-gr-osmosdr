@@ -1,7 +1,7 @@
 From 254e1b1981bbe920b03c1a8e50b67509739231f3 Mon Sep 17 00:00:00 2001
 From: Heikki Hannikainen <hessu@hes.iki.fi>
 Date: Sat, 30 May 2015 14:30:03 +0300
-Subject: [PATCH 41/96] hackrf_source: adjust error message
+Subject: [PATCH 041/131] hackrf_source: adjust error message
 
 Signed-off-by: Heikki Hannikainen <hessu@hes.iki.fi>
 ---
@@ -22,5 +22,5 @@ index 33ab62d..64b8f14 100644
          
          hackrf_device_list_t *list = hackrf_device_list();
 -- 
-2.11.0
+2.20.1
 

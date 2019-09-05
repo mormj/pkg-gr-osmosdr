@@ -1,7 +1,7 @@
 From 3c7d3f166401b1af6afd903b8d2b9729e8897189 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sun, 11 Jun 2017 22:04:03 +0200
-Subject: [PATCH 94/96] rtl,rtl_tcp: add bias=0|1 parameter to switch off|on
+Subject: [PATCH 094/131] rtl,rtl_tcp: add bias=0|1 parameter to switch off|on
  bias voltage on gpio0
 
 ---
@@ -111,5 +111,5 @@ index d49271f..ecdeee0 100644
  
  rtl_tcp_source_c::~rtl_tcp_source_c()
 -- 
-2.11.0
+2.20.1
 

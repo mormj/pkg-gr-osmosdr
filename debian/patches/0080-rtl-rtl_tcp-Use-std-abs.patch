@@ -1,7 +1,7 @@
 From c6ed80aea7fcbd45035f20c6389b2c9892bd6abe Mon Sep 17 00:00:00 2001
 From: Alexandru Csete <oz9aec@gmail.com>
 Date: Sun, 2 Oct 2016 21:43:38 +0200
-Subject: [PATCH 80/96] rtl, rtl_tcp: Use std::abs.
+Subject: [PATCH 080/131] rtl, rtl_tcp: Use std::abs.
 
 Fixes compile error on Mac OS X.
 ---
@@ -36,5 +36,5 @@ index a365688..1b2c533 100644
          error = err;
          gains[ i + 1 ] = g;
 -- 
-2.11.0
+2.20.1
 

@@ -1,7 +1,7 @@
 From 6a0cac6609c6d16ae0a4ecb3da463fb42e3e1550 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Mon, 27 Feb 2017 23:01:15 +0100
-Subject: [PATCH 81/96] airspy: correct gcc6 warnings
+Subject: [PATCH 081/131] airspy: correct gcc6 warnings
 
 ---
  lib/airspy/airspy_source_c.cc | 25 ++++++++++++++++++-------
@@ -64,5 +64,5 @@ index bbeb3aa..50150e5 100644
        ret = airspy_set_conversion_filter_float32(_dev, kernel, size);
        AIRSPY_THROW_ON_ERROR(ret, "Failed to set IQ conversion filter")
 -- 
-2.11.0
+2.20.1
 

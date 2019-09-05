@@ -1,7 +1,7 @@
 From b3fdf5b83dc79575405f524df889d92908fecc72 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marcus=20M=C3=BCller?= <Marcus.Mueller@ettus.com>
 Date: Thu, 21 May 2015 23:46:58 -0700
-Subject: [PATCH 31/96] Fix config error with CMake version 2.8.7
+Subject: [PATCH 031/131] Fix config error with CMake version 2.8.7
 
 Replace find_package(SoapySDR CONFIG) with find_package(SoapySDR NO_MODULE),
 which has an identical effect but is supported by CMake 2.8.7 on Ubuntu 12.10
@@ -23,5 +23,5 @@ index f715414..f0b1283 100644
  
  if(NOT GNURADIO_RUNTIME_FOUND)
 -- 
-2.11.0
+2.20.1
 

@@ -1,10 +1,10 @@
 From b7aab458ed706387cd34bc2c08c65f7562aee51b Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sun, 11 Jun 2017 23:55:17 +0200
-Subject: [PATCH 96/96] freesrp: whitespace fixes
+Subject: [PATCH 096/131] freesrp: whitespace fixes
 
 ---
- lib/freesrp/freesrp_common.cc | 266 +++++++++++++++++++++---------------------
+ lib/freesrp/freesrp_common.cc | 266 +++++++++++++++++-----------------
  1 file changed, 133 insertions(+), 133 deletions(-)
 
 diff --git a/lib/freesrp/freesrp_common.cc b/lib/freesrp/freesrp_common.cc
@@ -331,5 +331,5 @@ index cbbf1c3..d60fbb8 100644
 +  return 0;
  }
 -- 
-2.11.0
+2.20.1
 

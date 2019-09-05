@@ -1,3 +1,12 @@
+gr-osmosdr (0.1.4-15) unstable; urgency=medium
+
+  * update to igorauad/3.8 branch v0.1.4-134-gf3905d3
+  * restore FUNcube Dongle support using newer gr-fcdproplus
+  * Build with python3 and gnuradio 3.8 (Closes: #935622, #936666)
+  * gr-osmosdr primarily allows for further development (Closes: #762955)
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Wed, 04 Sep 2019 21:10:57 -0400
+
 gr-osmosdr (0.1.4-14) unstable; urgency=medium
 
   * Add initial support for Airspy HF+

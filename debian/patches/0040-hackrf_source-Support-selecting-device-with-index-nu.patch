@@ -1,7 +1,7 @@
 From e847176f3ee43434eef7f6cfa1128983801f45c7 Mon Sep 17 00:00:00 2001
 From: Heikki Hannikainen <hessu@hes.iki.fi>
 Date: Tue, 3 Mar 2015 02:30:45 +0200
-Subject: [PATCH 40/96] hackrf_source: Support selecting device with index
+Subject: [PATCH 040/131] hackrf_source: Support selecting device with index
  number (hackrf=0)
 
 Signed-off-by: Heikki Hannikainen <hessu@hes.iki.fi>
@@ -67,5 +67,5 @@ index e9e6891..33ab62d 100644
  
    uint8_t board_id;
 -- 
-2.11.0
+2.20.1
 

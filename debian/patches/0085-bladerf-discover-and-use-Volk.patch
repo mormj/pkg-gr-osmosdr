@@ -1,7 +1,7 @@
 From e9dde9afd754c6e3bcf1a1444c04064051f04ecd Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Mon, 27 Feb 2017 23:23:54 +0100
-Subject: [PATCH 85/96] bladerf: discover and use Volk
+Subject: [PATCH 085/131] bladerf: discover and use Volk
 
 ---
  CMakeLists.txt             | 1 +
@@ -39,5 +39,5 @@ index 922dbe1..c253a22 100644
 -list(APPEND gr_osmosdr_libs ${LIBBLADERF_LIBRARIES})
 +list(APPEND gr_osmosdr_libs ${LIBBLADERF_LIBRARIES} ${VOLK_LIBRARIES})
 -- 
-2.11.0
+2.20.1
 

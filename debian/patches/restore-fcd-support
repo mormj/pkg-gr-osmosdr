@@ -1,0 +1,84 @@
+--- a/lib/CMakeLists.txt
++++ b/lib/CMakeLists.txt
+@@ -135,6 +135,17 @@
+ endif(ENABLE_OSMOSDR)
+ 
+ ########################################################################
++# Setup FCD component
++########################################################################
++GR_REGISTER_COMPONENT("FUNcube Dongle" ENABLE_FCD GNURADIO_FCDPP_FOUND)
++if(ENABLE_FCD)
++add_definitions(-DHAVE_FCD=1)
++add_definitions(-DHAVE_FCDPP=1)
++GR_INCLUDE_SUBDIRECTORY(fcd)
++GR_OSMOSDR_APPEND_LIBS(${GNURADIO_FCDPP_LIBRARIES})
++endif(ENABLE_FCD)
++
++########################################################################
+ # Setup File component
+ ########################################################################
+ GR_REGISTER_COMPONENT("IQ File Source & Sink" ENABLE_FILE gnuradio-blocks_FOUND)
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -175,11 +175,6 @@
+ message(STATUS "Found Runtime Block: ${gnuradio-runtime_FOUND}")
+ 
+ # Software Components part of GNU Radio - These should all be present for a default install
+-message(STATUS " Searching for IQ Balance...")
+-#find_package(Gnuradio COMPONENTS iqbalance REQUIRED)
+-find_package(gnuradio-iqbalance NAMES gr-fcdproplus)
+-message (STATUS "Found IQ Balance: ${gnuradio-iqbalance_FOUND}")
+-
+ message(STATUS " Searching for UHD Drivers...")
+ #find_package(Gnuradio COMPONENTS uhd REQUIRED)
+ find_package(UHD REQUIRED ${GR_PREFIX}/lib/cmake/uhd)
+@@ -195,6 +190,8 @@
+ find_package(volk PATHS ${GR_PREFIX}/lib/cmake/volk)
+ message (STATUS "Found Volk: ${volk_FOUND}") ]]#
+ 
++find_package(GnuradioIQBalance)
++find_package(GnuradioFCDPP)
+ find_package(UHD)
+ find_package(GnuradioUHD)
+ find_package(LibOsmoSDR)
+--- a/lib/fcd/fcd_source_c.h
++++ b/lib/fcd/fcd_source_c.h
+@@ -22,12 +22,11 @@
+ 
+ #include <gnuradio/hier_block2.h>
+ 
+-#ifdef HAVE_FCD
+-#include <gnuradio/fcd/source_c.h>
+-#endif
+-
+ #ifdef HAVE_FCDPP
++#include <fcdproplus/fcd.h>
+ #include <fcdproplus/fcdproplus.h>
++#include <fcdproplus/fcd_control.h>
++#include <fcdproplus/fcdpp_control.h>
+ #endif
+ 
+ #include "source_iface.h"
+@@ -86,10 +85,8 @@
+ 
+ private:
+   dongle_type _type;
+-#ifdef HAVE_FCD
+-  gr::fcd::source_c::sptr _src_v1;
+-#endif
+ #ifdef HAVE_FCDPP
++  gr::fcdproplus::fcd::sptr _src_v1;
+   gr::fcdproplus::fcdproplus::sptr _src_v2;
+ #endif
+   double _lna_gain, _mix_gain, _bb_gain, _freq;
+--- a/lib/fcd/fcd_source_c.cc
++++ b/lib/fcd/fcd_source_c.cc
+@@ -145,7 +145,7 @@
+ #ifdef HAVE_FCD
+   if ( FUNCUBE_V1 == _type )
+   {
+-    _src_v1 = gr::fcd::source_c::make( dev_name );
++    _src_v1 = gr::fcdproplus::fcd::make( dev_name );
+     connect( _src_v1, 0, self(), 0 );
+ 
+     set_gain( 20, "LNA" );

@@ -1,12 +1,12 @@
 From 8e6ecd0644519c96d8d9c1a606cf4b8c39bcf2a6 Mon Sep 17 00:00:00 2001
 From: Heikki Hannikainen <hessu@hes.iki.fi>
 Date: Tue, 24 Feb 2015 11:51:38 +0200
-Subject: [PATCH 36/96] hackrf_source: attempt device enumeration with
+Subject: [PATCH 036/131] hackrf_source: attempt device enumeration with
  hackrf_device_list
 
 Signed-off-by: Heikki Hannikainen <hessu@hes.iki.fi>
 ---
- lib/hackrf/hackrf_source_c.cc | 39 ++++++++++++++++++++++++---------------
+ lib/hackrf/hackrf_source_c.cc | 39 +++++++++++++++++++++--------------
  1 file changed, 24 insertions(+), 15 deletions(-)
 
 diff --git a/lib/hackrf/hackrf_source_c.cc b/lib/hackrf/hackrf_source_c.cc
@@ -84,5 +84,5 @@ index d916572..9a7aa72 100644
  }
  
 -- 
-2.11.0
+2.20.1
 

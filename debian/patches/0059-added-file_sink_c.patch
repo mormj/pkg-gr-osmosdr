@@ -1,13 +1,13 @@
 From 84249efbea6220fa193a3ce08c4be119545ce41b Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marcus=20M=C3=BCller?= <marcus.mueller@ettus.com>
 Date: Tue, 29 Dec 2015 19:08:14 +0100
-Subject: [PATCH 59/96] added file_sink_c
+Subject: [PATCH 059/131] added file_sink_c
 
 ---
  lib/file/CMakeLists.txt |   1 +
- lib/file/file_sink_c.cc | 226 ++++++++++++++++++++++++++++++++++++++++++++++++
- lib/file/file_sink_c.h  |  82 ++++++++++++++++++
- lib/sink_impl.cc        |  25 ++++--
+ lib/file/file_sink_c.cc | 226 ++++++++++++++++++++++++++++++++++++++++
+ lib/file/file_sink_c.h  |  82 +++++++++++++++
+ lib/sink_impl.cc        |  25 +++--
  4 files changed, 328 insertions(+), 6 deletions(-)
  create mode 100644 lib/file/file_sink_c.cc
  create mode 100644 lib/file/file_sink_c.h
@@ -417,5 +417,5 @@ index 146f1a9..f291b95 100644
      if ( iface != NULL && long(block.get()) != 0 ) {
        _devs.push_back( iface );
 -- 
-2.11.0
+2.20.1
 

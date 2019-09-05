@@ -1,7 +1,7 @@
 From 485b02e6152d8abb6d61c9b16fe53c8a253ca4dd Mon Sep 17 00:00:00 2001
 From: Heikki Hannikainen <hessu@hes.iki.fi>
 Date: Tue, 24 Feb 2015 12:38:42 +0200
-Subject: [PATCH 38/96] hackrf device enumeration: Use only 6 characters of
+Subject: [PATCH 038/131] hackrf device enumeration: Use only 6 characters of
  serial (should be unique per user?) and append it in device name
 
 Signed-off-by: Heikki Hannikainen <hessu@hes.iki.fi>
@@ -39,5 +39,5 @@ index f064c8b..e9e6891 100644
  
      args += ",label='" + label + "'";
 -- 
-2.11.0
+2.20.1
 

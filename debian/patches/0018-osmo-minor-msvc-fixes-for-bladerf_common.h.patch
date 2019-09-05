@@ -1,7 +1,7 @@
 From 3532d60c11529c8aeca58219bb06f2c2acf8e547 Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Wed, 22 Apr 2015 22:17:24 -0700
-Subject: [PATCH 18/96] osmo: minor msvc fixes for bladerf_common.h
+Subject: [PATCH 018/131] osmo: minor msvc fixes for bladerf_common.h
 
 ---
  lib/bladerf/bladerf_common.h | 6 ++++++
@@ -32,5 +32,5 @@ index f67600f..d16c02f 100644
  
  class bladerf_common
 -- 
-2.11.0
+2.20.1
 

@@ -1,0 +1,35 @@
+From 2e2ff98c83c8aa8e812189553096be74a26806f6 Mon Sep 17 00:00:00 2001
+From: Rey Tucker <rey.tucker@nuand.com>
+Date: Tue, 19 Sep 2017 17:02:11 -0400
+Subject: [PATCH 122/131] bladerf: remove vestigial map
+
+---
+ lib/bladerf/bladerf_common.cc | 12 ------------
+ 1 file changed, 12 deletions(-)
+
+diff --git a/lib/bladerf/bladerf_common.cc b/lib/bladerf/bladerf_common.cc
+index 6711cf4..c10cc2e 100644
+--- a/lib/bladerf/bladerf_common.cc
++++ b/lib/bladerf/bladerf_common.cc
+@@ -56,18 +56,6 @@ std::list<boost::weak_ptr<struct bladerf>> bladerf_common::_devs;
+ /* name for system-wide gain (which is not its own libbladeRF gain stage) */
+ static const char *SYSTEM_GAIN_NAME = "system";
+ 
+-typedef std::pair<size_t,size_t> bladerf_rxtx_pair;
+-typedef std::pair<bladerf_board_type, bladerf_rxtx_pair> bladerf_chan_rxtx_pair;
+-typedef std::map<bladerf_board_type, bladerf_rxtx_pair> bladerf_chan_rxtx_map;
+-
+-/* Mapping of bladeRF board model to maximum supported channels for (rx, tx) */
+-static bladerf_chan_rxtx_map const _max_chans = {
+-  bladerf_chan_rxtx_pair(BOARD_TYPE_UNKNOWN,    bladerf_rxtx_pair(1,1)),
+-  bladerf_chan_rxtx_pair(BOARD_TYPE_NONE,       bladerf_rxtx_pair(0,0)),
+-  bladerf_chan_rxtx_pair(BOARD_TYPE_BLADERF_1,  bladerf_rxtx_pair(1,1)),
+-  bladerf_chan_rxtx_pair(BOARD_TYPE_BLADERF_2,  bladerf_rxtx_pair(2,2)),
+-};
+-
+ /* Determines if bladerf_version is greater or equal to major.minor.patch */
+ static bool _version_greater_or_equal(const struct bladerf_version *version,
+                                       unsigned int major,
+-- 
+2.20.1
+

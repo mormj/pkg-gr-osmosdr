@@ -1,7 +1,7 @@
 From e3210954459e2683120ebf51ec8edd0ba887f9be Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sun, 10 Jan 2016 22:32:07 +0100
-Subject: [PATCH 65/96] airspy: implement sensitivity and linerity gain
+Subject: [PATCH 065/131] airspy: implement sensitivity and linerity gain
  profiles for set_gain()
 
 use them with airspy,linearity (the default) or airspy,sensitivity
@@ -9,8 +9,8 @@ device arguments. Range is 0 to 21. Named gains still work as before.
 
 Requires libairspy commit dc5cbca2f6f03458c40eab7c0f88fdfed60a08ff
 ---
- lib/airspy/airspy_source_c.cc | 95 ++++++++++++++++++++++++++++---------------
- lib/airspy/airspy_source_c.h  |  8 ++++
+ lib/airspy/airspy_source_c.cc | 95 +++++++++++++++++++++++------------
+ lib/airspy/airspy_source_c.h  |  8 +++
  2 files changed, 71 insertions(+), 32 deletions(-)
 
 diff --git a/lib/airspy/airspy_source_c.cc b/lib/airspy/airspy_source_c.cc
@@ -239,5 +239,5 @@ index f9ad2fa..f8617e6 100644
    double _mix_gain;
    double _vga_gain;
 -- 
-2.11.0
+2.20.1
 

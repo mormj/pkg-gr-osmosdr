@@ -1,0 +1,37 @@
+From a6209e325007dde5c0bb2e902386d1ef2b17c39b Mon Sep 17 00:00:00 2001
+From: Rey Tucker <git@ryantucker.us>
+Date: Mon, 26 Jun 2017 11:15:54 -0400
+Subject: [PATCH 104/131] formatting/wording tweaks
+
+---
+ lib/bladerf/bladerf_common.cc | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/lib/bladerf/bladerf_common.cc b/lib/bladerf/bladerf_common.cc
+index b4b3753..afdf49c 100644
+--- a/lib/bladerf/bladerf_common.cc
++++ b/lib/bladerf/bladerf_common.cc
+@@ -48,8 +48,9 @@ using namespace boost::assign;
+ boost::mutex bladerf_common::_devs_mutex;
+ std::list<boost::weak_ptr<struct bladerf> > bladerf_common::_devs;
+ 
+-// name of system-wide gain
+-//(internal only, doesn't match any libbladeRF gain stage)
++/* name of system-wide gain
++ * (internal only, doesn't match any libbladeRF gain stage)
++ */
+ static const char* SYSTEM_GAIN_NAME = "system";
+ 
+ bladerf_common::bladerf_common() :
+@@ -187,7 +188,7 @@ void bladerf_common::set_loopback_mode(const std::string &loopback)
+     } else if (loopback == "none") {
+       mode = BLADERF_LB_NONE;
+     } else {
+-      throw std::runtime_error( _pfx + "Invalid loopback mode:" + loopback );
++      throw std::runtime_error( _pfx + "Unknown loopback mode:" + loopback );
+     }
+ 
+     status = bladerf_set_loopback( _dev.get(), mode);
+-- 
+2.20.1
+

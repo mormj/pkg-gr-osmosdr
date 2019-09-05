@@ -1,28 +1,28 @@
 From aa4094b3fd103a5b7fbcd3b8a0e225cfe70a6c6f Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sat, 3 May 2014 22:25:23 +0200
-Subject: [PATCH 04/96] introduce time & clock synchronisation APIs
+Subject: [PATCH 004/131] introduce time & clock synchronisation APIs
 
 ---
- grc/gen_osmosdr_blocks.py      |  97 +++++++++++++++++++++++-
+ grc/gen_osmosdr_blocks.py      |  97 +++++++++++++++++++-
  include/osmosdr/CMakeLists.txt |   1 +
  include/osmosdr/ranges.h       |   6 ++
- include/osmosdr/sink.h         |  98 +++++++++++++++++++++++++
- include/osmosdr/source.h       |  98 +++++++++++++++++++++++++
- include/osmosdr/time_spec.h    | 141 +++++++++++++++++++++++++++++++++++
- lib/CMakeLists.txt             |  62 ++++++++++++++++
- lib/sink_iface.h               | 110 +++++++++++++++++++++++++++
- lib/sink_impl.cc               | 101 ++++++++++++++++++++++++-
- lib/sink_impl.h                |  14 ++++
- lib/source_iface.h             | 110 +++++++++++++++++++++++++++
- lib/source_impl.cc             | 101 ++++++++++++++++++++++++-
- lib/source_impl.h              |  14 ++++
- lib/time_spec.cc               | 163 +++++++++++++++++++++++++++++++++++++++++
- lib/uhd/uhd_sink_c.cc          |  67 +++++++++++++++++
- lib/uhd/uhd_sink_c.h           |  14 ++++
- lib/uhd/uhd_source_c.cc        |  67 +++++++++++++++++
- lib/uhd/uhd_source_c.h         |  14 ++++
- swig/osmosdr_swig.i            |  27 +++++++
+ include/osmosdr/sink.h         |  98 ++++++++++++++++++++
+ include/osmosdr/source.h       |  98 ++++++++++++++++++++
+ include/osmosdr/time_spec.h    | 141 ++++++++++++++++++++++++++++
+ lib/CMakeLists.txt             |  62 +++++++++++++
+ lib/sink_iface.h               | 110 ++++++++++++++++++++++
+ lib/sink_impl.cc               | 101 +++++++++++++++++++-
+ lib/sink_impl.h                |  14 +++
+ lib/source_iface.h             | 110 ++++++++++++++++++++++
+ lib/source_impl.cc             | 101 +++++++++++++++++++-
+ lib/source_impl.h              |  14 +++
+ lib/time_spec.cc               | 163 +++++++++++++++++++++++++++++++++
+ lib/uhd/uhd_sink_c.cc          |  67 ++++++++++++++
+ lib/uhd/uhd_sink_c.h           |  14 +++
+ lib/uhd/uhd_source_c.cc        |  67 ++++++++++++++
+ lib/uhd/uhd_source_c.h         |  14 +++
+ swig/osmosdr_swig.i            |  27 ++++++
  19 files changed, 1302 insertions(+), 3 deletions(-)
  create mode 100644 include/osmosdr/time_spec.h
  create mode 100644 lib/time_spec.cc
@@ -56,10 +56,11 @@ index a10c871..07d9d79 100644
  self.\$(id).set_sample_rate(\$sample_rate)
  #for $n in range($max_nchan)
  \#if \$nchan() > $n
-@@ -84,6 +101,79 @@ self.\$(id).set_bandwidth(\$bw$(n), $n)
+@@ -83,6 +100,79 @@ self.\$(id).set_bandwidth(\$bw$(n), $n)
+       \#end if
      </hide>
    </param>
-   <param>
++  <param>
 +    <name>Sync</name>
 +    <key>sync</key>
 +    <value></value>
@@ -132,10 +133,9 @@ index a10c871..07d9d79 100644
 +    <option><name>O/B GPSDO</name><key>gpsdo</key></option>
 +  </param>
 +  #end for
-+  <param>
+   <param>
      <name>Num Channels</name>
      <key>nchan</key>
-     <value>1</value>
 @@ -104,6 +194,9 @@ self.\$(id).set_bandwidth(\$bw$(n), $n)
    $params
    <check>$max_nchan >= \$nchan</check>
@@ -584,10 +584,11 @@ index 00906f3..cd06ca8 100644
  )
  
  GR_OSMOSDR_APPEND_LIBS(
-@@ -48,6 +49,67 @@ GR_OSMOSDR_APPEND_LIBS(
+@@ -47,6 +48,67 @@ GR_OSMOSDR_APPEND_LIBS(
+     ${GNURADIO_ALL_LIBRARIES}
  )
  
- ########################################################################
++########################################################################
 +# Setup defines for high resolution timing
 +########################################################################
 +MESSAGE(STATUS "")
@@ -648,10 +649,9 @@ index 00906f3..cd06ca8 100644
 +    PROPERTIES COMPILE_DEFINITIONS "${TIME_SPEC_DEFS}"
 +)
 +
-+########################################################################
+ ########################################################################
  # Setup IQBalance component
  ########################################################################
- GR_REGISTER_COMPONENT("Osmocom IQ Imbalance Correction" ENABLE_IQBALANCE GNURADIO_IQBALANCE_FOUND)
 diff --git a/lib/sink_iface.h b/lib/sink_iface.h
 index 49eea7b..39aabc7 100644
 --- a/lib/sink_iface.h
@@ -1605,5 +1605,5 @@ index 4de4892..550008b 100644
 +%}
 +//static const size_t ALL_MBOARDS;
 -- 
-2.11.0
+2.20.1
 

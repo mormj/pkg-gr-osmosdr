@@ -1,7 +1,7 @@
 From cf9549485af61658eab3e14e0a89db80742eb547 Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Fri, 21 Apr 2017 11:29:30 -0700
-Subject: [PATCH 90/96] soapy - correct constant for frequency correction
+Subject: [PATCH 090/131] soapy - correct constant for frequency correction
 
 This is a typo, some modules use the "CORR" string
 in the setFrequency(dir, chan, name, value) API
@@ -58,5 +58,5 @@ index c780966..a645361 100644
          return _device->getFrequency(SOAPY_SDR_RX, chan, "CORR");
      }
 -- 
-2.11.0
+2.20.1
 

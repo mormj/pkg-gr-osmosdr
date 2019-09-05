@@ -1,18 +1,18 @@
 From 3afcb7e04f6c48d70b8bb2f2c3ab7723d3fcf026 Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Sun, 15 Feb 2015 17:57:12 -0800
-Subject: [PATCH 10/96] soapy: began work on soapy sdr support
+Subject: [PATCH 010/131] soapy: began work on soapy sdr support
 
 ---
  CMakeLists.txt              |   1 +
- lib/CMakeLists.txt          |   8 ++
+ lib/CMakeLists.txt          |   8 +
  lib/config.h.in             |   1 +
  lib/sink_impl.cc            |  18 +++
- lib/soapy/CMakeLists.txt    |  38 ++++++
- lib/soapy/soapy_sink_c.cc   | 293 ++++++++++++++++++++++++++++++++++++++++++++
- lib/soapy/soapy_sink_c.h    | 125 +++++++++++++++++++
- lib/soapy/soapy_source_c.cc | 259 +++++++++++++++++++++++++++++++++++++++
- lib/soapy/soapy_source_c.h  | 127 +++++++++++++++++++
+ lib/soapy/CMakeLists.txt    |  38 +++++
+ lib/soapy/soapy_sink_c.cc   | 293 ++++++++++++++++++++++++++++++++++++
+ lib/soapy/soapy_sink_c.h    | 125 +++++++++++++++
+ lib/soapy/soapy_source_c.cc | 259 +++++++++++++++++++++++++++++++
+ lib/soapy/soapy_source_c.h  | 127 ++++++++++++++++
  lib/source_impl.cc          |  18 +++
  10 files changed, 888 insertions(+)
  create mode 100644 lib/soapy/CMakeLists.txt
@@ -37,10 +37,11 @@ diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
 index cd06ca8..e22f850 100644
 --- a/lib/CMakeLists.txt
 +++ b/lib/CMakeLists.txt
-@@ -215,6 +215,14 @@ GR_INCLUDE_SUBDIRECTORY(airspy)
+@@ -214,6 +214,14 @@ if(ENABLE_AIRSPY)
+ GR_INCLUDE_SUBDIRECTORY(airspy)
  endif(ENABLE_AIRSPY)
  
- ########################################################################
++########################################################################
 +# Setup SoapySDR component
 +########################################################################
 +GR_REGISTER_COMPONENT("SoapySDR support" ENABLE_SOAPY SoapySDR_FOUND)
@@ -48,10 +49,9 @@ index cd06ca8..e22f850 100644
 +GR_INCLUDE_SUBDIRECTORY(soapy)
 +endif(ENABLE_SOAPY)
 +
-+########################################################################
+ ########################################################################
  # Setup configuration file
  ########################################################################
- ADD_DEFINITIONS(-DHAVE_CONFIG_H=1)
 diff --git a/lib/config.h.in b/lib/config.h.in
 index fe9c2bf..f7d960d 100644
 --- a/lib/config.h.in
@@ -78,16 +78,16 @@ index e17e9dc..d8c9a5b 100644
  #include "arg_helpers.h"
  #include "sink_impl.h"
  
-@@ -84,6 +88,9 @@ sink_impl::sink_impl( const std::string &args )
+@@ -83,6 +87,9 @@ sink_impl::sink_impl( const std::string &args )
+ #endif
  #ifdef ENABLE_BLADERF
    dev_types.push_back("bladerf");
- #endif
++#endif
 +#ifdef ENABLE_SOAPY
 +  dev_types.push_back("soapy");
-+#endif
+ #endif
    std::cerr << "gr-osmosdr "
              << GR_OSMOSDR_VERSION << " (" << GR_OSMOSDR_LIBVER << ") "
-             << "gnuradio " << gr::version() << std::endl;
 @@ -118,6 +125,10 @@ sink_impl::sink_impl( const std::string &args )
      BOOST_FOREACH( std::string dev, hackrf_sink_c::get_devices() )
        dev_list.push_back( dev );
@@ -1000,16 +1000,16 @@ index e4c9be6..b9fead3 100644
  #include "arg_helpers.h"
  #include "source_impl.h"
  
-@@ -142,6 +146,9 @@ source_impl::source_impl( const std::string &args )
+@@ -141,6 +145,9 @@ source_impl::source_impl( const std::string &args )
+ #endif
  #ifdef ENABLE_AIRSPY
    dev_types.push_back("airspy");
- #endif
++#endif
 +#ifdef ENABLE_SOAPY
 +  dev_types.push_back("soapy");
-+#endif
+ #endif
    std::cerr << "gr-osmosdr "
              << GR_OSMOSDR_VERSION << " (" << GR_OSMOSDR_LIBVER << ") "
-             << "gnuradio " << gr::version() << std::endl;
 @@ -206,6 +213,10 @@ source_impl::source_impl( const std::string &args )
      BOOST_FOREACH( std::string dev, airspy_source_c::get_devices() )
        dev_list.push_back( dev );
@@ -1036,5 +1036,5 @@ index e4c9be6..b9fead3 100644
        _devs.push_back( iface );
  
 -- 
-2.11.0
+2.20.1
 

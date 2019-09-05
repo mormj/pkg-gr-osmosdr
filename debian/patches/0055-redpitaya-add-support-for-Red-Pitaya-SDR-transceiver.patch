@@ -1,7 +1,7 @@
 From 3582ba17e0d7a5237c6393a1c5849533692018f7 Mon Sep 17 00:00:00 2001
 From: Pavel Demin <pavel.demin@uclouvain.be>
 Date: Thu, 17 Dec 2015 21:12:45 +0100
-Subject: [PATCH 55/96] redpitaya: add support for Red Pitaya SDR transceiver
+Subject: [PATCH 055/131] redpitaya: add support for Red Pitaya SDR transceiver
 
 This patch adds two gr-osmosdr blocks that can be used with the SDR transceiver
 application available from the Red Pitaya application marketplace:
@@ -24,15 +24,15 @@ Signed-off-by: Pavel Demin <pavel.demin@uclouvain.be>
  AUTHORS                             |   1 +
  lib/CMakeLists.txt                  |   8 +
  lib/config.h.in                     |   1 +
- lib/redpitaya/CMakeLists.txt        |  38 +++++
- lib/redpitaya/redpitaya_common.cc   |  52 +++++++
- lib/redpitaya/redpitaya_common.h    |  26 ++++
- lib/redpitaya/redpitaya_sink_c.cc   | 287 ++++++++++++++++++++++++++++++++++++
- lib/redpitaya/redpitaya_sink_c.h    |  81 ++++++++++
- lib/redpitaya/redpitaya_source_c.cc | 281 +++++++++++++++++++++++++++++++++++
- lib/redpitaya/redpitaya_source_c.h  |  81 ++++++++++
- lib/sink_impl.cc                    |  18 +++
- lib/source_impl.cc                  |  18 +++
+ lib/redpitaya/CMakeLists.txt        |  38 ++++
+ lib/redpitaya/redpitaya_common.cc   |  52 +++++
+ lib/redpitaya/redpitaya_common.h    |  26 +++
+ lib/redpitaya/redpitaya_sink_c.cc   | 287 ++++++++++++++++++++++++++++
+ lib/redpitaya/redpitaya_sink_c.h    |  81 ++++++++
+ lib/redpitaya/redpitaya_source_c.cc | 281 +++++++++++++++++++++++++++
+ lib/redpitaya/redpitaya_source_c.h  |  81 ++++++++
+ lib/sink_impl.cc                    |  18 ++
+ lib/source_impl.cc                  |  18 ++
  12 files changed, 892 insertions(+)
  create mode 100644 lib/redpitaya/CMakeLists.txt
  create mode 100644 lib/redpitaya/redpitaya_common.cc
@@ -55,10 +55,11 @@ diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
 index ae4649c..4ebc3e8 100644
 --- a/lib/CMakeLists.txt
 +++ b/lib/CMakeLists.txt
-@@ -233,6 +233,14 @@ GR_INCLUDE_SUBDIRECTORY(soapy)
+@@ -232,6 +232,14 @@ if(ENABLE_SOAPY)
+ GR_INCLUDE_SUBDIRECTORY(soapy)
  endif(ENABLE_SOAPY)
  
- ########################################################################
++########################################################################
 +# Setup Red Pitaya component
 +########################################################################
 +GR_REGISTER_COMPONENT("Red Pitaya support" ENABLE_REDPITAYA)
@@ -66,10 +67,9 @@ index ae4649c..4ebc3e8 100644
 +GR_INCLUDE_SUBDIRECTORY(redpitaya)
 +endif(ENABLE_REDPITAYA)
 +
-+########################################################################
+ ########################################################################
  # Setup configuration file
  ########################################################################
- ADD_DEFINITIONS(-DHAVE_CONFIG_H=1)
 diff --git a/lib/config.h.in b/lib/config.h.in
 index 542b364..1e843a8 100644
 --- a/lib/config.h.in
@@ -985,16 +985,16 @@ index 6f01522..146f1a9 100644
  #include "arg_helpers.h"
  #include "sink_impl.h"
  
-@@ -91,6 +95,9 @@ sink_impl::sink_impl( const std::string &args )
+@@ -90,6 +94,9 @@ sink_impl::sink_impl( const std::string &args )
+ #endif
  #ifdef ENABLE_SOAPY
    dev_types.push_back("soapy");
- #endif
++#endif
 +#ifdef ENABLE_REDPITAYA
 +  dev_types.push_back("redpitaya");
-+#endif
+ #endif
    std::cerr << "gr-osmosdr "
              << GR_OSMOSDR_VERSION << " (" << GR_OSMOSDR_LIBVER << ") "
-             << "gnuradio " << gr::version() << std::endl;
 @@ -129,6 +136,10 @@ sink_impl::sink_impl( const std::string &args )
      BOOST_FOREACH( std::string dev, soapy_sink_c::get_devices() )
        dev_list.push_back( dev );
@@ -1035,16 +1035,16 @@ index 9b81dde..3aa17f9 100644
  #include "arg_helpers.h"
  #include "source_impl.h"
  
-@@ -156,6 +160,9 @@ source_impl::source_impl( const std::string &args )
+@@ -155,6 +159,9 @@ source_impl::source_impl( const std::string &args )
+ #endif
  #ifdef ENABLE_SOAPY
    dev_types.push_back("soapy");
- #endif
++#endif
 +#ifdef ENABLE_REDPITAYA
 +  dev_types.push_back("redpitaya");
-+#endif
+ #endif
    std::cerr << "gr-osmosdr "
              << GR_OSMOSDR_VERSION << " (" << GR_OSMOSDR_LIBVER << ") "
-             << "gnuradio " << gr::version() << std::endl;
 @@ -229,6 +236,10 @@ source_impl::source_impl( const std::string &args )
      BOOST_FOREACH( std::string dev, soapy_source_c::get_devices() )
        dev_list.push_back( dev );
@@ -1071,5 +1071,5 @@ index 9b81dde..3aa17f9 100644
        _devs.push_back( iface );
  
 -- 
-2.11.0
+2.20.1
 

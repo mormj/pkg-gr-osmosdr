@@ -1,11 +1,11 @@
 From 3823c8efce1fd3f9b51debb5569c9419dbb38a89 Mon Sep 17 00:00:00 2001
 From: Alexandru Csete <oz9aec@gmail.com>
 Date: Sun, 11 Sep 2016 12:39:54 +0200
-Subject: [PATCH 79/96] Custom FIR kernels for Airspy.
+Subject: [PATCH 079/131] Custom FIR kernels for Airspy.
 
 ---
- lib/airspy/airspy_fir_kernels.h | 101 ++++++++++++++++++++++++++++++++++++++++
- lib/airspy/airspy_source_c.cc   |  49 ++++++++++++++++++-
+ lib/airspy/airspy_fir_kernels.h | 101 ++++++++++++++++++++++++++++++++
+ lib/airspy/airspy_source_c.cc   |  49 +++++++++++++++-
  2 files changed, 149 insertions(+), 1 deletion(-)
  create mode 100644 lib/airspy/airspy_fir_kernels.h
 
@@ -189,5 +189,5 @@ index 25f73d4..bbeb3aa 100644
  
  osmosdr::freq_range_t airspy_source_c::get_bandwidth_range( size_t chan )
 -- 
-2.11.0
+2.20.1
 

@@ -1,7 +1,7 @@
 From 1693e4e9d802b8420c022b7c64a7d40551d37884 Mon Sep 17 00:00:00 2001
 From: Lukas Lao Beyer <lukas@electronics.kitchen>
 Date: Sat, 22 Apr 2017 13:42:34 -0400
-Subject: [PATCH 95/96] FreeSRP: Add support for multiple devices in
+Subject: [PATCH 095/131] FreeSRP: Add support for multiple devices in
  get_devices
 
 ---
@@ -41,5 +41,5 @@ index 77db220..cbbf1c3 100644
  
      return devices;
 -- 
-2.11.0
+2.20.1
 

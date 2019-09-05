@@ -1,0 +1,26 @@
+From c98be5dd9d740466197454842092a43f58b70e43 Mon Sep 17 00:00:00 2001
+From: Maxime Vincent <maxime.vince@gmail.com>
+Date: Sun, 10 Jun 2018 12:17:01 +0200
+Subject: [PATCH 098/131] Fix compilation with boost-1.67
+
+Signed-off-by: Steve Markgraf <steve@steve-m.de>
+---
+ lib/CMakeLists.txt | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
+index c05b8d9..4f83f72 100644
+--- a/lib/CMakeLists.txt
++++ b/lib/CMakeLists.txt
+@@ -43,6 +43,8 @@ GR_OSMOSDR_APPEND_SRCS(
+     time_spec.cc
+ )
+ 
++list(APPEND Boost_LIBRARIES pthread)
++
+ GR_OSMOSDR_APPEND_LIBS(
+     ${Boost_LIBRARIES}
+     ${GNURADIO_ALL_LIBRARIES}
+-- 
+2.20.1
+

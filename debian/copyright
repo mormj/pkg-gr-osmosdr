@@ -1,15 +1,18 @@
-Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: gr-osmosdr
-Upstream-Contact: http://sdr.osmocom.org/trac/wiki/rtl-sdr
+Upstream-Contact: https://osmocom.org/projects/gr-osmosdr
 Source:
  git clone git://git.osmocom.org/gr-osmosdr
  The upstream package source tarball was generated from the tag:
  git archive --format=tar --prefix=gr-osmosdr-0.1.4/  v0.1.4 | xz > ../gr-osmosdr_0.1.4.orig.tar.xz
+ More patches from 3.8 branch at https://github.com/igorauad/gr-osmosdr
 Comment:
  Debian packages by A. Maitland Bottoms <bottoms@debian.org>,
  .
- Upstream Author:
+ Upstream Authors:
  Dimitri Stolnikov <horiz0n@gmx.net>
+ Mickey Vänskä <mvaenskae@gmail.com>
+ Igor Freire <igor.auad@gmail.com>
 Copyright: 2012,2013 Dimitri Stolnikov <horiz0n@gmx.net>
 License: GPL-3+
 
@@ -28,7 +31,7 @@ Comment: GNU Radio gr_modtool derived
 License: GPL-3+
 
 Files: debian/*
-Copyright: 2013 A. Maitland Bottoms <bottoms@debian.org>
+Copyright: 2013,2019 A. Maitland Bottoms <bottoms@debian.org>
 License: GPL-3+
 
 Files: grc/gen_osmosdr_blocks.py
@@ -43,7 +46,9 @@ License: GPL-3+
 FIles: lib/bladerf/bladerf_common.cc lib/bladerf/bladerf_common.h
  lib/bladerf/bladerf_sink_c.cc lib/bladerf/bladerf_sink_c.h
  lib/bladerf/bladerf_source_c.cc lib/bladerf/bladerf_source_c.h
+ lib/bladerf/bladerf_compat.h
 Copyright: 2013 Nuand LLC
+ 2019 Rey Tucker <rey.tucker@nuand.com>
  2013 Dimitri Stolnikov <horiz0n@gmx.net>
 License: GPL-3+
 
@@ -80,6 +85,14 @@ License: GPL-3+
 Files: lib/redpitaya/*
 Copyright: 2015 Pavel Demin
            2012,2015 Dimitri Stolnikov <horiz0n@gmx.net>
+License: GPL-3+
+
+Files: lib/airspyhf/*
+Copyright: 2017 Alexandru Csete <oz9aec@gmail.com>
+License: GPL-3+
+
+Files: .gitignore
+Copyright: 2019 Mickey Vänskä <mvaenskae@gmail.com>
 License: GPL-3+
 
 Files: lib/freesrp/readerwriterqueue/*

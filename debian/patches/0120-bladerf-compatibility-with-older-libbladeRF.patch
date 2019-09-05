@@ -1,0 +1,353 @@
+From bee32d9f0d9819db584282f25d9f575aaaf4ee61 Mon Sep 17 00:00:00 2001
+From: Rey Tucker <rey.tucker@nuand.com>
+Date: Mon, 18 Sep 2017 15:02:20 -0400
+Subject: [PATCH 120/131] bladerf: compatibility with older libbladeRF
+
+Implement compatibility with older libbladeRF versions
+---
+ lib/bladerf/bladerf_common.cc   | 97 +++++++++++++++++++++++++++++++--
+ lib/bladerf/bladerf_common.h    |  2 +
+ lib/bladerf/bladerf_compat.h    | 78 ++++++++++++++++++++++++++
+ lib/bladerf/bladerf_source_c.cc |  3 +-
+ 4 files changed, 174 insertions(+), 6 deletions(-)
+ create mode 100644 lib/bladerf/bladerf_compat.h
+
+diff --git a/lib/bladerf/bladerf_common.cc b/lib/bladerf/bladerf_common.cc
+index c19f8ff..b8cc482 100644
+--- a/lib/bladerf/bladerf_common.cc
++++ b/lib/bladerf/bladerf_common.cc
+@@ -124,6 +124,10 @@ static bool _is_tx(bladerf_channel ch)
+ 
+ size_t num_streams(bladerf_channel_layout layout)
+ {
++#ifdef BLADERF_COMPATIBILITY
++  return 1;
++#else
++
+   switch (layout) {
+     case BLADERF_RX_X1:
+     case BLADERF_TX_X1:
+@@ -136,6 +140,7 @@ size_t num_streams(bladerf_channel_layout layout)
+   assert(false);
+ 
+   return 0;
++#endif
+ }
+ 
+ /******************************************************************************
+@@ -527,8 +532,16 @@ bladerf_channel bladerf_common::chan2channel(bladerf_direction direction,
+ 
+ osmosdr::meta_range_t bladerf_common::sample_rates(bladerf_channel ch)
+ {
+-  int status;
+   osmosdr::meta_range_t sample_rates;
++
++#ifdef BLADERF_COMPATIBILITY
++  /* assuming the same for RX & TX */
++  sample_rates += osmosdr::range_t( 160e3, 200e3, 40e3 );
++  sample_rates += osmosdr::range_t( 300e3, 900e3, 100e3 );
++  sample_rates += osmosdr::range_t( 1e6, 40e6, 1e6 );
++#else
++
++  int status;
+   bladerf_range brf_sample_rates;
+ 
+   status = bladerf_get_sample_rate_range(_dev.get(), ch, &brf_sample_rates);
+@@ -546,6 +559,7 @@ osmosdr::meta_range_t bladerf_common::sample_rates(bladerf_channel ch)
+   sample_rates += osmosdr::range_t(brf_sample_rates.max / 2.0,
+                                    brf_sample_rates.max,
+                                    brf_sample_rates.max / 4.0);
++#endif
+ 
+   return sample_rates;
+ }
+@@ -583,6 +597,11 @@ double bladerf_common::get_sample_rate(bladerf_channel ch)
+ 
+ osmosdr::freq_range_t bladerf_common::freq_range(bladerf_channel ch)
+ {
++#ifdef BLADERF_COMPATIBILITY
++  return osmosdr::freq_range_t( _is_xb_attached(_dev) ? 0 : 280e6,
++                                BLADERF_FREQUENCY_MAX );
++#else
++
+   int status;
+   struct bladerf_range range;
+ 
+@@ -594,6 +613,7 @@ osmosdr::freq_range_t bladerf_common::freq_range(bladerf_channel ch)
+   return osmosdr::freq_range_t(static_cast<double>(range.min),
+                                static_cast<double>(range.max),
+                                static_cast<double>(range.step));
++#endif
+ }
+ 
+ double bladerf_common::set_center_freq(double freq, bladerf_channel ch)
+@@ -631,9 +651,19 @@ double bladerf_common::get_center_freq(bladerf_channel ch)
+ 
+ osmosdr::freq_range_t bladerf_common::filter_bandwidths(bladerf_channel ch)
+ {
+-  /* the same for RX & TX according to the datasheet */
+-  int status;
+   osmosdr::freq_range_t bandwidths;
++
++#ifdef BLADERF_COMPATIBILITY
++  std::vector<double> half_bandwidths; /* in MHz */
++  half_bandwidths += \
++      0.75, 0.875, 1.25, 1.375, 1.5, 1.92, 2.5,
++      2.75, 3, 3.5, 4.375, 5, 6, 7, 10, 14;
++
++  BOOST_FOREACH( double half_bw, half_bandwidths )
++    bandwidths += osmosdr::range_t( half_bw * 2e6 );
++#else
++
++  int status;
+   bladerf_range range;
+ 
+   status = bladerf_get_bandwidth_range(_dev.get(), ch, &range);
+@@ -642,6 +672,7 @@ osmosdr::freq_range_t bladerf_common::filter_bandwidths(bladerf_channel ch)
+   }
+ 
+   bandwidths += osmosdr::range_t(range.min, range.max, range.step);
++#endif
+ 
+   return bandwidths;
+ }
+@@ -682,11 +713,15 @@ double bladerf_common::get_bandwidth(bladerf_channel ch)
+ 
+ std::vector<std::string> bladerf_common::get_gain_names(bladerf_channel ch)
+ {
+-  const size_t max_count = 16;
+   std::vector<std::string> names;
++
++#ifdef BLADERF_COMPATIBILITY
++  names += "LNA", "VGA1", "VGA2";
++#else
++
++  const size_t max_count = 16;
+   char *gain_names[max_count];
+   int count;
+-
+   names += SYSTEM_GAIN_NAME;
+ 
+   count = bladerf_get_gain_stages(_dev.get(), ch,
+@@ -700,6 +735,7 @@ std::vector<std::string> bladerf_common::get_gain_names(bladerf_channel ch)
+     char *tmp = gain_names[i];
+     names += std::string(tmp);
+   };
++#endif
+ 
+   return names;
+ }
+@@ -713,6 +749,19 @@ osmosdr::gain_range_t bladerf_common::get_gain_range(bladerf_channel ch)
+ osmosdr::gain_range_t bladerf_common::get_gain_range(std::string const &name,
+                                                      bladerf_channel ch)
+ {
++#ifdef BLADERF_COMPATIBILITY
++  if( name == "LNA" ) {
++    return osmosdr::gain_range_t( 0, 6, 3 );
++  } else if( name == "VGA1" ) {
++    return osmosdr::gain_range_t( 5, 30, 1 );
++  } else if( name == "VGA2" ) {
++    return osmosdr::gain_range_t( 0, 30, 3 );
++  } else {
++    BLADERF_THROW_STATUS(BLADERF_ERR_UNSUPPORTED, boost::str(boost::format(
++                         "Failed to get gain range for stage '%s'") % name));
++  }
++#else
++
+   int status;
+   struct bladerf_range range;
+ 
+@@ -728,6 +777,7 @@ osmosdr::gain_range_t bladerf_common::get_gain_range(std::string const &name,
+   }
+ 
+   return osmosdr::gain_range_t(range.min, range.max, range.step);
++#endif
+ }
+ 
+ bool bladerf_common::set_gain_mode(bool automatic, bladerf_channel ch,
+@@ -772,12 +822,34 @@ double bladerf_common::set_gain(double gain,
+ {
+   int status;
+ 
++#ifdef BLADERF_COMPATIBILITY
++  if( name == "LNA" ) {
++    bladerf_lna_gain g;
++
++    if ( gain >= 6.0f )
++      g = BLADERF_LNA_GAIN_MAX;
++    else if ( gain >= 3.0f )
++      g = BLADERF_LNA_GAIN_MID;
++    else /* gain < 3.0f */
++      g = BLADERF_LNA_GAIN_BYPASS;
++
++    status = bladerf_set_lna_gain( _dev.get(), g );
++  } else if( name == "VGA1" ) {
++    status = bladerf_set_rxvga1( _dev.get(), (int)gain );
++  } else if( name == "VGA2" ) {
++    status = bladerf_set_rxvga2( _dev.get(), (int)gain );
++  } else {
++    status = BLADERF_ERR_UNSUPPORTED;
++  }
++#else
++
+   if (name == SYSTEM_GAIN_NAME) {
+     status = bladerf_set_gain(_dev.get(), ch, static_cast<int>(gain));
+   } else {
+     status = bladerf_set_gain_stage(_dev.get(), ch, name.c_str(),
+                                     static_cast<int>(gain));
+   }
++#endif
+ 
+   /* Check for errors */
+   if (BLADERF_ERR_UNSUPPORTED == status) {
+@@ -802,11 +874,26 @@ double bladerf_common::get_gain(std::string const &name, bladerf_channel ch)
+   int status;
+   int g = 0;
+ 
++#ifdef BLADERF_COMPATIBILITY
++  if( name == "LNA" ) {
++    bladerf_lna_gain lna_g;
++    status = bladerf_get_lna_gain( _dev.get(), &lna_g );
++    g = lna_g == BLADERF_LNA_GAIN_BYPASS ? 0 : lna_g == BLADERF_LNA_GAIN_MID ? 3 : 6;
++  } else if( name == "VGA1" ) {
++    status = bladerf_get_rxvga1( _dev.get(), &g );
++  } else if( name == "VGA2" ) {
++    status = bladerf_get_rxvga2( _dev.get(), &g );
++  } else {
++    status = BLADERF_ERR_UNSUPPORTED;
++  }
++#else
++
+   if (name == SYSTEM_GAIN_NAME) {
+     status = bladerf_get_gain(_dev.get(), ch, &g);
+   } else {
+     status = bladerf_get_gain_stage(_dev.get(), ch, name.c_str(), &g);
+   }
++#endif
+ 
+   /* Check for errors */
+   if (status != 0) {
+diff --git a/lib/bladerf/bladerf_common.h b/lib/bladerf/bladerf_common.h
+index 1dce8bf..27afa83 100644
+--- a/lib/bladerf/bladerf_common.h
++++ b/lib/bladerf/bladerf_common.h
+@@ -34,6 +34,8 @@
+ #include "osmosdr/ranges.h"
+ #include "arg_helpers.h"
+ 
++#include "bladerf_compat.h"
++
+ #ifdef _MSC_VER
+ #include <cstddef>
+ typedef ptrdiff_t ssize_t;
+diff --git a/lib/bladerf/bladerf_compat.h b/lib/bladerf/bladerf_compat.h
+new file mode 100644
+index 0000000..2ad24be
+--- /dev/null
++++ b/lib/bladerf/bladerf_compat.h
+@@ -0,0 +1,78 @@
++/* -*- c++ -*- */
++/*
++ * Copyright 2017 Nuand LLC
++ *
++ * GNU Radio is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 3, or (at your option)
++ * any later version.
++ *
++ * GNU Radio is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with GNU Radio; see the file COPYING.  If not, write to
++ * the Free Software Foundation, Inc., 51 Franklin Street,
++ * Boston, MA 02110-1301, USA.
++ */
++#ifndef INCLUDED_BLADERF_COMPAT_H
++#define INCLUDED_BLADERF_COMPAT_H
++
++#if defined(LIBBLADERF_API_VERSION) && (LIBBLADERF_API_VERSION < 0x01080100)
++    #warning Old libbladeRF detected: using compatibility workarounds.
++
++    #define BLADERF_COMPATIBILITY
++
++    /* New libbladeRF supports multiple channels, via various enums. */
++    typedef bladerf_module bladerf_channel;
++    #define BLADERF_CHANNEL_RX(ch) BLADERF_MODULE_RX
++    #define BLADERF_CHANNEL_TX(ch) BLADERF_MODULE_TX
++    #define BLADERF_CHANNEL_INVALID BLADERF_MODULE_INVALID
++
++    typedef bladerf_module bladerf_channel_layout;
++    #define BLADERF_RX_X1 BLADERF_MODULE_RX
++    #define BLADERF_TX_X1 BLADERF_MODULE_TX
++    #define BLADERF_RX_X2 BLADERF_MODULE_INVALID
++    #define BLADERF_TX_X2 BLADERF_MODULE_INVALID
++
++    typedef bladerf_module bladerf_direction;
++    #define BLADERF_RX BLADERF_MODULE_RX
++    #define BLADERF_TX BLADERF_MODULE_TX
++    #define BLADERF_DIRECTION_MASK (0x1)
++
++    /* Changed API calls */
++    static
++    int bladerf_get_frequency(struct bladerf *dev,
++                              bladerf_channel ch,
++                              uint64_t *freq) // was unsigned int *frequency
++    {
++        unsigned int f32 = 0;
++        int status = bladerf_get_frequency(dev, ch, &f32);
++        *freq = static_cast<uint64_t>(f32);
++        return status;
++    }
++
++    static
++    int bladerf_sync_tx(struct bladerf *dev,
++                        void const *samples,  // was void *samples
++                        unsigned int num_samples,
++                        struct bladerf_metadata *metadata,
++                        unsigned int timeout_ms)
++    {
++        void *s = const_cast<void *>(samples);
++        return bladerf_sync_tx(dev, s, num_samples, metadata, timeout_ms);
++    }
++
++    /* Changed enums/defines */
++    #define BLADERF_GAIN_DEFAULT BLADERF_GAIN_AUTOMATIC
++    #define BLADERF_GAIN_MGC BLADERF_GAIN_MANUAL
++    #define BLADERF_RX_MUX_BASEBAND BLADERF_RX_MUX_BASEBAND_LMS
++
++    /* New functionality with no equivalent */
++    #define BLADERF_LB_AD9361_BIST BLADERF_LB_NONE
++    #define bladerf_get_board_name(name) "bladerf1"
++
++#endif // libbladeRF < 1.8.1
++#endif // INCLUDED_BLADERF_COMPAT_H
+diff --git a/lib/bladerf/bladerf_source_c.cc b/lib/bladerf/bladerf_source_c.cc
+index b94b24b..edd8a4d 100644
+--- a/lib/bladerf/bladerf_source_c.cc
++++ b/lib/bladerf/bladerf_source_c.cc
+@@ -614,12 +614,12 @@ void bladerf_source_c::set_rx_mux_mode(const std::string &rxmux)
+ 
+ void bladerf_source_c::set_agc_mode(const std::string &agcmode)
+ {
++#ifndef BLADERF_COMPATIBILITY
+   int status;
+   bladerf_gain_mode mode;
+   bool ok = false;
+   struct bladerf_gain_modes const *modes = NULL;
+ 
+-
+   /* Get the list of AGC modes */
+   status = bladerf_get_gain_modes(_dev.get(), BLADERF_CHANNEL_RX(0), &modes);
+   if (status < 0) {
+@@ -651,4 +651,5 @@ void bladerf_source_c::set_agc_mode(const std::string &agcmode)
+       bladerf_common::set_gain_mode(true, BLADERF_CHANNEL_RX(i), _agcmode);
+     }
+   }
++#endif
+ }
+-- 
+2.20.1
+

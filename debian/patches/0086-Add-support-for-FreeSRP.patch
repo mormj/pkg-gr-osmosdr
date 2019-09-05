@@ -1,7 +1,7 @@
 From 5ecfa255d299b9b4842ccd09a02892a853fcd5a7 Mon Sep 17 00:00:00 2001
 From: Lukas Lao Beyer <lukas@electronics.kitchen>
 Date: Fri, 7 Apr 2017 23:08:01 -0400
-Subject: [PATCH 86/96] Add support for FreeSRP
+Subject: [PATCH 086/131] Add support for FreeSRP
 
 This patch adds support for both receiving and transmitting using
 the FreeSRP. More information on the FreeSRP can be found at:
@@ -18,27 +18,27 @@ Usage example:
 
 osmocom_fft -a "freesrp"
 ---
- AUTHORS                                           |   1 +
- CMakeLists.txt                                    |   1 +
- README                                            |   1 +
- cmake/Modules/FindLibFreeSRP.cmake                |  27 +
- grc/gen_osmosdr_blocks.py                         |   2 +
- lib/CMakeLists.txt                                |   8 +
- lib/config.h.in                                   |   1 +
- lib/device.cc                                     |   8 +
- lib/freesrp/CMakeLists.txt                        |  39 ++
- lib/freesrp/freesrp_common.cc                     | 199 ++++++
- lib/freesrp/freesrp_common.h                      |  29 +
- lib/freesrp/freesrp_sink_c.cc                     | 280 ++++++++
- lib/freesrp/freesrp_sink_c.h                      | 130 ++++
- lib/freesrp/freesrp_source_c.cc                   | 341 ++++++++++
- lib/freesrp/freesrp_source_c.h                    | 131 ++++
- lib/freesrp/readerwriterqueue/LICENSE.md          |  28 +
- lib/freesrp/readerwriterqueue/README.md           | 114 ++++
- lib/freesrp/readerwriterqueue/atomicops.h         | 577 ++++++++++++++++
- lib/freesrp/readerwriterqueue/readerwriterqueue.h | 764 ++++++++++++++++++++++
- lib/sink_impl.cc                                  |  16 +
- lib/source_impl.cc                                |  19 +
+ AUTHORS                                       |   1 +
+ CMakeLists.txt                                |   1 +
+ README                                        |   1 +
+ cmake/Modules/FindLibFreeSRP.cmake            |  27 +
+ grc/gen_osmosdr_blocks.py                     |   2 +
+ lib/CMakeLists.txt                            |   8 +
+ lib/config.h.in                               |   1 +
+ lib/device.cc                                 |   8 +
+ lib/freesrp/CMakeLists.txt                    |  39 +
+ lib/freesrp/freesrp_common.cc                 | 199 +++++
+ lib/freesrp/freesrp_common.h                  |  29 +
+ lib/freesrp/freesrp_sink_c.cc                 | 280 +++++++
+ lib/freesrp/freesrp_sink_c.h                  | 130 +++
+ lib/freesrp/freesrp_source_c.cc               | 341 ++++++++
+ lib/freesrp/freesrp_source_c.h                | 131 +++
+ lib/freesrp/readerwriterqueue/LICENSE.md      |  28 +
+ lib/freesrp/readerwriterqueue/README.md       | 114 +++
+ lib/freesrp/readerwriterqueue/atomicops.h     | 577 +++++++++++++
+ .../readerwriterqueue/readerwriterqueue.h     | 764 ++++++++++++++++++
+ lib/sink_impl.cc                              |  16 +
+ lib/source_impl.cc                            |  19 +
  21 files changed, 2716 insertions(+)
  create mode 100644 cmake/Modules/FindLibFreeSRP.cmake
  create mode 100644 lib/freesrp/CMakeLists.txt
@@ -143,10 +143,11 @@ diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
 index a99890a..c05b8d9 100644
 --- a/lib/CMakeLists.txt
 +++ b/lib/CMakeLists.txt
-@@ -241,6 +241,14 @@ GR_INCLUDE_SUBDIRECTORY(redpitaya)
+@@ -240,6 +240,14 @@ if(ENABLE_REDPITAYA)
+ GR_INCLUDE_SUBDIRECTORY(redpitaya)
  endif(ENABLE_REDPITAYA)
  
- ########################################################################
++########################################################################
 +# Setup FreeSRP component
 +########################################################################
 +GR_REGISTER_COMPONENT("FreeSRP support" ENABLE_FREESRP LIBFREESRP_FOUND)
@@ -154,10 +155,9 @@ index a99890a..c05b8d9 100644
 +GR_INCLUDE_SUBDIRECTORY(freesrp)
 +endif(ENABLE_FREESRP)
 +
-+########################################################################
+ ########################################################################
  # Setup configuration file
  ########################################################################
- ADD_DEFINITIONS(-DHAVE_CONFIG_H=1)
 diff --git a/lib/config.h.in b/lib/config.h.in
 index 1e843a8..42e72f1 100644
 --- a/lib/config.h.in
@@ -2958,16 +2958,16 @@ index 3aa17f9..a28f314 100644
  #include "arg_helpers.h"
  #include "source_impl.h"
  
-@@ -163,6 +168,9 @@ source_impl::source_impl( const std::string &args )
+@@ -162,6 +167,9 @@ source_impl::source_impl( const std::string &args )
+ #endif
  #ifdef ENABLE_REDPITAYA
    dev_types.push_back("redpitaya");
- #endif
++#endif
 +#ifdef ENABLE_FREESRP
 +  dev_types.push_back("freesrp");
-+#endif
+ #endif
    std::cerr << "gr-osmosdr "
              << GR_OSMOSDR_VERSION << " (" << GR_OSMOSDR_LIBVER << ") "
-             << "gnuradio " << gr::version() << std::endl;
 @@ -240,6 +248,10 @@ source_impl::source_impl( const std::string &args )
      BOOST_FOREACH( std::string dev, redpitaya_source_c::get_devices() )
        dev_list.push_back( dev );
@@ -2994,5 +2994,5 @@ index 3aa17f9..a28f314 100644
        _devs.push_back( iface );
  
 -- 
-2.11.0
+2.20.1
 

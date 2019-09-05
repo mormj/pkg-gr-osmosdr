@@ -1,7 +1,7 @@
 From da2cf6a6f262c05d4082485369191c44b4b2bcf4 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sun, 10 Jan 2016 22:28:15 +0100
-Subject: [PATCH 64/96] cmake: update component name & update AUTHORS file
+Subject: [PATCH 064/131] cmake: update component name & update AUTHORS file
 
 ---
  AUTHORS            | 1 +
@@ -31,5 +31,5 @@ index 550c24e..a99890a 100644
  GR_INCLUDE_SUBDIRECTORY(file)
  endif(ENABLE_FILE)
 -- 
-2.11.0
+2.20.1
 

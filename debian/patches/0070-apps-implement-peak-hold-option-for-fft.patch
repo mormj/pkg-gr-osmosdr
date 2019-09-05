@@ -1,7 +1,7 @@
 From b206a90f494cf07389d1f24467964afe89f5c111 Mon Sep 17 00:00:00 2001
 From: Dimitri Stolnikov <horiz0n@gmx.net>
 Date: Sun, 28 Feb 2016 17:50:54 +0100
-Subject: [PATCH 70/96] apps: implement --peak-hold option for fft
+Subject: [PATCH 070/131] apps: implement --peak-hold option for fft
 
 ---
  apps/osmocom_fft | 3 +++
@@ -29,5 +29,5 @@ index 04a3b62..da38861 100755
                                                fft_rate=options.fft_rate)
  
 -- 
-2.11.0
+2.20.1
 

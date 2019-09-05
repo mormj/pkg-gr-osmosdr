@@ -1,7 +1,7 @@
 From 3511defbf42a3f8cf0fd74b8ae19869406f18b6f Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Thu, 2 Feb 2017 11:10:08 -0800
-Subject: [PATCH 75/96] soapy: added device::find() support
+Subject: [PATCH 075/131] soapy: added device::find() support
 
 Was missing from the implementation.
 Now devices with a label show up nicely in GQRX
@@ -36,5 +36,5 @@ index 3ce40fa..d75d6ad 100644
    /* software-only sources should be appended at the very end,
     * hopefully resulting in hardware sources to be shown first
 -- 
-2.11.0
+2.20.1
 

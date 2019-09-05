@@ -1,7 +1,7 @@
 From 117f64885904f743d1f04c5ddbbd39aab5a56e6d Mon Sep 17 00:00:00 2001
 From: Josh Blum <josh@joshknows.com>
 Date: Fri, 14 Apr 2017 11:02:00 -0500
-Subject: [PATCH 89/96] soapy: support set/getFrequencyCorrection() API
+Subject: [PATCH 089/131] soapy: support set/getFrequencyCorrection() API
 
 backwards compatible changes with #ifdef
 set/get_freq_corr() call directly into the SoapySDR
@@ -82,5 +82,5 @@ index a1a1885..c780966 100644
  
  std::vector<std::string> soapy_source_c::get_gain_names( size_t chan )
 -- 
-2.11.0
+2.20.1
 

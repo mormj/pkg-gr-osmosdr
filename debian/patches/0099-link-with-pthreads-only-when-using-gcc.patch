@@ -1,0 +1,31 @@
+From 0b5c3911f7bfebd176aaeeb865a12544ee1e6b9e Mon Sep 17 00:00:00 2001
+From: Josh Blum <josh@joshknows.com>
+Date: Wed, 4 Jul 2018 11:45:25 -0500
+Subject: [PATCH 099/131] link with pthreads only when using gcc
+
+Fix from c98be5dd for MSVC which does not require pthreads for boost threading library.
+Under gcc -pthread adds support for multithreading with the pthreads library.
+---
+ lib/CMakeLists.txt | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
+index 4f83f72..dbb175a 100644
+--- a/lib/CMakeLists.txt
++++ b/lib/CMakeLists.txt
+@@ -43,7 +43,11 @@ GR_OSMOSDR_APPEND_SRCS(
+     time_spec.cc
+ )
+ 
+-list(APPEND Boost_LIBRARIES pthread)
++#-pthread Adds support for multithreading with the pthreads library.
++#This option sets flags for both the preprocessor and linker. (man gcc)
++if(CMAKE_COMPILER_IS_GNUCXX)
++    list(APPEND Boost_LIBRARIES -pthread)
++endif()
+ 
+ GR_OSMOSDR_APPEND_LIBS(
+     ${Boost_LIBRARIES}
+-- 
+2.20.1
+

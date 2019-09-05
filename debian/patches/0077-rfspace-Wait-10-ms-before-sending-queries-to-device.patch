@@ -1,7 +1,7 @@
 From 0dc8154f087a0b2b9b2e53351592d16e3c278786 Mon Sep 17 00:00:00 2001
 From: Alexandru Csete <oz9aec@gmail.com>
 Date: Sat, 1 Oct 2016 12:57:17 +0200
-Subject: [PATCH 77/96] rfspace: Wait 10 ms before sending queries to device.
+Subject: [PATCH 077/131] rfspace: Wait 10 ms before sending queries to device.
 
 This is necessary to esatablish a working connection to the RFSpace
 CloudIQ. Without this delay the radio will not be ready and we never
@@ -24,5 +24,5 @@ index 93d645d..f9c587d 100644
    std::vector< unsigned char > response;
  
 -- 
-2.11.0
+2.20.1
 

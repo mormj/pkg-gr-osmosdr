@@ -20,11 +20,9 @@ Info: http://airspy.com/airspy-hf-plus/
  create mode 100644 lib/airspyhf/airspyhf_source_c.cc
  create mode 100644 lib/airspyhf/airspyhf_source_c.h
 
-diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 296456d..e844067 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -169,6 +169,7 @@ find_package(LibSDRplay)
+@@ -206,6 +206,7 @@
  endif(ENABLE_NONFREE)
  find_package(LibHackRF)
  find_package(LibAIRSPY)
@@ -32,9 +30,6 @@ index 296456d..e844067 100644
  find_package(Volk)
  find_package(LibbladeRF)
  find_package(SoapySDR NO_MODULE)
-diff --git a/cmake/Modules/FindLibAIRSPYHF.cmake b/cmake/Modules/FindLibAIRSPYHF.cmake
-new file mode 100644
-index 0000000..edb0dda
 --- /dev/null
 +++ b/cmake/Modules/FindLibAIRSPYHF.cmake
 @@ -0,0 +1,24 @@
@@ -62,11 +57,9 @@ index 0000000..edb0dda
 +INCLUDE(FindPackageHandleStandardArgs)
 +FIND_PACKAGE_HANDLE_STANDARD_ARGS(LIBAIRSPYHF DEFAULT_MSG LIBAIRSPYHF_LIBRARIES LIBAIRSPYHF_INCLUDE_DIRS)
 +MARK_AS_ADVANCED(LIBAIRSPYHF_LIBRARIES LIBAIRSPYHF_INCLUDE_DIRS)
-diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
-index c05b8d9..038f113 100644
 --- a/lib/CMakeLists.txt
 +++ b/lib/CMakeLists.txt
-@@ -225,6 +225,14 @@ GR_INCLUDE_SUBDIRECTORY(airspy)
+@@ -229,6 +229,14 @@
  endif(ENABLE_AIRSPY)
  
  ########################################################################
@@ -81,9 +74,6 @@ index c05b8d9..038f113 100644
  # Setup SoapySDR component
  ########################################################################
  GR_REGISTER_COMPONENT("SoapySDR support" ENABLE_SOAPY SoapySDR_FOUND)
-diff --git a/lib/airspyhf/CMakeLists.txt b/lib/airspyhf/CMakeLists.txt
-new file mode 100644
-index 0000000..6b29f37
 --- /dev/null
 +++ b/lib/airspyhf/CMakeLists.txt
 @@ -0,0 +1,37 @@
@@ -124,9 +114,6 @@ index 0000000..6b29f37
 +########################################################################
 +list(APPEND gr_osmosdr_srcs ${airspyhf_srcs})
 +list(APPEND gr_osmosdr_libs ${LIBAIRSPYHF_LIBRARIES} ${GNURADIO_BLOCKS_LIBRARIES})
-diff --git a/lib/airspyhf/airspyhf_source_c.cc b/lib/airspyhf/airspyhf_source_c.cc
-new file mode 100644
-index 0000000..327fe19
 --- /dev/null
 +++ b/lib/airspyhf/airspyhf_source_c.cc
 @@ -0,0 +1,438 @@
@@ -568,9 +555,6 @@ index 0000000..327fe19
 +{
 +  return "RX";
 +}
-diff --git a/lib/airspyhf/airspyhf_source_c.h b/lib/airspyhf/airspyhf_source_c.h
-new file mode 100644
-index 0000000..cfb8c89
 --- /dev/null
 +++ b/lib/airspyhf/airspyhf_source_c.h
 @@ -0,0 +1,117 @@
@@ -691,8 +675,6 @@ index 0000000..cfb8c89
 +};
 +
 +#endif /* INCLUDED_AIRSPY_SOURCE_C_H */
-diff --git a/lib/config.h.in b/lib/config.h.in
-index 42e72f1..5303d7d 100644
 --- a/lib/config.h.in
 +++ b/lib/config.h.in
 @@ -16,6 +16,7 @@
@@ -703,8 +685,6 @@ index 42e72f1..5303d7d 100644
  #cmakedefine ENABLE_SOAPY
  #cmakedefine ENABLE_REDPITAYA
  #cmakedefine ENABLE_FREESRP
-diff --git a/lib/device.cc b/lib/device.cc
-index 025a22b..586062f 100644
 --- a/lib/device.cc
 +++ b/lib/device.cc
 @@ -78,6 +78,10 @@
@@ -718,7 +698,7 @@ index 025a22b..586062f 100644
  #ifdef ENABLE_SOAPY
  #include <soapy_source_c.h>
  #endif
-@@ -186,6 +190,10 @@ devices_t device::find(const device_t &hint)
+@@ -186,6 +190,10 @@
    BOOST_FOREACH( std::string dev, airspy_source_c::get_devices() )
      devices.push_back( device_t(dev) );
  #endif
@@ -729,8 +709,6 @@ index 025a22b..586062f 100644
  #ifdef ENABLE_FREESRP
    BOOST_FOREACH( std::string dev, freesrp_source_c::get_devices() )
      devices.push_back( device_t(dev) );
-diff --git a/lib/source_impl.cc b/lib/source_impl.cc
-index a28f314..ed7c9e8 100644
 --- a/lib/source_impl.cc
 +++ b/lib/source_impl.cc
 @@ -80,6 +80,10 @@
@@ -744,7 +722,7 @@ index a28f314..ed7c9e8 100644
  #ifdef ENABLE_SOAPY
  #include <soapy_source_c.h>
  #endif
-@@ -162,6 +166,9 @@ source_impl::source_impl( const std::string &args )
+@@ -157,6 +161,9 @@
  #ifdef ENABLE_AIRSPY
    dev_types.push_back("airspy");
  #endif
@@ -754,7 +732,7 @@ index a28f314..ed7c9e8 100644
  #ifdef ENABLE_SOAPY
    dev_types.push_back("soapy");
  #endif
-@@ -240,6 +247,10 @@ source_impl::source_impl( const std::string &args )
+@@ -233,6 +240,10 @@
      BOOST_FOREACH( std::string dev, airspy_source_c::get_devices() )
        dev_list.push_back( dev );
  #endif
@@ -765,20 +743,17 @@ index a28f314..ed7c9e8 100644
  #ifdef ENABLE_SOAPY
      BOOST_FOREACH( std::string dev, soapy_source_c::get_devices() )
        dev_list.push_back( dev );
-@@ -362,6 +373,13 @@ source_impl::source_impl( const std::string &args )
+@@ -354,6 +365,13 @@
+       block = src; iface = src.get();
      }
  #endif
- 
++
 +#ifdef ENABLE_AIRSPYHF
 +    if ( dict.count("airspyhf") ) {
 +      airspyhf_source_c_sptr src = make_airspyhf_source_c( arg );
 +      block = src; iface = src.get();
 +    }
 +#endif
-+
+ 
  #ifdef ENABLE_SOAPY
      if ( dict.count("soapy") ) {
-       soapy_source_c_sptr src = make_soapy_source_c( arg );
--- 
-2.11.0
-
