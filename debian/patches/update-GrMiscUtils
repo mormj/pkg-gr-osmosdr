@@ -1,3 +1,15 @@
+From bd00339de7939804b9ea34a91eac88023d8ca15a Mon Sep 17 00:00:00 2001
+From: "A. Maitland Bottoms" <bottoms@debian.org>
+Date: Sun, 1 Dec 2019 15:53:48 -0500
+Subject: [PATCH] update GrMiscUtils To look more like the result of the
+ gnuradio 3.8 OOT template.
+
+---
+ cmake/Modules/GrMiscUtils.cmake | 346 ++++----------------------------
+ 1 file changed, 44 insertions(+), 302 deletions(-)
+
+diff --git a/cmake/Modules/GrMiscUtils.cmake b/cmake/Modules/GrMiscUtils.cmake
+index 747eb1a..335c2e8 100644
 --- a/cmake/Modules/GrMiscUtils.cmake
 +++ b/cmake/Modules/GrMiscUtils.cmake
 @@ -1,4 +1,4 @@
@@ -6,7 +18,7 @@
  #
  # This file is part of GNU Radio
  #
-@@ -22,14 +22,6 @@
+@@ -22,14 +22,6 @@ if(DEFINED __INCLUDED_GR_MISC_UTILS_CMAKE)
  endif()
  set(__INCLUDED_GR_MISC_UTILS_CMAKE TRUE)
  
@@ -21,10 +33,11 @@
  
  ########################################################################
  # Set the pre-processor definition if the condition is true.
-@@ -53,6 +45,23 @@
+@@ -52,6 +44,23 @@ function(GR_CHECK_HDR_N_DEF hdr def)
+     GR_ADD_COND_DEF(${def})
  endfunction(GR_CHECK_HDR_N_DEF)
  
- ########################################################################
++########################################################################
 +# Check if a compiler flag works and conditionally set a compile define.
 +#  - flag the compiler flag to check for
 +#  - have the variable to set with result
@@ -41,14 +54,14 @@
 +    endif(${have})
 +endmacro(GR_ADD_CXX_COMPILER_FLAG_IF_AVAILABLE)
 +
-+########################################################################
+ ########################################################################
  # Include subdirectory macro.
  # Sets the CMake directory variables,
- # includes the subdirectory CMakeLists.txt,
-@@ -86,96 +95,45 @@
+@@ -85,43 +94,6 @@ macro(GR_INCLUDE_SUBDIRECTORY subdir)
+     list(REMOVE_AT _cmake_binary_dirs 0)
  endmacro(GR_INCLUDE_SUBDIRECTORY)
  
- ########################################################################
+-########################################################################
 -# Check if a compiler flag works and conditionally set a compile define.
 -#  - flag the compiler flag to check for
 -#  - have the variable to set with result
@@ -85,10 +98,10 @@
 -
 -endfunction(GR_LIBTOOL)
 -
--########################################################################
+ ########################################################################
  # Do standard things to the library target
  # - set target properties
- # - make install rules
+@@ -129,53 +101,39 @@ endfunction(GR_LIBTOOL)
  # Also handle gnuradio custom naming conventions w/ extras mode.
  ########################################################################
  function(GR_LIBRARY_FOO target)
@@ -117,11 +130,22 @@
 -
 -        #create .la file before changing props
 -        GR_LIBTOOL(TARGET ${target} DESTINATION ${GR_LIBRARY_DIR})
--
++        EXPORT ${target}-export
++        LIBRARY DESTINATION ${GR_LIBRARY_DIR} # .so/.dylib file
++        ARCHIVE DESTINATION ${GR_LIBRARY_DIR} # .lib file
++        RUNTIME DESTINATION ${GR_RUNTIME_DIR} # .dll file
++        )
+ 
 -        #give the library a special name with ultra-zero soversion
 -        set_target_properties(${target} PROPERTIES OUTPUT_NAME ${target}-${LIBVER} SOVERSION "0.0.0")
 -        set(target_name lib${target}-${LIBVER}.so.0.0.0)
--
++    #install the exported target files
++    install(EXPORT ${target}-export
++      FILE ${target}Targets.cmake
++      NAMESPACE gnuradio::
++      DESTINATION ${GR_CMAKE_DIR}
++      )
+ 
 -        #custom command to generate symlinks
 -        add_custom_command(
 -            TARGET ${target}
@@ -129,11 +153,10 @@
 -            COMMAND ${CMAKE_COMMAND} -E create_symlink ${target_name} ${CMAKE_CURRENT_BINARY_DIR}/lib${target}.so
 -            COMMAND ${CMAKE_COMMAND} -E create_symlink ${target_name} ${CMAKE_CURRENT_BINARY_DIR}/lib${target}-${LIBVER}.so.0
 -            COMMAND ${CMAKE_COMMAND} -E touch ${target_name} #so the symlinks point to something valid so cmake 2.6 will install
-+        EXPORT ${target}-export
-+        LIBRARY DESTINATION ${GR_LIBRARY_DIR} # .so/.dylib file
-+        ARCHIVE DESTINATION ${GR_LIBRARY_DIR} # .lib file
-+        RUNTIME DESTINATION ${GR_RUNTIME_DIR} # .dll file
-         )
+-        )
++    include(CMakePackageConfigHelpers)
++    set(TARGET ${target})
++    set(TARGET_DEPENDENCIES ${ARGN})
  
 -        #and install the extra symlinks
 -        install(
@@ -142,17 +165,6 @@
 -            ${CMAKE_CURRENT_BINARY_DIR}/lib${target}-${LIBVER}.so.0
 -            DESTINATION ${GR_LIBRARY_DIR} COMPONENT ${GR_LIBRARY_RUNTIME_COMPONENT}
 -        )
-+    #install the exported target files
-+    install(EXPORT ${target}-export
-+      FILE ${target}Targets.cmake
-+      NAMESPACE gnuradio::
-+      DESTINATION ${GR_CMAKE_DIR}
-+      )
-+
-+    include(CMakePackageConfigHelpers)
-+    set(TARGET ${target})
-+    set(TARGET_DEPENDENCIES ${ARGN})
-+
 +    configure_package_config_file(
 +      ${PROJECT_SOURCE_DIR}/cmake/Modules/targetConfig.cmake.in
 +      ${CMAKE_CURRENT_BINARY_DIR}/cmake/Modules/${target}Config.cmake
@@ -167,7 +179,7 @@
  endfunction(GR_LIBRARY_FOO)
  
  ########################################################################
-@@ -184,7 +142,7 @@
+@@ -184,7 +142,7 @@ endfunction(GR_LIBRARY_FOO)
  #   GR_GEN_TARGET_DEPS(unique_name target_deps <target1> <target2> ...)
  #   ADD_CUSTOM_COMMAND(<the usual args> ${target_deps})
  #
@@ -176,7 +188,7 @@
  # and executables can depend on targets. So this is the process:
  ########################################################################
  function(GR_GEN_TARGET_DEPS name var)
-@@ -203,56 +161,13 @@
+@@ -203,55 +161,12 @@ function(GR_GEN_TARGET_DEPS name var)
      endif(ARGN)
  
      if(CMAKE_CROSSCOMPILING)
@@ -187,7 +199,7 @@
      endif()
  endfunction(GR_GEN_TARGET_DEPS)
  
- ########################################################################
+-########################################################################
 -# Control use of gr_logger
 -# Usage:
 -#   GR_LOGGING()
@@ -230,11 +242,10 @@
 -
 -endfunction(GR_LOGGING)
 -
--########################################################################
+ ########################################################################
  # Run GRCC to compile .grc files into .py files.
  #
- # Usage: GRCC(filename, directory)
-@@ -344,176 +259,3 @@
+@@ -344,176 +259,3 @@ set(CMAKE_REQUIRED_LIBRARIES -lpthread)
      )
      GR_ADD_COND_DEF(HAVE_SCHED_SETSCHEDULER)
  endmacro(GR_CHECK_LINUX_SCHED_AVAIL)
@@ -411,3 +422,6 @@
 -  list(APPEND generated_headers ${expanded_files_h_impl})
 -
 -endmacro(GR_EXPAND_X_CC_H_IMPL)
+-- 
+2.20.1
+

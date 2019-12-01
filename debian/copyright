@@ -4,7 +4,7 @@ Upstream-Contact: https://osmocom.org/projects/gr-osmosdr
 Source:
  git clone git://git.osmocom.org/gr-osmosdr
  The upstream package source tarball was generated from the tag:
- git archive --format=tar --prefix=gr-osmosdr-0.1.4/  v0.1.4 | xz > ../gr-osmosdr_0.1.4.orig.tar.xz
+ git archive --format=tar --prefix=gr-osmosdr-0.1.5/  v0.1.5 | xz > ../gr-osmosdr_0.1.5.orig.tar.xz
  More patches from 3.8 branch at https://github.com/igorauad/gr-osmosdr
 Comment:
  Debian packages by A. Maitland Bottoms <bottoms@debian.org>,

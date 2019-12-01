@@ -1,0 +1,30 @@
+From acddfbcd3b2fccbf98f07641679b148849882f27 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Mickey=20V=C3=A4nsk=C3=A4?= <mvaenskae@gmail.com>
+Date: Tue, 16 Apr 2019 14:48:24 +0200
+Subject: [PATCH 5/7] Small cleanup.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Mickey Vänskä <mvaenskae@gmail.com>
+---
+ grc/gen_osmosdr_blocks.py | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/grc/gen_osmosdr_blocks.py b/grc/gen_osmosdr_blocks.py
+index a4a7f96..840320a 100644
+--- a/grc/gen_osmosdr_blocks.py
++++ b/grc/gen_osmosdr_blocks.py
+@@ -347,9 +347,6 @@ PARAMS_TMPL = """
+   hide: ${'$'}{'all' if not (nchan > ${n}) else ('none' if eval('bw' + str(${n})) else 'part')}
+ """
+ 
+-# def parse_tmpl(_tmpl, **kwargs):
+-#     from Cheetah import Template
+-#     return str(Template.Template(_tmpl, kwargs))
+ 
+ def parse_tmpl(_tmpl, **kwargs):
+     from mako.template import Template
+-- 
+2.20.1
+

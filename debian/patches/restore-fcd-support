@@ -18,29 +18,6 @@
  # Setup File component
  ########################################################################
  GR_REGISTER_COMPONENT("IQ File Source & Sink" ENABLE_FILE gnuradio-blocks_FOUND)
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -175,11 +175,6 @@
- message(STATUS "Found Runtime Block: ${gnuradio-runtime_FOUND}")
- 
- # Software Components part of GNU Radio - These should all be present for a default install
--message(STATUS " Searching for IQ Balance...")
--#find_package(Gnuradio COMPONENTS iqbalance REQUIRED)
--find_package(gnuradio-iqbalance NAMES gr-fcdproplus)
--message (STATUS "Found IQ Balance: ${gnuradio-iqbalance_FOUND}")
--
- message(STATUS " Searching for UHD Drivers...")
- #find_package(Gnuradio COMPONENTS uhd REQUIRED)
- find_package(UHD REQUIRED ${GR_PREFIX}/lib/cmake/uhd)
-@@ -195,6 +190,8 @@
- find_package(volk PATHS ${GR_PREFIX}/lib/cmake/volk)
- message (STATUS "Found Volk: ${volk_FOUND}") ]]#
- 
-+find_package(GnuradioIQBalance)
-+find_package(GnuradioFCDPP)
- find_package(UHD)
- find_package(GnuradioUHD)
- find_package(LibOsmoSDR)
 --- a/lib/fcd/fcd_source_c.h
 +++ b/lib/fcd/fcd_source_c.h
 @@ -22,12 +22,11 @@
@@ -82,3 +59,25 @@
      connect( _src_v1, 0, self(), 0 );
  
      set_gain( 20, "LNA" );
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -177,11 +177,6 @@
+ message(STATUS "Found Runtime Block: ${gnuradio-runtime_FOUND}")
+ 
+ # Software Components part of GNU Radio - These should all be present for a default install
+-message(STATUS " Searching for IQ Balance...")
+-#find_package(Gnuradio COMPONENTS iqbalance REQUIRED)
+-find_package(gnuradio-iqbalance PATHS ${GR_PREFIX}/lib/cmake/iqbalance)
+-message (STATUS "Found IQ Balance: ${gnuradio-iqbalance_FOUND}")
+-
+ message(STATUS " Searching for UHD Drivers...")
+ #find_package(Gnuradio COMPONENTS uhd REQUIRED)
+ find_package(UHD REQUIRED ${GR_PREFIX}/lib/cmake/uhd)
+@@ -198,6 +193,7 @@
+ message (STATUS "Found Volk: ${volk_FOUND}") ]]#
+ 
+ find_package(GnuradioIQBalance)
++find_package(GnuradioFCDPP)
+ find_package(UHD)
+ find_package(GnuradioUHD)
+ find_package(LibOsmoSDR)

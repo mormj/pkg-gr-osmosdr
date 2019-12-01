@@ -1,3 +1,9 @@
+gr-osmosdr (0.1.5-1) unstable; urgency=medium
+
+  * New upstream tag
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sun, 01 Dec 2019 10:28:17 -0500
+
 gr-osmosdr (0.1.4-15) unstable; urgency=medium
 
   * update to igorauad/3.8 branch v0.1.4-134-gf3905d3

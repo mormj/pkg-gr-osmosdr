@@ -22,7 +22,7 @@ Info: http://airspy.com/airspy-hf-plus/
 
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -206,6 +206,7 @@
+@@ -204,6 +204,7 @@
  endif(ENABLE_NONFREE)
  find_package(LibHackRF)
  find_package(LibAIRSPY)
@@ -59,7 +59,7 @@ Info: http://airspy.com/airspy-hf-plus/
 +MARK_AS_ADVANCED(LIBAIRSPYHF_LIBRARIES LIBAIRSPYHF_INCLUDE_DIRS)
 --- a/lib/CMakeLists.txt
 +++ b/lib/CMakeLists.txt
-@@ -229,6 +229,14 @@
+@@ -228,6 +228,14 @@
  endif(ENABLE_AIRSPY)
  
  ########################################################################
