@@ -1,3 +1,11 @@
+gr-osmosdr (0.2.0-1) experimental; urgency=medium
+
+  * New upstream tag
+  * update watch file
+  * upload to experimental for soversion bump
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Wed, 19 Feb 2020 19:14:57 -0500
+
 gr-osmosdr (0.1.5-1) unstable; urgency=medium
 
   * New upstream tag
