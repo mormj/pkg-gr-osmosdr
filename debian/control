@@ -6,7 +6,7 @@ Build-Depends: cmake,
                debhelper (>= 12~),
 	       dh-python,
                doxygen,
-               gnuradio-dev (>=3.8),
+               gnuradio-dev (>=3.8.1.0~rc1),
                gr-fcdproplus (>=3.8~20190817) [!hurd-i386],
                gr-iqbal (>=0.38),
                libairspy-dev [!hurd-i386],
@@ -31,7 +31,7 @@ Build-Depends: cmake,
 	       python3-six,
 	       python3-soapysdr,
                swig
-Standards-Version: 4.4.0
+Standards-Version: 4.5.0
 Homepage: http://sdr.osmocom.org/trac/wiki/GrOsmoSDR
 Vcs-Browser: https://salsa.debian.org/bottoms/pkg-gr-osmosdr
 Vcs-Git: https://salsa.debian.org/bottoms/pkg-gr-osmosdr.git
@@ -73,7 +73,7 @@ Description: Gnuradio blocks from the OsmoSDR project
  radio hardware. This package provides C++ header files,
  documentation, and Python3 wrappers to the library.
 
-Package: libgnuradio-osmosdr0.1.4
+Package: libgnuradio-osmosdr0.2.0
 Section: libs
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}

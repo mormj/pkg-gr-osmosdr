@@ -1,0 +1,25 @@
+From 6d0dbaebe574c4b41862044cfa3fe3b99957f409 Mon Sep 17 00:00:00 2001
+From: "A. Maitland Bottoms" <bottoms@debian.org>
+Date: Sat, 22 Feb 2020 18:22:50 -0500
+Subject: [PATCH 2/3] restore iqbal support
+
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b7e5a57..be4aa2e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -148,7 +148,7 @@ find_package(gnuradio-blocks PATHS ${Gnuradio_DIR})
+ message(STATUS " Found GNURadio-Blocks: ${gnuradio-blocks_FOUND}")
+ 
+ message(STATUS "Searching for IQ Balance...")
+-find_package(gnuradio-iqbalance PATHS ${Gnuradio_DIR})
++find_package(gnuradio-iqbalance NAMES gr-iqbal gnuradio-iqbalance)
+ message (STATUS " Found IQ Balance: ${gnuradio-iqbalance_FOUND}")
+ 
+ message(STATUS "Searching for UHD Drivers...")
+-- 
+2.20.1
+

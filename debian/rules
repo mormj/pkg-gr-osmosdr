@@ -17,9 +17,6 @@ override_dh_auto_install:
 	rm -f debian/gr-osmosdr/usr/lib/python3/dist-packages/osmosdr/*pyo
 	dh_auto_install
 
-override_dh_makeshlibs:
-	dh_makeshlibs -V 'libgnuradio-osmosdr0.1.4 (>= 0.1.4-15)'
-
 version-to-get:
 	echo $(VER) is $(GITREV)
 

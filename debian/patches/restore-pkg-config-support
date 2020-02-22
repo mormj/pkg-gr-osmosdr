@@ -1,0 +1,82 @@
+From 3e6942b6a86c4d83e9a0e1a2a18031f38f3c7cc3 Mon Sep 17 00:00:00 2001
+From: "A. Maitland Bottoms" <bottoms@debian.org>
+Date: Sat, 22 Feb 2020 18:23:14 -0500
+Subject: [PATCH 3/3] restore pkg-config support
+
+---
+ CMakeLists.txt         | 36 ++++++++++++++++++++++++++++++++++++
+ gnuradio-osmosdr.pc.in | 15 +++++++++++++++
+ 2 files changed, 51 insertions(+)
+ create mode 100644 gnuradio-osmosdr.pc.in
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index be4aa2e..e55c2dc 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -273,6 +273,42 @@ if(ENABLE_PYTHON)
+ endif(ENABLE_PYTHON)
+ add_subdirectory(docs)
+ 
++########################################################################
++# Create Pkg Config File
++########################################################################
++FOREACH(inc ${Boost_INCLUDE_DIRS})
++    LIST(APPEND GR_OSMOSDR_PC_CFLAGS "-I${inc}")
++ENDFOREACH(inc)
++
++FOREACH(lib ${Boost_LIBRARY_DIRS})
++    LIST(APPEND GR_OSMOSDR_PC_LIBS "-L${lib}")
++ENDFOREACH(lib)
++
++# use space-separation format for the pc file
++STRING(REPLACE ";" " " GR_OSMOSDR_PC_REQUIRES "${GR_OSMOSDR_PC_REQUIRES}")
++STRING(REPLACE ";" " " GR_OSMOSDR_PC_CFLAGS "${GR_OSMOSDR_PC_CFLAGS}")
++STRING(REPLACE ";" " " GR_OSMOSDR_PC_LIBS "${GR_OSMOSDR_PC_LIBS}")
++
++# unset these vars to avoid hard-coded paths to cross environment
++IF(CMAKE_CROSSCOMPILING)
++    UNSET(GR_OSMOSDR_PC_CFLAGS)
++    UNSET(GR_OSMOSDR_PC_LIBS)
++ENDIF(CMAKE_CROSSCOMPILING)
++
++# fake gnuradio cpack behavior as long as we don't use it directly
++set(CPACK_PACKAGE_NAME "gnuradio-osmosdr")
++set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "GNU Radio block for various radio hardware")
++set(CPACK_PACKAGE_VERSION ${VERSION})
++
++CONFIGURE_FILE(
++  ${CMAKE_CURRENT_SOURCE_DIR}/gnuradio-osmosdr.pc.in
++  ${CMAKE_CURRENT_BINARY_DIR}/gnuradio-osmosdr.pc
++  @ONLY)
++
++INSTALL(
++  FILES ${CMAKE_CURRENT_BINARY_DIR}/gnuradio-osmosdr.pc
++  DESTINATION ${GR_LIBRARY_DIR}/pkgconfig)
++
+ ########################################################################
+ # Print Summary
+ ########################################################################
+diff --git a/gnuradio-osmosdr.pc.in b/gnuradio-osmosdr.pc.in
+new file mode 100644
+index 0000000..5f1ae69
+--- /dev/null
++++ b/gnuradio-osmosdr.pc.in
+@@ -0,0 +1,15 @@
++prefix=@CMAKE_INSTALL_PREFIX@
++exec_prefix=${prefix}
++libdir=${exec_prefix}/@GR_LIBRARY_DIR@
++includedir=${prefix}/@GR_INCLUDE_DIR@
++
++Name: @CPACK_PACKAGE_NAME@
++Description: @CPACK_PACKAGE_DESCRIPTION_SUMMARY@
++URL: http://sdr.osmocom.org/trac/wiki/GrOsmoSDR
++Version: @CPACK_PACKAGE_VERSION@
++Requires: gnuradio-runtime gnuradio-blocks
++Requires.private: @GR_OSMOSDR_PC_REQUIRES@
++Conflicts:
++Cflags: -I${includedir} @GR_OSMOSDR_PC_CFLAGS@
++Libs: -L${libdir} -lgnuradio-osmosdr
++Libs.private: @GR_OSMOSDR_PC_LIBS@
+-- 
+2.20.1
+
