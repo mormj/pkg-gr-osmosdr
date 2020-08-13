@@ -7,11 +7,9 @@ Subject: [PATCH 2/3] restore iqbal support
  CMakeLists.txt | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/CMakeLists.txt b/CMakeLists.txt
-index b7e5a57..be4aa2e 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -148,7 +148,7 @@ find_package(gnuradio-blocks PATHS ${Gnuradio_DIR})
+@@ -147,7 +147,7 @@
  message(STATUS " Found GNURadio-Blocks: ${gnuradio-blocks_FOUND}")
  
  message(STATUS "Searching for IQ Balance...")
@@ -20,6 +18,3 @@ index b7e5a57..be4aa2e 100644
  message (STATUS " Found IQ Balance: ${gnuradio-iqbalance_FOUND}")
  
  message(STATUS "Searching for UHD Drivers...")
--- 
-2.20.1
-

@@ -9,15 +9,12 @@ Subject: [PATCH 3/3] restore pkg-config support
  2 files changed, 51 insertions(+)
  create mode 100644 gnuradio-osmosdr.pc.in
 
-diff --git a/CMakeLists.txt b/CMakeLists.txt
-index be4aa2e..e55c2dc 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -273,6 +273,42 @@ if(ENABLE_PYTHON)
- endif(ENABLE_PYTHON)
+@@ -273,6 +273,42 @@
  add_subdirectory(docs)
  
-+########################################################################
+ ########################################################################
 +# Create Pkg Config File
 +########################################################################
 +FOREACH(inc ${Boost_INCLUDE_DIRS})
@@ -53,12 +50,10 @@ index be4aa2e..e55c2dc 100644
 +  FILES ${CMAKE_CURRENT_BINARY_DIR}/gnuradio-osmosdr.pc
 +  DESTINATION ${GR_LIBRARY_DIR}/pkgconfig)
 +
- ########################################################################
++########################################################################
  # Print Summary
  ########################################################################
-diff --git a/gnuradio-osmosdr.pc.in b/gnuradio-osmosdr.pc.in
-new file mode 100644
-index 0000000..5f1ae69
+ GR_PRINT_COMPONENT_SUMMARY()
 --- /dev/null
 +++ b/gnuradio-osmosdr.pc.in
 @@ -0,0 +1,15 @@
@@ -77,6 +72,3 @@ index 0000000..5f1ae69
 +Cflags: -I${includedir} @GR_OSMOSDR_PC_CFLAGS@
 +Libs: -L${libdir} -lgnuradio-osmosdr
 +Libs.private: @GR_OSMOSDR_PC_LIBS@
--- 
-2.20.1
-

@@ -1,3 +1,10 @@
+gr-osmosdr (0.2.2-1) unstable; urgency=medium
+
+  * New upstream
+  * upstream disable OsmoSDR as well as MiriSDR device support
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Wed, 12 Aug 2020 21:27:14 -0400
+
 gr-osmosdr (0.2.0-2) unstable; urgency=medium
 
   * Upload to unstable

@@ -13,16 +13,14 @@ Build-Depends: cmake,
                libairspyhf-dev [!hurd-i386],
                libbladerf-dev (>=0.2019.07) [!hurd-i386],
                libboost-dev,
-	       libboost-regex-dev,
+	       libboost-chrono-dev,
                libboost-system-dev,
                libboost-thread-dev,
 	       libfreesrp-dev [!hurd-i386],
 	       libgmp-dev,
                libhackrf-dev [linux-any],
                liblog4cpp5-dev,
-               libmirisdr-dev [!hurd-i386],
 	       liborc-0.4-dev,
-               libosmosdr-dev [!hurd-i386],
                librtlsdr-dev [!hurd-i386],
 	       libsoapysdr-dev,
                libuhd-dev (>=3.14),
@@ -49,10 +47,8 @@ Description: Gnuradio blocks from the OsmoSDR project
  as well supports:
   - FUNcube Dongle through gr-fcdproplus
   - FUNcube Dongle Pro+ through gr-fcdproplus
-  - sysmocom OsmoSDR Devices through libosmosdr
   - RTL2832U based DVB-T dongles through librtlsdr
   - RTL-TCP spectrum server (see librtlsdr project)
-  - MSi2500 based DVB-T dongles through libmirisdr
   - gnuradio .cfile input through libgnuradio-blocks
   - RFSPACE SDR-IQ, SDR-IP, NetSDR (incl. X2 option)
   - Great Scott Gadgets HackRF through libhackrf
